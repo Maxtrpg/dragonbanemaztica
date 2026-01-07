@@ -1,0 +1,298 @@
+<div id="craft-top" class="rule-card highlight" style="border-left-color: #e67e22;">
+  <h3><span style="color: #e67e22;">🔨</span> 馬茲提卡工匠</h3>
+  <p><em>「在夸爾特(Qotal)的羽翼下，我們編織陽光；在札爾特克(Zaltec)的陰影中，我們雕刻飢餓。」</em></p>
+</div>
+
+<style>
+  /* === 特殊工匠頁面專屬樣式 === */
+  .special-craft-container {
+    --c-pluma: #1abc9c;
+    --c-hishna: #c0392b;
+    --c-gold: #f39c12;
+    --c-dark: rgba(0, 0, 0, 0.3);
+    --line-color: rgba(255, 255, 255, 0.15);
+    width: 100%;
+    color: #ccc;
+    padding-bottom: 100px;
+  }
+
+  /* 內部導覽列 */
+  .sp-nav {
+    display: flex; justify-content: center; gap: 15px; margin-bottom: 30px;
+    border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px;
+  }
+  .sp-tab-label {
+    padding: 8px 25px; cursor: pointer; border-radius: 4px; font-weight: bold;
+    background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); color: #888;
+    transition: all 0.3s; letter-spacing: 1px; user-select: none;
+  }
+  .sp-tab-label:hover { color: #fff; background: rgba(255,255,255,0.1); }
+
+  /* 顯示控制 */
+  .sp-section { display: none; animation: fadeIn 0.5s ease; }
+  #sp-tab-pluma:checked ~ .sp-nav label[for="sp-tab-pluma"] {
+    background: var(--c-pluma); color: #000; border-color: var(--c-pluma); box-shadow: 0 0 15px rgba(26, 188, 156, 0.4);
+  }
+  #sp-tab-hishna:checked ~ .sp-nav label[for="sp-tab-hishna"] {
+    background: var(--c-hishna); color: #fff; border-color: var(--c-hishna); box-shadow: 0 0 15px rgba(192, 57, 43, 0.4);
+  }
+  #sp-tab-pluma:checked ~ #section-pluma { display: block; }
+  #sp-tab-hishna:checked ~ #section-hishna { display: block; }
+
+  /* 英雄能力卡 */
+  .hero-card {
+    background: rgba(255,255,255,0.05); padding: 25px; border-radius: 8px;
+    display: flex; gap: 20px; align-items: center; margin-bottom: 30px;
+    border: 1px solid rgba(255,255,255,0.1); position: relative; overflow: hidden;
+  }
+  .hero-icon { font-size: 3rem; filter: drop-shadow(0 0 8px rgba(255,255,255,0.3)); }
+  .hero-desc h4 { color: #fff; margin: 0 0 10px 0; font-family: "Quatl", serif; font-size: 1.4rem; }
+  .hero-desc p { margin: 0; line-height: 1.6; font-size: 0.95rem; }
+
+  /* 故事背景 (Lore Box) */
+  .lore-box {
+    background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 30px; border-radius: 8px; margin-bottom: 40px; line-height: 1.8;
+    text-align: justify; font-size: 0.95rem;
+  }
+  .lore-box h4 {
+    font-family: "Quatl", serif; font-size: 1.3rem; margin-top: 0; margin-bottom: 15px;
+    padding-bottom: 8px; border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
+  }
+  .lore-box p { margin-bottom: 15px; }
+  .lore-box ul { margin-left: 20px; margin-bottom: 15px; list-style: disc; color: #bbb; }
+  .lore-box li { margin-bottom: 8px; }
+  .lore-box strong { color: #fff; }
+
+  /* 配色區分 */
+  #section-pluma .hero-card { border-left: 4px solid var(--c-pluma); }
+  #section-pluma .lore-box { border-left: 2px solid var(--c-pluma); }
+  #section-pluma .lore-box h4 { color: var(--c-pluma); }
+  
+  #section-hishna .hero-card { border-left: 4px solid var(--c-hishna); }
+  #section-hishna .lore-box { border-left: 2px solid var(--c-hishna); }
+  #section-hishna .lore-box h4 { color: var(--c-hishna); }
+
+  /* 技能樹佈局 */
+  .tree-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 40px;
+    min-width: 800px; /* 手機版橫滑 */
+    position: relative;
+  }
+  .tree-col { display: flex; flex-direction: column; gap: 20px; position: relative; }
+  
+  .tier-head {
+    text-align: center; font-family: "Quatl", serif; font-size: 1.2rem;
+    padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);
+    margin-bottom: 10px; color: #888;
+  }
+  #section-pluma .tier-head { color: var(--c-pluma); }
+  #section-hishna .tier-head { color: var(--c-hishna); }
+
+  /* 技能卡片 (Interactive) */
+  .skill-card {
+    display: block; position: relative;
+    background: rgba(40, 40, 45, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px; cursor: pointer;
+    transition: all 0.2s; text-align: left;
+  }
+  .skill-card:hover { transform: translateX(5px); background: rgba(255,255,255,0.1); }
+
+  .card-header { padding: 12px 15px; user-select: none; }
+  .s-name { font-weight: bold; font-size: 1rem; color: #eee; display: block; margin-bottom: 4px; }
+  .s-cost { font-size: 0.8rem; color: #888; font-family: monospace; }
+
+  .card-body {
+    max-height: 0; overflow: hidden; opacity: 0;
+    transition: max-height 0.4s ease, opacity 0.3s ease;
+    background: rgba(0,0,0,0.3); border-top: 1px solid transparent;
+  }
+  .body-inner { padding: 15px; font-size: 0.9rem; color: #ccc; line-height: 1.6; }
+  .meta-tag { display: block; margin-bottom: 8px; color: var(--c-gold); font-size: 0.85rem; font-style: italic; }
+
+  /* 連接線 */
+  .skill-card::before {
+    content: ''; position: absolute; top: 24px; left: -40px; width: 40px; height: 2px;
+    background: var(--line-color); z-index: -1; display: none;
+  }
+  .tree-col:not(:first-child) .skill-card::before { display: block; }
+
+  /* 互動邏輯 (Checkbox Hack) */
+  /* Pluma Active */
+  #section-pluma input:checked + .skill-card {
+    border-color: var(--c-pluma); background: rgba(26, 188, 156, 0.15);
+    box-shadow: 0 0 15px rgba(26, 188, 156, 0.2); z-index: 10;
+  }
+  #section-pluma input:checked + .skill-card .s-name { color: var(--c-pluma); }
+  /* Hishna Active */
+  #section-hishna input:checked + .skill-card {
+    border-color: var(--c-hishna); background: rgba(192, 57, 43, 0.15);
+    box-shadow: 0 0 15px rgba(192, 57, 43, 0.2); z-index: 10;
+  }
+  #section-hishna input:checked + .skill-card .s-name { color: var(--c-hishna); }
+  
+  /* 展開內容 */
+  input:checked + .skill-card .card-body {
+    max-height: 600px; opacity: 1; border-top-color: rgba(255,255,255,0.1);
+  }
+
+  /* 前置連線亮起 (General Sibling Selector) */
+  /* 當任意卡片被選中，其對應的前置卡片變亮 (需手動指定ID對應) */
+  /* Pluma T2 -> T1 */
+  #section-pluma:has(#p-raptor:checked) #card-p-huit,
+  #section-pluma:has(#p-tecolotl:checked) #card-p-xochitl,
+  #section-pluma:has(#p-yollotl:checked) #card-p-tetl,
+  #section-pluma:has(#p-cuauhtli:checked) #card-p-tototl,
+  #section-pluma:has(#p-thunder:checked) #card-p-tona,
+  #section-pluma:has(#p-mist:checked) #card-p-ehecatl,
+  #section-pluma:has(#p-ixtli:checked) #card-p-cozca,
+  #section-pluma:has(#p-mazatl:checked) #card-p-chantli {
+    border-color: var(--c-pluma); box-shadow: 0 0 10px rgba(26, 188, 156, 0.3) inset; opacity: 0.9;
+  }
+  /* Hishna T2 -> T1 */
+  #section-hishna:has(#h-manti:checked) #card-h-scream,
+  #section-hishna:has(#h-stone:checked) #card-h-croc,
+  #section-hishna:has(#h-heat:checked) #card-h-ocelotl,
+  #section-hishna:has(#h-pain:checked) #card-h-coatl,
+  #section-hishna:has(#h-troll:checked) #card-h-wolf,
+  #section-hishna:has(#h-spider:checked) #card-h-gecko,
+  #section-hishna:has(#h-raptor:checked) #card-h-wolf,
+  #section-hishna:has(#h-bat:checked) #card-h-wolf {
+    border-color: var(--c-hishna); box-shadow: 0 0 10px rgba(192, 57, 43, 0.3) inset; opacity: 0.9;
+  }
+</style>
+
+<div class="special-craft-container">
+
+  <input type="radio" name="sp-nav" id="sp-tab-pluma" checked hidden>
+  <input type="radio" name="sp-nav" id="sp-tab-hishna" hidden>
+
+  <div class="sp-nav">
+    <label for="sp-tab-pluma" class="sp-tab-label">羽織工藝 (Pluma)</label>
+    <label for="sp-tab-hishna" class="sp-tab-label">獸刻工藝 (Hishna)</label>
+  </div>
+
+  <div id="section-pluma" class="sp-section">
+    
+    <div class="hero-card">
+      <div class="hero-icon">🪶</div>
+      <div class="hero-desc">
+        <h4>羽織工匠 Pluma Weaver</h4>
+        <p><strong>英雄能力：羽符編印 (Iris-Rhyme Inscription)</strong><br>
+        掌握虹韻的秘密。消耗羽毛在非金屬裝備上編織字形。檢定成功後獲得 <strong>【工藝等級+3】</strong> 的充能數。唸出指令即可觸發。</p>
+      </div>
+    </div>
+
+    <div class="lore-box">
+      <h4>羽織工匠起源 (Origin of Pluma Weavers)</h4>
+      <p>在夸爾特離去的前夕，祂沒有向大祭司說話，而是降臨在了一群卑微的 <strong>編織工 (Amanteca)</strong> 夢中。這些人負責製作裝飾用的羽毛斗篷。夸爾特向他們揭示了宇宙的真理：</p>
+      <p><em>「看著蜂鳥的翅膀。牠們不僅僅是在飛行，牠們是在以特定的頻率振動空間。太陽的熱能並沒有消失，它被鎖在每一根羽毛的倒鉤幾何結構中。不需要獻祭心臟來獲取能量，你們只需要一把正確的『鑰匙』。」</em></p>
+      <p>這把鑰匙，就是 <strong>【虹韻】(Nahualli)</strong> —— 這是夸爾特說話的方式，是構成光、風與生命的聲學語法。神將這種語言的種子植入了這些工匠的喉嚨，改變了他們的聲帶結構，使他們能發出凡人無法模仿的「複調和聲」。從那天起，第一代羽織工匠誕生了。他們表面上只是為貴族製作華麗儀式服裝的工匠，實際上，他們是<strong>奇蹟的編織者</strong>與<strong>夸爾特的守望者</strong>。</p>
+      <p>他們的存在有三個神聖目的：</p>
+      <ul>
+        <li><strong>保存光的火種：</strong>在札爾特克的血腥統治下，只有羽織工匠懂得如何將太陽的能量「編碼」進盾牌與斗篷中。他們製作的不是裝備，而是<strong>儲存神聖能量的聖器</strong>。</li>
+        <li><strong>維護文明的結構：</strong>當祭司們忙著殺人獻祭時，羽織工匠使用虹韻來加固城牆、引導水源、預測天氣。他們是維持馬茲提卡社會運作的隱形支柱。</li>
+        <li><strong>準備歸來：</strong>傳說中，當庫塔爾歸來的那一天，所有的羽織工匠將同時唸出一段終極的【虹韻】，解鎖千百年來編織在所有裝備中的能量，為神鋪設一條光之道路。</li>
+      </ul>
+      <p><strong>為何被稱為「虹韻 (Iris-Rhyme)」？</strong><br>這個名字源於阿曼提卡對「視覺」與「聽覺」轉化的理解：<br>
+      <strong>虹 (Iris)：</strong>代表羽毛的色彩與光澤。工匠們發現，羽毛的顏色其實是光線在微觀結構上的折射。不同的顏色代表不同的能量波長。<br>
+      <strong>韻 (Rhyme)：</strong>代表聲音的頻率。要釋放羽毛中的光（虹），必須用聲音（韻）去撞擊它。<br>
+      因此，<strong>「羽織虹韻」</strong> 的本質就是：「用聲音的韻律，解開光的封印。」</p>
+    </div>
+
+    <div class="tree-grid" style="overflow-x:auto;">
+      <div class="tree-col">
+        <div class="tier-head">第一階：基礎字符</div>
+        
+        <input type="checkbox" id="p-huit" hidden><label class="skill-card" id="card-p-huit" for="p-huit"><div class="card-header"><span class="s-name">蜂鳥迴路</span><span class="s-cost">3 WP | 靴/披風</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">指令：Tle-co! | 3根蜂鳥飛羽</span><p>移動速度翻倍，且因視覺殘像，敵人攻擊檢定獲劣勢。</p></div></div></label>
+        <input type="checkbox" id="p-tetl" hidden><label class="skill-card" id="card-p-tetl" for="p-tetl"><div class="card-header"><span class="s-name">岩鷺護盾</span><span class="s-cost">2 WP | 盾/護腕</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">指令：Tetl! | 5根岩鷺羽毛</span><p>反應動作。獲得 2D4 點臨時護甲值來承受該次攻擊。</p></div></div></label>
+        <input type="checkbox" id="p-tona" hidden><label class="skill-card" id="card-p-tona" for="p-tona"><div class="card-header"><span class="s-name">太陽閃光</span><span class="s-cost">2 WP | 頭飾</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">指令：To-na-tiuh! | 紅金剛鸚鵡羽</span><p>錐形 10 米強光。體質檢定失敗則目盲一輪。</p></div></div></label>
+        <input type="checkbox" id="p-alotl" hidden><label class="skill-card" id="card-p-alotl" for="p-alotl"><div class="card-header"><span class="s-name">鸚鵡回聲</span><span class="s-cost">2 WP | 耳飾</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">指令：Ca-qui! | 鸚鵡鳴管</span><p>成對製作。一公里內可透過骨傳導通話。</p></div></div></label>
+        <input type="checkbox" id="p-tototl" hidden><label class="skill-card" id="card-p-tototl" for="p-tototl"><div class="card-header"><span class="s-name">麻雀之躍</span><span class="s-cost">2 WP | 靴子</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">指令：Tlo-que! | 麻雀絨羽</span><p>跳躍距離變為 3 倍，落下自動緩降無傷。</p></div></div></label>
+        <input type="checkbox" id="p-cozca" hidden><label class="skill-card" id="card-p-cozca" for="p-cozca"><div class="card-header"><span class="s-name">禿鷹視界</span><span class="s-cost">2 WP | 頭盔/鏡</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">指令：Tla-huil! | 禿鷹晶體</span><p>看見熱能與魔法靈光。察覺檢定獲優勢。</p></div></div></label>
+        <input type="checkbox" id="p-xochitl" hidden><label class="skill-card" id="card-p-xochitl" for="p-xochitl"><div class="card-header"><span class="s-name">花舞魅影</span><span class="s-cost">2 WP | 長袍</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">指令：Xo-chitl! | 熱帶鳥羽</span><p>散發催眠花粉。社交檢定優勢。</p></div></div></label>
+        <input type="checkbox" id="p-ehecatl" hidden><label class="skill-card" id="card-p-ehecatl" for="p-ehecatl"><div class="card-header"><span class="s-name">微風偏導</span><span class="s-cost">2 WP | 護腕</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">指令：Pitz-a-huac! | 水鳥防水羽</span><p>反應動作。製造氣流偏差，遠程攻擊獲劣勢。</p></div></div></label>
+        <input type="checkbox" id="p-que" hidden><label class="skill-card" id="card-p-que" for="p-que"><div class="card-header"><span class="s-name">琵鷺誘餌</span><span class="s-cost">2 WP | 投擲物</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">指令：Nez-ca! | 琵鷺喉囊</span><p>投擲後發出預錄聲音，用於聲東擊西。</p></div></div></label>
+        <input type="checkbox" id="p-chantli" hidden><label class="skill-card" id="card-p-chantli" for="p-chantli"><div class="card-header"><span class="s-name">築巢結界</span><span class="s-cost">2 WP | 睡袋</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">指令：Co-chi! | 貓頭鷹絨毛</span><p>10 米內中型生物進入，發出高頻警報。</p></div></div></label>
+      </div>
+      <div class="tree-col">
+        <div class="tier-head">第二階：進階字符</div>
+        
+        <input type="checkbox" id="p-raptor" hidden><label class="skill-card" id="card-p-raptor" for="p-raptor"><div class="card-header"><span class="s-name">猛禽氣流</span><span class="s-cost">3 WP | 矛/杖</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">前置：蜂鳥迴路</span><p>直線 6 米氣柱。2D6 鈍擊傷害並推開。</p></div></div></label>
+        <input type="checkbox" id="p-tecolotl" hidden><label class="skill-card" id="card-p-tecolotl" for="p-tecolotl"><div class="card-header"><span class="s-name">靜默夜梟</span><span class="s-cost">2 WP | 斗篷</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">前置：花舞魅影</span><p>隱形且移動無聲。攻擊後失效。</p></div></div></label>
+        <input type="checkbox" id="p-yollotl" hidden><label class="skill-card" id="card-p-yollotl" for="p-yollotl"><div class="card-header"><span class="s-name">生命虹吸</span><span class="s-cost">4 WP | 項鍊</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">前置：岩鷺護盾</span><p>觸碰回復 1D6 HP 並解毒。</p></div></div></label>
+        <input type="checkbox" id="p-cuauhtli" hidden><label class="skill-card" id="card-p-cuauhtli" for="p-cuauhtli"><div class="card-header"><span class="s-name">金鷹飛昇</span><span class="s-cost">3 WP | 背飾</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">前置：麻雀之躍</span><p>獲得飛行速度，持續 D4 輪。</p></div></div></label>
+        <input type="checkbox" id="p-thunder" hidden><label class="skill-card" id="card-p-thunder" for="p-thunder"><div class="card-header"><span class="s-name">雷鳥電弧</span><span class="s-cost">3 WP | 武器</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">前置：太陽閃光</span><p>攻擊造成 D8 閃電傷害。金屬甲翻倍。</p></div></div></label>
+        <input type="checkbox" id="p-mist" hidden><label class="skill-card" id="card-p-mist" for="p-mist"><div class="card-header"><span class="s-name">雨霧迷宮</span><span class="s-cost">2 WP | 煙斗</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">前置：微風偏導</span><p>半徑 10 米濃霧，遮蔽視線。</p></div></div></label>
+        <input type="checkbox" id="p-ixtli" hidden><label class="skill-card" id="card-p-ixtli" for="p-ixtli"><div class="card-header"><span class="s-name">鷹眼瞄具</span><span class="s-cost">2 WP | 頭盔</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">前置：禿鷹視界</span><p>遠程射程加倍，無視障礙。</p></div></div></label>
+        <input type="checkbox" id="p-mazatl" hidden><label class="skill-card" id="card-p-mazatl" for="p-mazatl"><div class="card-header"><span class="s-name">走鵑步法</span><span class="s-cost">2 WP | 護腿</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">前置：築巢結界</span><p>無視困難地形，垂直奔跑。</p></div></div></label>
+      </div>
+      <div class="tree-col">
+        <div class="tier-head">第三階：傳奇字符</div>
+        
+        <input type="checkbox" id="p-storm" hidden><label class="skill-card" id="card-p-storm" for="p-storm"><div class="card-header"><span class="s-name">羽蛇風暴</span><span class="s-cost">6 WP</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">前置：雨霧迷宮 + 雷鳥電弧</span><p>30 米暴風雨。遠程失效，D4 閃電傷。</p></div></div></label>
+        <input type="checkbox" id="p-phoenix" hidden><label class="skill-card" id="card-p-phoenix" for="p-phoenix"><div class="card-header"><span class="s-name">鳳凰涅槃</span><span class="s-cost">被動</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">前置：生命虹吸 + 金鷹飛昇</span><p>死亡自燃，滿血復活，3D6 爆炸。</p></div></div></label>
+        <input type="checkbox" id="p-mirror" hidden><label class="skill-card" id="card-p-mirror" for="p-mirror"><div class="card-header"><span class="s-name">黑曜鏡反射</span><span class="s-cost">4 WP</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">前置：鷹眼瞄具 + 靜默夜梟</span><p>反應動作。反射指向法術。</p></div></div></label>
+        <input type="checkbox" id="p-xiuh" hidden><label class="skill-card" id="card-p-xiuh" for="p-xiuh"><div class="card-header"><span class="s-name">綠松石之怒</span><span class="s-cost">5 WP</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">前置：雷鳥電弧 + 猛禽氣流</span><p>20 米毀滅光束。4D8 傷害，無法閃避。冷卻 1 天。</p></div></div></label>
+        <input type="checkbox" id="p-ollin" hidden><label class="skill-card" id="card-p-ollin" for="p-ollin"><div class="card-header"><span class="s-name">世界位移</span><span class="s-cost">5 WP</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">前置：金鷹飛昇 + 走鵑步法</span><p>帶領 3 盟友瞬間傳送。</p></div></div></label>
+      </div>
+    </div>
+  </div>
+
+  <div id="section-hishna" class="sp-section">
+    
+    <div class="hero-card">
+      <div class="hero-icon">🐾</div>
+      <div class="hero-desc">
+        <h4>獸刻工匠 Hishna Carver</h4>
+        <p><strong>英雄能力：骨鳴雕刻 (Resonant Carving)</strong><br>
+        掌握骨鳴的秘密。在野獸素材雕刻獸紋。自由動作花費 3 WP 咆哮觸發。</p>
+      </div>
+    </div>
+
+    <div class="lore-box">
+      <h4>獸刻工匠起源 (Origin of Hishna Carvers)</h4>
+      <p>傳說中，獸刻工匠的始祖並非一人，而是一群在同一天被推上祭壇的戰俘。當大祭司高舉那把傳說中「永不磨損」的神聖黑曜石匕首，準備刺穿戰俘的胸膛時，戰俘在瀕死的腎上腺素爆發中，聽到了常人忽略的聲音。他聽見那把匕首在尖叫——那不是神力，那是<strong>高頻震動</strong>。祭司吟唱的咒語，實際上是一種<strong>聲學密碼</strong>，用來維持黑曜石內部不穩定的張力，使其邊緣達到原子級的鋒利。</p>
+      <p>在那一刻，戰俘看穿了神的謊言。札爾特克沒有賜予鋒利，祂只是教導了祭司如何用聲音「共振」石頭。他鼓起肺部所有的空氣，從喉嚨深處發出了一聲極度反常的、不和諧的<strong>「逆向咆哮」</strong>。這聲咆哮不是祈禱，它是<strong>干涉波</strong>。它精準地撞擊在匕首的共振頻率上。</p>
+      <p>在成千上萬信徒的注視下，那把象徵神權的匕首沒有刺入心臟，而是在半空中<strong>炸裂</strong>成粉末。衝擊波震聾了祭壇上的祭司，碎裂的黑曜石片像彈片一樣切開了守衛的盔甲。這場混亂引發了暴動。倖存的俘虜們撿起地上的碎片，模仿那聲咆哮。他們驚恐地發現，當他們發出那種野獸般的低吼時，手中的石頭會變熱、會震動，能輕易切開祭司的防護。那天，他們不是靠神的憐憫逃脫的，他們是靠<strong>竊取了神的聲學技術</strong>殺出去的。</p>
+      <p>這些逃入叢林的倖存者，成為了第一代 <strong>Hishna-Te（獸刻大師）</strong>。他們不再相信祈禱。他們意識到：「希什納 (Hishna) 不是邪惡的魔法，它是<strong>生物與結構的物理法則</strong>。札爾特克只是一個壟斷了這項技術的暴君。」他們開始研究叢林中的怪獸——為什麼狩豹的吼聲能震懾靈魂？為什麼獅鷲的骨骼能承受巨大的咬合力？他們將這些生物學特徵轉化為<strong>導音槽</strong>，雕刻在裝備上，並用自己的聲音作為引擎來驅動它們。</p>
+    </div>
+
+    <div class="tree-grid" style="overflow-x:auto;">
+      <div class="tree-col">
+        <div class="tier-head">第一階：原始解剖學</div>
+        <input type="checkbox" id="h-ocelotl" hidden><label class="skill-card" id="card-h-ocelotl" for="h-ocelotl"><div class="card-header"><span class="s-name">狩豹之顎</span><span class="s-cost">2 WP | 劍/斧</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">頻率：Grrrr | 材料：狩豹下顎</span><p>攻擊動作。武器傷害變為「揮砍」，且可以無視護甲。</p></div></div></label>
+        <input type="checkbox" id="h-ayo" hidden><label class="skill-card" id="card-h-ayo" for="h-ayo"><div class="card-header"><span class="s-name">犰狳骨板</span><span class="s-cost">2 WP | 護甲</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">頻率：Hmph! | 材料：犰狳甲片</span><p>反應動作。承受該次攻擊時護甲值 +4。</p></div></div></label>
+        <input type="checkbox" id="h-coatl" hidden><label class="skill-card" id="card-h-coatl" for="h-coatl"><div class="card-header"><span class="s-name">蝮蛇導管</span><span class="s-cost">2 WP | 小刀</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">頻率：Sssss | 材料：毒蛇毒囊</span><p>攻擊附加中效毒素。</p></div></div></label>
+        <input type="checkbox" id="h-gecko" hidden><label class="skill-card" id="card-h-gecko" for="h-gecko"><div class="card-header"><span class="s-name">壁虎吸盤</span><span class="s-cost">1 WP | 手套</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">頻率：Thwp | 材料：壁虎腳蹼</span><p>本輪內攀爬無需檢定，且無法被「繳械」。</p></div></div></label>
+        <input type="checkbox" id="h-boar" hidden><label class="skill-card" id="card-h-boar" for="h-boar"><div class="card-header"><span class="s-name">野豬衝角</span><span class="s-cost">2 WP | 頭盔</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">頻率：Ra! | 材料：野豬獠牙</span><p>移動後攻擊，額外造成 D8 穿刺傷害並擊倒目標。</p></div></div></label>
+        <input type="checkbox" id="h-scream" hidden><label class="skill-card" id="card-h-scream" for="h-scream"><div class="card-header"><span class="s-name">尖嘯喉管</span><span class="s-cost">1 WP | 面具</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">頻率：Screee! | 材料：吼猴聲帶</span><p>錐形 6 米。生物需過 CON 檢定，否則暈眩一輪。</p></div></div></label>
+        <input type="checkbox" id="h-spine" hidden><label class="skill-card" id="card-h-spine" for="h-spine"><div class="card-header"><span class="s-name">豪豬反擊</span><span class="s-cost">2 WP | 護甲</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">頻率：Click | 材料：豪豬硬刺</span><p>反應動作。被近戰擊中時彈出骨刺，造成 D6 傷害。</p></div></div></label>
+        <input type="checkbox" id="h-wolf" hidden><label class="skill-card" id="card-h-wolf" for="h-wolf"><div class="card-header"><span class="s-name">狼群感官</span><span class="s-cost">1 WP | 頭盔</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">頻率：Sniff | 材料：狼鼻黏膜</span><p>獲得靈敏嗅覺。追蹤優勢，察覺隱形。</p></div></div></label>
+        <input type="checkbox" id="h-frog" hidden><label class="skill-card" id="card-h-frog" for="h-frog"><div class="card-header"><span class="s-name">巨蛙肌腱</span><span class="s-cost">1 WP | 腿甲</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">頻率：Pop | 材料：巨蛙肌腱</span><p>跳躍距離 3 倍，可越過敵人頭頂。</p></div></div></label>
+        <input type="checkbox" id="h-croc" hidden><label class="skill-card" id="card-h-croc" for="h-croc"><div class="card-header"><span class="s-name">鱷魚咬合</span><span class="s-cost">2 WP | 盾/手套</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">頻率：Clack | 材料：鱷魚牙齒</span><p>格擋後繳械敵人。</p></div></div></label>
+      </div>
+      <div class="tree-col">
+        <div class="tier-head">第二階：變異工程學</div>
+        <input type="checkbox" id="h-manti" hidden><label class="skill-card" id="card-h-manti" for="h-manti"><div class="card-header"><span class="s-name">蠍獅尾針</span><span class="s-cost">2 WP | 護腕</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">前置：尖嘯喉管</span><p>遠程攻擊。1D8 傷害並定身。</p></div></div></label>
+        <input type="checkbox" id="h-stone" hidden><label class="skill-card" id="card-h-stone" for="h-stone"><div class="card-header"><span class="s-name">石化凝視</span><span class="s-cost">3 WP | 盾牌</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">前置：鱷魚咬合</span><p>格擋後，攻擊者過體質檢定否則石化。</p></div></div></label>
+        <input type="checkbox" id="h-heat" hidden><label class="skill-card" id="card-h-heat" for="h-heat"><div class="card-header"><span class="s-name">熱能鋸齒</span><span class="s-cost">3 WP | 武器</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">前置：狩豹之顎</span><p>攻擊額外造成 D6 火焰傷害，且無視護甲。</p></div></div></label>
+        <input type="checkbox" id="h-pain" hidden><label class="skill-card" id="card-h-pain" for="h-pain"><div class="card-header"><span class="s-name">火毛蟲毒棘</span><span class="s-cost">3 WP | 護甲</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">前置：蝮蛇導管</span><p>被擊中觸發。D8 傷害，劇痛封印反應動作。</p></div></div></label>
+        <input type="checkbox" id="h-troll" hidden><label class="skill-card" id="card-h-troll" for="h-troll"><div class="card-header"><span class="s-name">巨魔再生</span><span class="s-cost">3 WP | 護甲</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">前置：狼群感官</span><p>傷口癒合。回復 2D6 HP，下一輪飢餓。</p></div></div></label>
+        <input type="checkbox" id="h-spider" hidden><label class="skill-card" id="card-h-spider" for="h-spider"><div class="card-header"><span class="s-name">蜘蛛絲囊</span><span class="s-cost">2 WP | 手套</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">前置：壁虎吸盤</span><p>噴射黏液。束縛目標。</p></div></div></label>
+        <input type="checkbox" id="h-raptor" hidden><label class="skill-card" id="card-h-raptor" for="h-raptor"><div class="card-header"><span class="s-name">迅猛龍之嗅</span><span class="s-cost">1 WP | 頭盔</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">前置：狼群感官</span><p>見血時近戰獲優勢，智力劣勢。</p></div></div></label>
+        <input type="checkbox" id="h-bat" hidden><label class="skill-card" id="card-h-bat" for="h-bat"><div class="card-header"><span class="s-name">蝙蝠聲吶</span><span class="s-cost">1 WP | 面具</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">前置：狼群感官</span><p>無視隱形與黑暗。</p></div></div></label>
+      </div>
+      <div class="tree-col">
+        <div class="tier-head">第三階：頂級掠食者</div>
+        <input type="checkbox" id="h-rex" hidden><label class="skill-card" id="card-h-rex" for="h-rex"><div class="card-header"><span class="s-name">暴龍之懼</span><span class="s-cost">4 WP | 披風</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">前置：迅猛龍之嗅 + 蝙蝠聲吶</span><p>30 米恐懼攻擊。對恐懼者傷害翻倍。</p></div></div></label>
+        <input type="checkbox" id="h-hydra" hidden><label class="skill-card" id="card-h-hydra" for="h-hydra"><div class="card-header"><span class="s-name">九頭蛇分化</span><span class="s-cost">5 WP | 武器</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">前置：熱能鋸齒 + 火毛蟲毒棘</span><p>一輪內進行 3 次近戰攻擊。</p></div></div></label>
+        <input type="checkbox" id="h-dragon" hidden><label class="skill-card" id="card-h-dragon" for="h-dragon"><div class="card-header"><span class="s-name">龍喉砲</span><span class="s-cost">5 WP | 特殊武器</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">前置：無 (特殊武器)</span><p>雙手重武器。噴射 15 米 4D10 火焰。</p></div></div></label>
+        <input type="checkbox" id="h-titan" hidden><label class="skill-card" id="card-h-titan" for="h-titan"><div class="card-header"><span class="s-name">大地泰坦</span><span class="s-cost">5 WP | 護甲</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">前置：石化凝視 + 巨魔再生</span><p>物理免疫，魔法減半，無法移動。</p></div></div></label>
+        <input type="checkbox" id="h-zaltec" hidden><label class="skill-card" id="card-h-zaltec" for="h-zaltec"><div class="card-header"><span class="s-name">札爾特克之心</span><span class="s-cost">D4 輪</span></div><div class="card-body"><div class="body-inner"><span class="meta-tag">前置：迅猛龍之嗅 + 巨魔再生</span><p>瀕死時發動。D4 輪內不死。</p></div></div></label>
+      </div>
+    </div>
+  </div>
+
+</div>

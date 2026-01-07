@@ -1,0 +1,512 @@
+<style>
+/* =========================================
+   魔法頁面專屬 CSS (V18.0 排版修復版)
+   ========================================= */
+
+/* 1. 基礎顯示動畫 */
+.magic-section, .rule-content, .school-content { display: none; animation: fadeIn 0.4s ease; }
+.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* 2. 規則卡片 (Rule Cards) - 改為寬版切換模式 */
+/* 移除原本的 rule-grid，改用一般區塊容器 */
+.rule-display-area { 
+  margin-top: 20px; 
+  width: 100%; 
+}
+
+/* 規則內容區塊 (預設隱藏) */
+.rule-card { 
+  display: none; /* 預設隱藏 */
+  width: 100%;   /* 寬版 */
+  background: rgba(20, 20, 25, 0.6); 
+  border: 1px solid rgba(255, 255, 255, 0.1); 
+  border-left: 4px solid var(--jade); 
+  border-radius: 8px; padding: 30px; /* 增加內距 */
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3); 
+  position: relative; overflow: hidden;
+  line-height: 1.8; /* 增加行高更好閱讀 */
+}
+
+/* 激活狀態 (顯示) */
+.rule-card.active { 
+  display: block; 
+  animation: fadeIn 0.4s ease; 
+}
+
+.rule-card:hover { background: rgba(30, 30, 35, 0.8); border-color: rgba(255,255,255,0.2); }
+.rule-card h3 { color: #fff; font-size: 1.4rem; margin: 0 0 20px 0; padding-bottom: 10px; border-bottom: 1px dashed rgba(255,255,255,0.15); }
+.rule-card h3::before { content: '✦ '; color: var(--gold); }
+.rule-card.warning { border-left-color: #e74c3c; background: rgba(40, 10, 10, 0.4); } 
+.rule-card.highlight { border-left-color: var(--gold); background: rgba(40, 35, 10, 0.4); } 
+
+/* 列表樣式修正 */
+.rule-card ul, .rule-card ol { padding-left: 1.5rem !important; margin-bottom: 15px; }
+.rule-card li { margin-bottom: 8px; color: #ddd; }
+
+/* 書籤按鈕激活狀態 */
+.bookmark-btn.active-sub-tab {
+  background: var(--gold);
+  color: #000;
+  border-color: var(--gold);
+  font-weight: bold;
+  box-shadow: 0 0 10px rgba(201, 163, 90, 0.4);
+}
+
+/* 3. 書籤導航按鈕 */
+.bookmark-nav { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-bottom: 30px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; }
+.bookmark-btn { background: rgba(30, 30, 35, 0.8); border: 1px solid rgba(255, 255, 255, 0.2); color: #aaa; padding: 8px 16px; border-radius: 4px; cursor: pointer; transition: all 0.2s ease; }
+.bookmark-btn:hover { background: rgba(255, 255, 255, 0.1); color: #fff; border-color: var(--gold); transform: translateY(-2px); }
+.rule-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
+.rule-table th { background: rgba(201, 163, 90, 0.1); color: var(--gold); padding: 8px; text-align: left; border-bottom: 1px solid var(--gold); }
+.rule-table td { padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #ddd; }
+
+/* 4. 技能樹 (Skill Tree) */
+.skilltree-wrap { position: relative; margin: 20px 0; padding: 40px 20px; background: rgba(0, 0, 0, 0.4); border: 1px solid var(--gold); border-radius: 8px; overflow: auto; min-height: 500px; }
+.skilltree-svg { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 0; }
+.connection { fill: none; stroke: var(--gold); stroke-width: 1.5; opacity: 0.3; transition: all 0.3s; }
+.connection.active { stroke: #fff; stroke-width: 2.5; opacity: 0.9; filter: drop-shadow(0 0 5px var(--gold)); }
+.skilltree { display: flex; flex-direction: column; align-items: center; position: relative; z-index: 1; gap: 60px; padding-bottom: 20px; min-width: max-content; }
+.skill-col { display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 20px; width: 100%; max-width: 900px; position: relative; }
+.skill-tier-title { width: 100%; text-align: center; color: var(--gold); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.7; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 15px; padding-bottom: 2px; }
+.skill-node { background: rgba(30, 30, 35, 0.95); border: 1px solid rgba(255, 255, 255, 0.2); color: #ccc; padding: 8px 16px; min-width: 100px; max-width: 160px; font-size: 0.9rem; border-radius: 4px; cursor: pointer; text-align: center; transition: 0.2s; position: relative; box-shadow: 0 4px 8px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 2; }
+.skill-node:hover { border-color: var(--gold); color: #fff; transform: translateY(-2px); box-shadow: 0 0 15px rgba(201, 163, 90, 0.3); z-index: 10; }
+.skill-node.active { background: rgba(201, 163, 90, 0.2); border-color: var(--gold); color: var(--gold); font-weight: bold; box-shadow: 0 0 20px rgba(201, 163, 90, 0.5); }
+
+/* 5. 法術詳情面板 (黑曜石風格) */
+.spell-detail-panel { background: rgba(15, 15, 20, 0.98); border: 1px solid var(--gold); border-top: 4px solid var(--gold); border-radius: 8px; padding: 30px; margin-top: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.9); animation: slideUp 0.3s ease; position: relative; text-align: left; min-height: 150px;}
+.spell-detail-panel h3 { color: var(--gold); font-size: 1.6rem; font-family: 'Quatl', serif; margin: 0 0 15px 0; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 10px; }
+.spell-detail-panel p { color: #ddd; font-size: 0.8 rem; margin-bottom: 8px; line-height: 1.6; }
+.spell-detail-panel .attr { color: #aaa; font-size: 0.9rem; margin-bottom: 4px; }
+.spell-detail-panel .desc { 
+  margin-top: 15px; 
+  padding-top: 15px; 
+  border-top: 1px dashed rgba(255,255,255,0.1); 
+  color: #e0e0e0;       /* 建議：改成米白色或淺灰，視覺上會比較柔和，不像粗體 */
+  font-weight: normal;  /* 強制設定為一般字重，防止變粗 */
+}
+.spell-detail-panel strong { color: var(--gold-glow); margin-right: 5px; font-weight: bold; }
+.back-to-tree { position: absolute; top: 20px; right: 20px; background: transparent; border: 1px solid var(--text-dim); color: var(--text-dim); padding: 4px 12px; border-radius: 20px; cursor: pointer; font-size: 0.8rem; transition: 0.2s; }
+.back-to-tree:hover { border-color: var(--gold); color: var(--gold); }
+
+/* 6. 流派/紀元導航 */
+.epoch-nav { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin: 0 0 25px 0; padding-bottom: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+.epoch-btn, .school-btn { background: rgba(0, 0, 0, 0.3); border: 1px solid var(--text-dim); color: #aaa; padding: 6px 14px; border-radius: 20px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s; letter-spacing: 1px; white-space: nowrap; }
+.epoch-btn:hover, .school-btn:hover { border-color: var(--gold); color: #fff; background: rgba(255,255,255,0.05); }
+.epoch-btn.active-tab, .school-btn.active-tab { background: var(--gold); color: #000; border-color: var(--gold); font-weight: bold; box-shadow: 0 0 10px rgba(201, 163, 90, 0.3); }
+
+/* 7. 流派介紹卡 */
+.lore-card { background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 20px; margin-bottom: 25px; position: relative; border-left: 4px solid var(--gold); box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+.lore-card h3 { color: #fff; font-size: 1.3rem; margin-top: 0; border-bottom: 1px dashed rgba(255,255,255,0.2); padding-bottom: 10px; }
+.lore-card p { color: #e0e0e0; font-size: 0.95rem; line-height: 1.7; }
+
+/* 8. 新增：流派按鈕專用排版 (上4下3置中) */
+.school-flex-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.school-flex-container .school-btn {
+  /* 電腦版：一行 4 個 (25% 扣除間隙) */
+  flex: 0 0 calc(25% - 8px); 
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 手機版響應式：變為一行 2 個，以免文字擠成一團 */
+@media (max-width: 768px) {
+  .school-flex-container .school-btn {
+    flex: 0 0 calc(50% - 8px);
+  }
+}
+
+/* === 折疊區塊樣式 (Collapsible Style) === */
+details.toggle-box {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  margin-bottom: 20px;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+
+details.toggle-box[open] {
+  background: rgba(0, 0, 0, 0.4);
+  border-color: var(--gold); /* 展開時邊框變金色 */
+}
+
+details.toggle-box summary {
+  padding: 15px 20px;
+  cursor: pointer;
+  list-style: none; /* 隱藏預設三角形 */
+  position: relative;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+details.toggle-box summary::-webkit-details-marker {
+  display: none; /* Chrome 隱藏預設三角形 */
+}
+
+details.toggle-box summary h4 {
+  margin: 0;
+  display: inline-block;
+  border: none; /* 移除標題底線 */
+  color: #ddd;
+}
+
+/* 自定義箭頭 */
+details.toggle-box summary::after {
+  content: '▼';
+  position: absolute;
+  right: 20px;
+  color: var(--gold);
+  transition: transform 0.3s;
+}
+
+details.toggle-box[open] summary::after {
+  transform: rotate(180deg); /* 展開時箭頭旋轉 */
+}
+
+.toggle-content {
+  padding: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  animation: fadeIn 0.3s ease;
+}
+
+/* === 返回按鈕樣式 === */
+.scroll-back-btn {
+  display: block;
+  width: 100%;
+  margin-top: 20px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  cursor: pointer;
+  text-align: center;
+  border-radius: 4px;
+  font-weight: bold;
+  transition: all 0.2s;
+}
+.scroll-back-btn:hover {
+  background: var(--gold);
+  color: #000;
+}
+
+/* === 消耗品圖示標籤 (星塵版) === */
+.consumable-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 4px;
+  vertical-align: middle;
+  cursor: help;
+  position: relative;
+}
+
+/* 圖示本體：閃爍的星塵 ✨ */
+.consumable-tag::after {
+  content: "✨"; 
+  font-size: 1.1em;
+  filter: drop-shadow(0 0 2px rgba(255, 215, 0, 0.6)); /* 金色微光 */
+  animation: pulse-star 2s infinite ease-in-out;
+}
+
+@keyframes pulse-star {
+  0% { transform: scale(1); opacity: 0.8; filter: drop-shadow(0 0 2px rgba(255, 215, 0, 0.4)); }
+  50% { transform: scale(1.2) rotate(15deg); opacity: 1; filter: drop-shadow(0 0 6px rgba(255, 255, 224, 0.9)); }
+  100% { transform: scale(1); opacity: 0.8; filter: drop-shadow(0 0 2px rgba(255, 215, 0, 0.4)); }
+}
+
+/* Tooltip 提示 */
+.consumable-tag:hover::before {
+  content: "此材料將在施法後消耗";
+  position: absolute;
+  bottom: 120%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(20, 20, 30, 0.95);
+  color: #f1c40f; /* 金黃色文字 */
+  border: 1px solid #f1c40f;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.6);
+  pointer-events: none;
+}
+</style>
+
+<header>
+  <h1>魔法與法術</h1>
+  <div class="ornament-divider"></div>
+  <p class="intro-text">
+    在馬茲提卡大陸，魔法是神性在凡人血管中的迴響，也是一場以肉體向神靈索取力量的危險交易。<br><br>
+  </p>
+</header>
+
+<nav class="page-index">
+  <span class="index-label">魔法資料庫 MAGIC DATABASE</span>
+  <div class="index-links" style="grid-template-columns: repeat(2, 1fr);">
+    <button class="index-btn active-tab" data-target="rules">法術規則</button>
+    <button class="index-btn" data-target="schools">流派介紹</button>
+  </div>
+</nav>
+
+<main>
+<section id="rules" class="magic-section active">
+    <div class="epoch-nav">
+      <button class="epoch-btn active-tab" data-target="rule-intro">法術須知</button>
+      <button class="epoch-btn" data-target="rule-casting">施放法術</button>
+      <button class="epoch-btn" data-target="rule-learning">學習法術</button>
+    </div>
+
+    <div id="rule-intro" class="rule-content active">
+      <div class="bookmark-nav">
+        <button class="bookmark-btn active-sub-tab" data-show="intro-basic">基本概念</button>
+        <button class="bookmark-btn" data-show="intro-tier">階級</button>
+        <button class="bookmark-btn" data-show="intro-book">法術載體</button>
+        <button class="bookmark-btn" data-show="intro-metal">限制</button>
+        <button class="bookmark-btn" data-show="intro-item">魔法物品</button>
+      </div>
+
+      <div class="rule-display-area">
+        <div class="rule-card highlight active" id="intro-basic">
+          <h3>基本概念</h3>
+          <ul>
+            <li>每個魔法流派都是獨立的次要技能。創角時，薩滿可以選擇一種流派作為受訓次要技能（基於智力）。</li>
+            <li>你可以施放任何你已經學會的法術，不需要記憶或準備。</li>
+          </ul>
+        </div>
+
+        <div class="rule-card" id="intro-tier">
+          <h3>階級 (Tier)</h3>
+          <ul>
+            <li>每個法術都有一個階級。這不影響任何遊戲機制，只用來表示該法術有多複雜和多強大。</li>
+            <li>薩滿在遊戲開始時只有 3 個 1 階法術和 1 個 2 階法術，但可以在冒險過程中學到更高階的法術。</li>
+          </ul>
+        </div>
+
+        <div class="rule-card" id="intro-book">
+          <h3>法術載體 (Spell Mediums)</h3>
+          <p>薩滿紀錄法術是「捕獲靈感」的過程。你可以從以下形式中選擇一種作為你的「魔導書」：</p>
+          <ul style="padding-left: 1.5rem; margin-top: 10px;">
+            <li><strong>阿莫斯特利法典 (Amoxtli)：</strong>由無花果樹皮紙摺疊而成的長卷，繪滿了鮮豔的神聖圖畫文字。閱讀它需要解讀隱喻與神話。<br><em>（適合：羽織秘法、天命曜日）</em></li>
+            <li><strong>奇普繩結 (Mecatl)：</strong>一串複雜的彩色繩結。透過繩結的材質、顏色與打結方式來記錄法術的頻率與咒語結構。只有觸摸才能「閱讀」。<br><em>（適合：滌穢醫道、納瓦爾）</em></li>
+            <li><strong>獸骨圖騰 (Omitl)：</strong>刻滿符文的腿骨、龜殼或頭骨。法術被雕刻在骨髓之中，搖晃時會發出靈性的聲響。<br><em>（適合：毒牙獸術、萬象神息）</em></li>
+            <li><strong>血肉刻印 (Nacatl)：</strong>沒有外物，法術直接以刺青、穿孔或疤痕的形式記錄在薩滿自己的皮膚上。施法即是閱讀自身的痛苦。<br><em>（適合：心血噬儀）</em></li>
+          </ul>
+          <hr style="border:0; border-top:1px dashed rgba(255,255,255,0.1); margin:10px 0;">
+          <p><strong>規則：</strong>記錄一個新法術需要花費一班時間製作對應的載體。閱讀載體施法時，施法時間加倍，但檢定<strong>自動成功</strong>。</p>
+        </div>
+
+        <div class="rule-card warning" id="intro-metal">
+          <h3>金屬與魔法</h3>
+          <ul>
+            <li>金屬有反魔法的效果，若你身穿金屬護甲或備戰武器中有金屬武器，<strong>你就無法施放魔法</strong>。</li>
+            <li>這包括部分金屬的物品，例如斧、矛、鑲釘皮甲、金屬箭矢。</li>
+            <li>物品欄裡的物品不影響。</li>
+          </ul>
+        </div>
+
+        <div class="rule-card" id="intro-item">
+          <h3>魔法物品</h3>
+          <ul>
+            <li>魔法物品可能會含有一個或多個法術，可以由非薩滿角色啟動。</li>
+            <li>辨識或啟動魔法物品內的法術需要進行語言檢定或任意魔法流派檢定。</li>
+            <li>使用魔法物品內的法術一樣要消耗自身的 WP。有些魔法物品會儲存一定數量的 WP 供人使用，而不用消耗自己的 WP。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div id="rule-casting" class="rule-content">
+      <div class="bookmark-nav">
+        <button class="bookmark-btn active-sub-tab" data-show="cast-step">施法步驟</button>
+        <button class="bookmark-btn" data-show="cast-blood">汲取身體</button>
+        <button class="bookmark-btn" data-show="cast-crit">大成功</button>
+        <button class="bookmark-btn" data-show="cast-fumble">大失敗</button>
+        <button class="bookmark-btn" data-show="cast-param">參數詳解</button>
+      </div>
+
+      <div class="rule-display-area">
+        <div class="rule-card highlight active" id="cast-step">
+          <h3>施法步驟</h3>
+          <ol>
+            <li>消耗施放法術所需的 WP（法術威力等級 ×2，戲法只消耗 1 WP）。法術的威力等級代表你在施法時為該法術灌注了多少力量。威力等級範圍為 1-3。</li>
+            <li>進行該魔法流派的技能檢定（通用法術可用任意流派施放、戲法不需要進行檢定）。</li>
+            <li>若檢定成功，法術成功施放。</li>
+            <li>若檢定失敗，法術無效（可以強推檢定）。</li>
+          </ol>
+        </div>
+
+        <div class="rule-card warning" id="cast-blood">
+          <h3>汲取身體力量 (Blood Magic)</h3>
+          <p>如果你沒有足夠的 WP 可以消耗，你可以從自己的身體汲取力量。但這個行為很危險，甚至是致命的。</p>
+          <ol>
+            <li>在施法前骰 1D4、1D6、1D8、1D10、1D12 或 1D20（由你選擇）。</li>
+            <li>擲骰的結果代表你會馬上獲得同樣數量的<strong>臨時 WP</strong>。</li>
+            <li>你的 HP 也會受到<strong>相同數量的傷害</strong>，但會在施法結束後才計算。</li>
+            <li>你不能用汲取身體力量的方式施放治療法術來治療自己。</li>
+            <li><strong>注意：羽織秘法和天命曜日流派象徵光明，若用此方式施法，施法檢定具有劣勢；毒牙獸術和心血噬儀象徵黑暗，若用此方式施法，施法檢定具有優勢</strong></li>
+          </ol>
+        </div>
+
+        <div class="rule-card" id="cast-crit">
+          <h3>施法大成功</h3>
+          <p>目標也必須骰到大成功才能成功抵抗、格擋或閃避。另外你可以選擇下列一種效果：</p>
+          <ul>
+            <li>法術的傷害加倍。</li>
+            <li>法術的射程加倍。</li>
+            <li>法術不消耗 WP。</li>
+            <li>馬上施放另一個法術，但施法檢定獲得 1 個劣勢。</li>
+          </ul>
+        </div>
+
+        <div class="rule-card warning" id="cast-fumble">
+          <h3>施法大失敗</h3>
+          <p>無法強推檢定。另外，擲 1D20 看看會發生什麼施法意外。</p>
+          <p>不同的魔法流派有各自的特色和風格，因此施法意外也不盡相同（詳情請見各流派頁面）。</p>
+        </div>
+
+        <div class="rule-card" id="cast-param">
+          <h3>法術參數詳解</h3>
+          <ul>
+            <li><strong>施法時間：</strong>大多為一個動作。反應不耗動作。儀式需一刻/一班。讀書施法需兩倍時間。</li>
+            <li><strong>法術射程：</strong>列出的為最大射程。「自身」代表只影響施法者。AOE 源點通常為施法者。</li>
+            <li><strong>施法構材：</strong>聲音（吟唱）、手勢、法器、材料（消耗）。</li>
+            <li><strong>持續時間：</strong>即效、一輪、一刻、一班。專注需在受傷或干擾時進行意志檢定維持。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div id="rule-learning" class="rule-content">
+      <div class="bookmark-nav">
+        <button class="bookmark-btn active-sub-tab" data-show="learn-pre">先決條件</button>
+        <button class="bookmark-btn" data-show="learn-teacher">找導師</button>
+        <button class="bookmark-btn" data-show="learn-self">自學</button>
+        <button class="bookmark-btn" data-show="learn-trick">戲法</button>
+        <button class="bookmark-btn" data-show="learn-other">跨流派</button>
+      </div>
+
+      <div class="rule-display-area">
+        <div class="rule-card active" id="learn-pre">
+          <h3>先決條件</h3>
+          <p>有些法術擁有一些先決條件，你必須符合該先決條件才能學習該法術。先決條件通常要求你學會特定魔法流派，或學會其他特定法術。</p>
+        </div>
+
+        <div class="rule-card highlight" id="learn-teacher">
+          <h3>找導師學習</h3>
+          <p>學習法術最簡單（但最昂貴）的方法是向會該法術的導師學習。</p>
+          <ul>
+            <li><strong>耗時：</strong>一班時間。但你在該次遊戲團務結束前無法啟動這個新法術。</li>
+            <li><strong>檢定：</strong>課程結束後，進行一次帶有<strong>優勢</strong>的智力檢定。若成功則學會。</li>
+            <li><strong>限制：</strong>在遊戲團務結束時，你必須用該升級標記來學習新法術，不能用來提升技能等級。</li>
+          </ul>
+        </div>
+
+        <div class="rule-card" id="learn-self">
+          <h3>法術載體自學</h3>
+          <p>如果你夠幸運，你可以找到其他薩滿的法術載體，然後靠自己自學其中的法術。</p>
+          <ul>
+            <li><strong>耗時：</strong>一班時間。</li>
+            <li><strong>檢定：</strong>學習方法和向導師學習一樣，但在最後階段會進行語言檢定，而且<strong>不會有優勢</strong>。</li>
+          </ul>
+        </div>
+
+        <div class="rule-card" id="learn-trick">
+          <h3>學習戲法</h3>
+          <p>戲法非常容易學習。一樣要向導師或法術載體學習。</p>
+          <ul>
+            <li><strong>耗時：</strong>一刻時間。</li>
+            <li><strong>特點：</strong>不用打上升級標記，也不用進行檢定。</li>
+          </ul>
+        </div>
+
+        <div class="rule-card warning" id="learn-other">
+          <h3>學習其他魔法流派</h3>
+          <ul>
+            <li>若要學習其他魔法流派，你必須先獲得英雄能力<strong>「魔法天賦」</strong>。</li>
+            <li>在擁有該魔法流派的導師底下學習至少<strong>一個禮拜</strong>。</li>
+            <li>一個禮拜結束後，進行一次智力檢定。若成功，你會獲得該魔法流派的基礎技能等級。</li>
+            <li>在冒險過程中，你的行動可能會導致你學習到一些不屬於當前流派中的法術，這或許會對你的未來產生意想不到的後果。</li>
+            <li><strong>注意：羽織秘法和天命曜日流派象徵光明，毒牙獸術和心血噬儀象徵黑暗，光明和黑暗永遠無法共存！</strong></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+<section id="schools" class="magic-section">
+  <div class="school-flex-container">
+    <button class="school-btn active-tab" data-target="school-general" data-src="pages/magic/general.html">納瓦爾(通用)</button>
+    <button class="school-btn" data-target="school-hishna" data-src="pages/magic/hishna.html">毒牙獸術(獸術)</button>
+    <button class="school-btn" data-target="school-pluma" data-src="pages/magic/pluma.html">羽織秘法(羽術)</button>
+    <button class="school-btn" data-target="school-tonalli" data-src="pages/magic/tonalli.html">天命曜日(日術)</button>
+    
+    <button class="school-btn" data-target="school-teyolia" data-src="pages/magic/teyolia.html">心血噬儀(血術)</button>
+    <button class="school-btn" data-target="school-ticiyotl" data-src="pages/magic/ticiyotl.html">滌穢醫道(醫術)</button>
+    <button class="school-btn" data-target="school-nauhyotl" data-src="pages/magic/nauhyotl.html">萬象神息(源術)</button>
+  </div>
+
+    <div id="school-general" class="school-content active"></div>
+    <div id="school-pluma" class="school-content"></div>
+    <div id="school-hishna" class="school-content"></div>
+    <div id="school-tonalli" class="school-content"></div>
+    <div id="school-teyolia" class="school-content"></div>
+    <div id="school-ticiyotl" class="school-content"></div>
+    <div id="school-nauhyotl" class="school-content"></div>
+  </section>
+</main>
+<script>
+(function() {
+  console.log('🔮 魔法頁面腳本已啟動');
+
+  const tabs = document.querySelectorAll('.school-btn');
+  
+  tabs.forEach(btn => {
+    btn.onclick = function() {
+      // 1. 按鈕變色
+      tabs.forEach(b => b.classList.remove('active', 'active-tab'));
+      this.classList.add('active', 'active-tab');
+
+      // 2. 內容切換
+      const targetId = this.dataset.target; // 例如 "school-general"
+      
+      // 隱藏所有內容：我們先抓父容器，然後把下面的 div 都藏起來
+      // 假設按鈕和內容都在同一個大容器裡，或者內容有共同的 class
+      // 這裡使用最保險的做法：隱藏所有 ID 開頭是 school- 的 div
+      document.querySelectorAll('div[id^="school-"]').forEach(div => {
+         // 只隱藏內容區塊 (避免誤傷按鈕本身)
+         if (!div.classList.contains('school-btn')) {
+             div.style.display = 'none';
+             div.classList.remove('active');
+         }
+      });
+
+      // 顯示目標
+      const targetContent = document.getElementById(targetId);
+      if (targetContent) {
+        targetContent.style.display = 'block';
+        targetContent.classList.add('active');
+        
+        // 重播動畫
+        targetContent.style.animation = 'none';
+        targetContent.offsetHeight; 
+        targetContent.style.animation = 'fadeIn 0.4s ease';
+      } else {
+        console.error('找不到目標 ID:', targetId);
+      }
+    };
+  });
+})();
+</script>

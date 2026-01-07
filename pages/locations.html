@@ -1,0 +1,342 @@
+<div id="loc-top" class="rule-card highlight" style="border-left-color: #27ae60;">
+  <h3><span style="color: #27ae60;">🗺️</span> 地理誌</h3>
+  <p>馬茲提卡是一個完整的大陸供玩家探索。有數百個地點、有待解開的謎團和值得數年的冒險。本章對馬茲提卡的地理位置進行了一些深入的探討。</p>
+</div>
+
+<div class="map-container">
+  <div class="map-placeholder">
+    <img src="images/location/map_maztica.webp" alt="馬茲提卡全圖">
+    </div>
+</div>
+
+<style>
+  /* === 頁面專屬變數 === */
+  .loc-page-container {
+    --loc-green: #27ae60;
+    --loc-gold: #f39c12;
+    --loc-red: #c0392b;
+    --loc-blue: #2980b9;
+    --loc-dark: rgba(20, 25, 20, 0.6);
+    width: 100%;
+    padding-bottom: 60px;
+  }
+
+  /* === 地圖樣式 === */
+  .map-container {
+    width: 100%;
+    margin-bottom: 30px;
+    border: 1px solid var(--border-gold);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
+  .map-placeholder {
+    width: 100%;
+    height: 300px;
+    background: #1a1a1a url('https://www.transparenttextures.com/patterns/aged-paper.png');
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #555;
+    font-size: 1.2rem;
+    font-family: "Quatl", serif;
+    letter-spacing: 2px;
+  }
+  .map-placeholder img { width: 100%; height: 100%; object-fit: cover; }
+
+  /* === 地區圖片欄位 (新增) === */
+  .region-img-container {
+    width: 100%;
+    height: 200px; /* 比大地圖稍矮 */
+    margin-bottom: 25px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .region-img-container span {
+    color: #aaa;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    z-index: 2;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+  }
+
+  .region-img-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.8;
+    transition: opacity 0.3s;
+  }
+  
+  /* === 網格導覽列 === */
+  .loc-nav-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+    margin-bottom: 30px;
+  }
+
+  .nav-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-dim);
+    padding: 15px 10px;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.3s;
+    font-weight: bold;
+    user-select: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nav-card:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  }
+
+  .nav-card span { font-size: 0.8rem; font-weight: normal; margin-top: 5px; opacity: 0.7; }
+
+  /* 激活狀態邏輯 */
+  #l-intro:checked ~ .loc-nav-grid label[for="l-intro"] { background: var(--gold); color: #000; border-color: var(--gold); }
+  
+  #l-huacli:checked ~ .loc-nav-grid label[for="l-huacli"] { background: var(--loc-blue); color: #fff; border-color: var(--loc-blue); }
+  #l-kolan:checked ~ .loc-nav-grid label[for="l-kolan"] { background: var(--loc-blue); color: #fff; border-color: var(--loc-blue); }
+  
+  #l-kultaka:checked ~ .loc-nav-grid label[for="l-kultaka"] { background: var(--loc-gold); color: #000; border-color: var(--loc-gold); }
+  #l-nexal:checked ~ .loc-nav-grid label[for="l-nexal"] { background: var(--loc-red); color: #fff; border-color: var(--loc-red); }
+  
+  #l-payit:checked ~ .loc-nav-grid label[for="l-payit"] { background: var(--loc-green); color: #fff; border-color: var(--loc-green); }
+  #l-pezelac:checked ~ .loc-nav-grid label[for="l-pezelac"] { background: var(--loc-green); color: #fff; border-color: var(--loc-green); }
+  #l-fpayit:checked ~ .loc-nav-grid label[for="l-fpayit"] { background: var(--loc-green); color: #fff; border-color: var(--loc-green); }
+  
+  #l-tukan:checked ~ .loc-nav-grid label[for="l-tukan"] { background: #9b59b6; color: #fff; border-color: #9b59b6; }
+
+  /* === 內容顯示控制 === */
+  .loc-section { display: none; animation: fadeIn 0.5s ease; }
+
+  #l-intro:checked ~ .sect-intro,
+  #l-huacli:checked ~ .sect-huacli,
+  #l-kolan:checked ~ .sect-kolan,
+  #l-kultaka:checked ~ .sect-kultaka,
+  #l-nexal:checked ~ .sect-nexal,
+  #l-payit:checked ~ .sect-payit,
+  #l-pezelac:checked ~ .sect-pezelac,
+  #l-fpayit:checked ~ .sect-fpayit,
+  #l-tukan:checked ~ .sect-tukan {
+    display: block;
+  }
+
+  /* === 內容區塊樣式 === */
+  .loc-content-box {
+    background: var(--loc-dark);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 40px;
+    border-radius: 8px;
+    min-height: 400px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    position: relative;
+  }
+
+  /* 根據不同區域改變邊框顏色 */
+  .sect-huacli { border-top: 4px solid var(--loc-blue); }
+  .sect-kolan { border-top: 4px solid var(--loc-blue); }
+  .sect-kultaka { border-top: 4px solid var(--loc-gold); }
+  .sect-nexal { border-top: 4px solid var(--loc-red); }
+  .sect-payit { border-top: 4px solid var(--loc-green); }
+  .sect-pezelac { border-top: 4px solid var(--loc-green); }
+  .sect-fpayit { border-top: 4px solid var(--loc-green); }
+  .sect-tukan { border-top: 4px solid #9b59b6; }
+
+  .loc-content-box h2 {
+    color: var(--gold);
+    font-family: "Quatl", serif;
+    font-size: 2.2rem;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: 10px;
+  }
+
+  .loc-content-box h2 span { font-size: 1.2rem; color: #888; margin-left: 10px; font-family: sans-serif; }
+
+  .text-block p { line-height: 1.9; color: #ddd; margin-bottom: 15px; text-align: justify; }
+  .text-block strong { color: #fff; }
+
+  /* 回頂部按鈕 */
+  .back-to-top-btn {
+    position: fixed; bottom: 30px; right: 30px;
+    width: 45px; height: 45px; border-radius: 50%;
+    background: var(--loc-green); color: #fff;
+    border: 1px solid #fff;
+    cursor: pointer; font-size: 1.2rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    transition: all 0.3s ease; z-index: 1000;
+    display: flex; align-items: center; justify-content: center; opacity: 0.8;
+  }
+  .back-to-top-btn:hover { transform: translateY(-5px); opacity: 1; box-shadow: 0 0 20px rgba(255,255,255,0.4); }
+</style>
+
+<div class="loc-page-container">
+
+  <input type="radio" name="loc-nav" id="l-intro" checked hidden>
+  <input type="radio" name="loc-nav" id="l-huacli" hidden>
+  <input type="radio" name="loc-nav" id="l-kolan" hidden>
+  <input type="radio" name="loc-nav" id="l-kultaka" hidden>
+  <input type="radio" name="loc-nav" id="l-nexal" hidden>
+  <input type="radio" name="loc-nav" id="l-payit" hidden>
+  <input type="radio" name="loc-nav" id="l-pezelac" hidden>
+  <input type="radio" name="loc-nav" id="l-fpayit" hidden>
+  <input type="radio" name="loc-nav" id="l-tukan" hidden>
+
+  <div class="loc-nav-grid">
+    <label for="l-intro" class="nav-card">總覽<span>Overview</span></label>
+    <label for="l-huacli" class="nav-card">瓦克里<span>Huacli</span></label>
+    <label for="l-kolan" class="nav-card">科蘭<span>Kolan</span></label>
+    <label for="l-kultaka" class="nav-card">庫塔卡<span>Kultaka</span></label>
+    <label for="l-nexal" class="nav-card">內克薩爾<span>Nexal</span></label>
+    <label for="l-payit" class="nav-card">帕伊特<span>Payit</span></label>
+    <label for="l-pezelac" class="nav-card">佩澤拉克<span>Pezelac</span></label>
+    <label for="l-fpayit" class="nav-card">遠帕伊特<span>Far Payit</span></label>
+    <label for="l-tukan" class="nav-card">圖坎<span>Tukan</span></label>
+  </div>
+
+  <div class="loc-section sect-intro loc-content-box">
+    <div class="text-block">
+      <h2>總覽 Overview</h2>
+      <p>馬茲提卡中存在著多種多樣的文化。如果考慮到所有的類人種族，這個數字實際上是驚人的。除了烏拉托斯、圖洛姆伊齊或圖坎等大陸化城市之外，大多數人甚至從未與其他國家的成員接觸。</p>
+      <p>馬茲提卡的國家定義往往不那麼明確。邊界沒有那麼仔細地劃分，每個村莊也不認同其所在的國家。出於防禦目的和此類服務不可避免的稅收，至少有一點國家認同。</p>
+      <p><strong>內克薩爾、庫塔卡、瓦克里、科蘭、佩澤拉克 和 帕伊特</strong> 是需要考慮的主要區域。</p>
+      <p>遠帕伊特的居民、沙漠矮人、綠民、豹人、狗民和半身人都是人口過於分散而不能被視為一個真正國家的例子，但其數量卻相當可觀。圖坎、圖洛姆-伊茨和特里索斯福德等獨立城邦也是馬茲提卡的主要參與者，但沒有更大國家的領土。</p>
+    </div>
+  </div>
+
+  <div class="loc-section sect-huacli loc-content-box">
+    <div class="region-img-container" style="border-color: var(--loc-blue);">
+      <img src="images/location/huacli_scene.webp" alt="瓦克里">
+      </div>
+
+    <div class="text-block">
+      <h2>瓦克里 <span>Huacli</span></h2>
+      <p>瓦克里民族是馬茲提卡西海岸的一個山谷民族。除了一個值得注意的例外，這群城邦曾經牢牢地處於內克薩爾帝國的控制之下。哀嚎之夜之後，內克薩爾的牢牢掌控在一夜之間被打破。</p>
+      <p>然而，在哀嚎之夜之前，奧托米是唯一保持獨立的城邦。大多數瓦克里人都是兇猛的戰士，但奧托米人尤其突出。</p>
+      <p>在距離奧托米最近的山脈中，蘊藏著大量的<strong>銅礦</strong>，他們（以及其他城邦）學會了冶煉和鍛造武器和盔甲。這種金屬很軟，但仍然優於內克薩爾的黑曜石刀片和長矛。獲得完全獨立後，酋長們組成了以大富族為首的聯盟和議會。</p>
+      <p>從種族上來說，瓦克里人是個混血兒，但他們有一種在真實世界其他地方不為人知的獨立部落的強烈特徵。這些民族的語言是瓦克里語（Huacli），它是內克薩爾語（Nexalan）和特內克語（Téenek）的單字和短語的混合體，這是一種其他地方不為人知的語言。</p>
+      <p>在發現黑曜石（以及使用獸術強化的獸皮）之前，奧托米人對他們的銅儲備保持著警惕的守衛。儘管他們的鍛造武器並沒有過時，但在大多數武器與肉體以外的任何東西接觸時都會破碎的時代，它們不再具有以前的價值。銅現在可以在整個馬茲提卡自由交易，這對瓦克里人來說是一種福音。</p>
+      <p>瓦克利並不總是被當前的種族所佔據，在過去的時代裡，有一個被稱為<strong>札特卡</strong>的民族，他們的城市廢墟仍然點綴著景觀。人們對這種古老文化知之甚少，但偶爾會在奧托米出現玉器和古代捲軸。</p>
+    </div>
+  </div>
+
+  <div class="loc-section sect-kolan loc-content-box">
+    <div class="region-img-container" style="border-color: var(--loc-blue);">
+      <img src="images/location/kolan_scene.webp" alt="科蘭">
+    </div>
+
+    <div class="text-block">
+      <h2>科蘭 <span>Kolan</span></h2>
+      <p>科蘭是馬茲提卡西海岸的另一個國家，與泰茲卡之家的熱沙之間隔著奇馬特佩克山脈。在這些山脈和靠近海岸的地方有肥沃的山谷。科蘭的四大城市都相當獨立，可以自給自足。</p>
+      <p>巴亞（Baya）、瓜特爾（Guatl）、科拉特爾（Kolatl）和卡貝茲（Cabez）是四個主要城市，它們深入海岸線的懸崖中，住宅只能透過繩梯、滑輪和電梯進入。例如，科拉特爾完全存在於一座宏偉的懸崖上，俯瞰著科蘭灣的金色海水。</p>
+      <p>科蘭在上個世紀蓬勃發展，這很大程度上歸功於與沙漠城市<strong>圖坎</strong>的貿易成長。科蘭是<strong>波赫特卡 (Pochteca)</strong> 的起源，而這個國家最接近領袖的就是大波赫特卡。這位古老的旅行商人沒有別的名字，據說在幾乎所有其他國家都受到歡迎。大波赫特卡是內克薩爾及其可怕野獸的永遠敵人。</p>
+      <p>與其他國家相比，<strong>獻祭</strong>在科蘭仍然是一種常見的做法，這主要是因為它遠離當年入侵的外國影響。大波赫特卡並不贊成這種做法，但自從眾神和他們的牧師回歸後，這種做法在某些地區慢慢回歸。</p>
+    </div>
+  </div>
+
+  <div class="loc-section sect-kultaka loc-content-box">
+    <div class="region-img-container" style="border-color: var(--loc-gold);">
+      <img src="images/location/loc_kultaka.webp" alt="庫塔卡">
+    </div>
+
+    <div class="text-block">
+      <h2>庫塔卡 <span>Kultaka</span></h2>
+      <p>庫塔卡一如既往；一個戰士的國度。儘管距離很近，但內克薩爾的大帝國從未完全征服了庫塔坎人，如果沒有庫塔坎軍隊，科德爾永遠不可能擊敗內克薩爾。</p>
+      <p>這片土地本身就是一片肥沃的沿海平原，被一片廣闊的鹽沼與水域隔開，鹽沼裡棲息著蜥蜴人、蛙人和更糟糕的生物。國家面臨的最大威脅仍然是內克薩爾。庫塔卡與這些生物永遠處於戰爭狀態，但他們繼續佔上風，歐克的血液在其平原上自由流淌。</p>
+      <p>庫塔卡在該地區的領導形式很不尋常，因為他們幾乎總是受到戰爭首領的指揮，而不是受人尊敬的顧問。<strong>伊克諾約特爾</strong>是現任戰爭酋長，是塔卡馬爾和托科爾的直系後裔，據說他們是馬茲提卡最偉大的戰士。</p>
+      <p>一個世紀前，在庫塔卡的山脈中發現了大片<strong>金礦脈</strong>。他們還沒有耗盡，礦井裡已經出現了一個矮人王國。矮人將庫塔卡視為他們的家園，並在持續的戰爭中與他們的人類兄弟一起保衛它。</p>
+      <p><strong>獸術魔法</strong>在庫塔卡方興未艾，眾所周知，馬茲提卡中一些最優秀的獸術薩滿和工匠都居住在這裡。獸術法術中的「獸甲強化」是在庫塔卡發展起來的，然後傳播到全世界，礦井中的黃金經常被用來為該法術的鑄造提供動力。</p>
+    </div>
+  </div>
+
+  <div class="loc-section sect-nexal loc-content-box">
+    <div class="region-img-container" style="border-color: var(--loc-red);">
+      <img src="images/location/loc_nexal.webp" alt="內克薩爾">
+    </div>
+
+    <div class="text-block">
+      <h2>內克薩爾 <span>Nexal</span></h2>
+      <p>曾經是整個馬茲提卡最偉大的帝國；內克薩爾現在是怪物的可怕領域。</p>
+      <p>今天，細小的熔岩流從<strong>扎塔爾山</strong>噴湧而出，但火山的黑暗斜坡提醒著人們一個多世紀前發生的災難。<strong>歐克</strong>現在是內克薩爾的優勢物種；他們殘忍而暴力，在上個世紀割斷了數十萬被俘馬茲提克人的心。儘管歐克不再是人類，但他們比任何其他現存民族都更堅持馬茲提卡的古老生活方式，因為他們熱愛這種殘酷的做法。</p>
+      <p>巨魔和食人魔的監督者控制著不守規矩的歐克，儘管他們自己經常難以控制自己的卑劣慾望。巨魔和食人魔直接由被稱為<strong>狩豹</strong>的強大變形者指揮。狩豹由他們的半神不朽領袖<strong>霍西特爾</strong>領導，他是由扎爾特克選中的。</p>
+      <p>內克薩爾不歡迎男人。一時間，惡人和惡棍至少可以在殘酷的野獸中勉強維持可憐的生存，但當天空發生變化，扎爾特克的聲音變得沉默時，所有的男人和女人都被帶到扎塔爾山進行犧牲。現在，什麼都沒有留下來——內克薩爾現在只是蝰手獸的土地。</p>
+      <p>札爾特克已經並將永遠在內克薩爾佔據優勢。對其他神的崇拜是不被接受或容忍的。雅格雷的不朽和力量明確表明他是扎爾特克的代言人。</p>
+    </div>
+  </div>
+
+  <div class="loc-section sect-payit loc-content-box">
+    <div class="region-img-container" style="border-color: var(--loc-green);">
+      <img src="images/location/loc_payit.webp" alt="帕伊特">
+    </div>
+
+    <div class="text-block">
+      <h2>帕伊特 <span>Payit</span></h2>
+      <p>帕伊特是一個偉大的國家，外大陸的入侵幾乎使其失去了身份，但經過考驗後又恢復得更加強大。如今，人們的民族自豪感非常強烈，最初的入侵者大多已經融入或消亡。</p>
+      <p>如今，帕伊特憑藉其對<strong>羽術魔法</strong>的研究以及工匠創造的精美羽毛護身符，再次出色地帶領馬茲提卡走出了黑暗日子。如果沒有烏拉托斯的羽術騎士、豹騎士和鷹騎士，更多的人將會遭受苦難。</p>
+      <p><strong>荷姆斯波特</strong>和科德爾的舊莊園仍然存在於烏拉托斯附近，但唯一明顯的提醒人們外國人在這裡定居的是當地人的膚色。除了荷姆斯波特和烏爾托斯之外，帕伊特本身就是一片片叢林、林地、草原和大片農田的混合體。</p>
+      <p>帕伊特由 <strong>Coaxoch</strong> 統治，Coaxoch 是一位相對年輕的受人尊敬的顧問，有人聲稱他是當今最偉大的羽織者。其他人則聲稱，考慮到她還年輕，而且她的許多護身符實際上只是從國庫中拿走，這是不可能的。</p>
+      <p>外來神的崇拜一度在帕伊特盛行，但後來演變成一種名為「胡納布-庫姆崇拜」的崇拜。夸爾特和他的妹妹基爾茲正式擁有最多的崇拜者和最美麗的寺廟，但該教派的受歡迎程度正在增長。</p>
+    </div>
+  </div>
+
+  <div class="loc-section sect-pezelac loc-content-box">
+    <div class="region-img-container" style="border-color: var(--loc-green);">
+      <img src="images/location/loc_pezelac.webp" alt="佩澤拉克">
+    </div>
+
+    <div class="text-block">
+      <h2>佩澤拉克 <span>Pezelac</span></h2>
+      <p>佩澤拉克一直很難在一個被強大和侵略國家包圍的地區找到自己的身份。儘管有一些土著居民，但佩澤拉克真正的土著居民卻很少。大多數情況下，佩澤拉克是周圍所有民族的聯合體。</p>
+      <p>隨著近一個世紀貿易的成長，儘管土地本身貧瘠，但佩澤拉克的財富卻不斷增長。它的首都也稱為佩澤拉克，其城邦化程度和大陸重要性已足以與烏拉托斯和圖坎相提並論。馬茲提卡出售的商品很少在城市市場上找不到。與瓦克利和科蘭一樣，旅商在這裡繁衍生息，甚至在市場上也能找到半身人和矮人。</p>
+      <p>佩澤拉克並不以其兇猛的戰士而聞名，但它靠近內克薩爾，迫使它尋找有效的保護手段。佩澤拉克最新的受人尊敬的顧問，事實上是第一位擁有這一頭銜的女性，是一位非常聰明的老薩滿，名叫<strong>托納津</strong>。她已經向鄰國庫塔卡和帕伊特伸出援手，請求保護他們免受蝰手獸的侵害。</p>
+    </div>
+  </div>
+
+  <div class="loc-section sect-fpayit loc-content-box">
+    <div class="region-img-container" style="border-color: var(--loc-green);">
+      <img src="images/location/farpayit_scene.webp" alt="遠帕伊特">
+    </div>
+
+    <div class="text-block">
+      <h2>遠帕伊特 <span>Far Payit</span></h2>
+      <p>遠帕伊特曾經擁有金字塔的大城市，這些金字塔可以與該國鼎盛時期內克薩爾的札爾特克金字塔相媲美。這些城市大多現已成為廢墟。叢林又重新回到了建築中，野獸的怪異嚎叫聲瀰漫在古老的市場中。人們早已搬回叢林中的小村莊。</p>
+      <p>它過去是，現在仍然是一個叢林國家，只是偶爾開闢出用於種植玉米和其他作物的空地。還有山脈，通常從叢林地面直接突出並高出樹冠。據說這些山脈蘊藏著許多古老的秘密，進入其隱藏隧道的人很少能活著回來。</p>
+      <p><strong>圖洛姆-伊齊 (Tulom-Itzi)</strong> 和 <strong>馬克薩爾</strong> 仍然是遠帕伊特唯一著名的城市。圖洛姆-伊齊是被稱為伊察 (Itzas) 的當地人的文化中心，偉大的羽術 (Pluma) 和獸術 (Hishna) 魔法在其城牆內得到發展。儘管經歷了種種磨難，伊察人仍被認為是馬茲提卡中最善良、最溫和的民族。這裡不允許獻祭或奴役。</p>
+      <p>遠帕伊特以其令人難以置信的各種美麗羽毛而聞名，來自馬茲蒂卡各地的羽織工會派出 pochteca 前來進行交易。棲息在叢林中的可怕蜥蜴也長著尖牙和利爪，受到獸術工匠者的高度重視。</p>
+    </div>
+  </div>
+
+  <div class="loc-section sect-tukan loc-content-box">
+    <div class="region-img-container" style="border-color: #9b59b6;">
+      <img src="images/location/tukan_scene.webp" alt="圖坎">
+    </div>
+
+    <div class="text-block">
+      <h2>圖坎 <span>Tukan</span></h2>
+      <p>在過去的一個世紀裡，圖坎一直是馬茲提卡的希望堡壘。它是在絕望中建立的，當時夸爾特帶領哀嚎之夜的難民穿越沙漠，到達沙漠中一個新形成的湖泊，該湖的面積足以養活十萬左右的男女。</p>
+      <p>圖坎的佈局與內克薩爾類似。居民混雜，但大多是本土馬茲提卡人。圖坎的獨特之處還在於它擁有馬茲提卡中已知數量最多的<strong>沙漠矮人</strong>，甚至還有大量的小矮人！</p>
+      <p>圖坎的建築融合了傳統的馬茲蒂克金字塔和費倫莊園。所有溫和的神都在圖坎受到崇拜，但泰茲卡和阿祖爾也有大量的追隨者。活人祭祀是被禁止的。</p>
+      <p>現任尊貴顧問是一位名叫<strong>圖阿赫莫克</strong>的夸爾特年老牧師。據說圖阿赫莫克是著名鷹騎士波什特利的直系後裔。圖阿希莫克是第一個聲稱波許特利已升任羽毛之父右手邊的人，除了夸爾特之外，他還擁有許多供奉其祖先的神殿。</p>
+    </div>
+  </div>
+
+  <button class="back-to-top-btn" onclick="document.getElementById('loc-top').scrollIntoView({behavior:'smooth'})">▲</button>
+</div>

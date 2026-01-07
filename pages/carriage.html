@@ -1,0 +1,923 @@
+<style>
+  /* 確保分頁能正確切換 */
+.rule-content { display: none; animation: fadeIn 0.4s ease; }
+  .rule-content.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  
+  /* 專用表格微調 */
+  .vehicle-stats { width: 100%; border-collapse: collapse; }
+  .vehicle-stats th { color: var(--gold); background: rgba(255,255,255,0.05); padding: 8px; text-align: left; white-space: nowrap; }
+  .vehicle-stats td { padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+  .cost-tag { color: #f1c40f; font-weight: bold; font-family: monospace; }
+  
+  /* 引用區塊 */
+  .lore-quote {
+    border-left: 3px solid var(--jade);
+    padding: 10px 15px;
+    background: rgba(0,0,0,0.3);
+    font-style: italic;
+    color: #aaa;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+  }
+
+  /* RWD 優化 */
+  @media (max-width: 600px) {
+    .index-links { grid-template-columns: repeat(3, 1fr) !important; }
+    .index-links button:nth-last-child(-n+2) { grid-column: auto / span 1; }
+  }
+</style>
+
+<header>
+  <h1>馬車與坐騎</h1>
+  <div class="ornament-divider"></div>
+  <p class="intro-text">
+    一輛馬車，主要由四個部份所組成：坐騎、底盤、設施、裝飾。
+  </p>
+</header>
+
+<nav class="page-index">
+  <span class="index-label">馬車製作</span>
+  <div class="index-links" style="grid-template-columns: repeat(5, 1fr);">
+    <button class="index-btn active-tab" data-target="tab-rules">馬車規則</button>
+    <button class="index-btn" data-target="tab-steeds">坐騎</button>
+    <button class="index-btn" data-target="tab-chassis">底盤</button>
+    <button class="index-btn" data-target="tab-modules">設施</button>
+    <button class="index-btn" data-target="tab-decor">裝飾</button>
+  </div>
+</nav>
+
+<main>
+
+  <section id="tab-rules" class="rule-content active">
+    <div class="rule-display-area">
+      
+      <div class="rule-card warning">
+        <h3>⚔️ 生命值與戰鬥 (Combat)</h3>
+        <p>
+          馬車的總生命值由底盤及其設施決定。有些設施會增加生命值，有些則會減少。
+          每種坐騎都有自己的屬性，在戰鬥中被視為一個獨立的目標。拉著馬車的坐騎不能獨立攻擊，但可以被攻擊。
+        </p>
+        <p>
+          車夫可以嘗試衝撞路上的其他乘客或路人。衝撞攻擊需要使用<strong>「騎術」</strong>技能。傷害情況取決於馬車的大小，如下表所示。
+          <br><span style="color:#e74c3c;">※ 注意：衝撞他人也會損壞到馬車自身。</span>
+        </p>
+        
+        <h4>衝撞攻擊表</h4>
+        <div class="table-scroll">
+          <table class="vehicle-stats">
+            <thead><tr><th>底盤尺寸</th><th>傷害</th><th>額外效果</th></tr></thead>
+            <tbody>
+              <tr><td>小型</td><td>2D6</td><td>鈍擊傷害、無加成、自損 1D4</td></tr>
+              <tr><td>中型</td><td>2D8</td><td>鈍擊傷害、無加成、自損 1D6</td></tr>
+              <tr><td>大型</td><td>2D12</td><td>鈍擊傷害、無加成、自損 1D8</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="rule-card">
+        <h3>🍖 飼料與坐騎後勤</h3>
+        
+        <div style="margin-bottom: 20px;">
+          <h4>飼料需求</h4>
+          <p>
+            坐騎需要吃東西才能有力氣拉車。如果周圍有綠色植被，大多數坐騎都能靠吃草維持生命。坐騎每天至少需要花<strong>一班時間 (Short Rest)</strong> 吃草。
+            若無植被，則每天需要消耗乾草或其他飼料。若坐騎超過兩天沒進食，將力竭而無法拉車。
+          </p>
+        </div>
+
+        <hr style="border-color:rgba(255,255,255,0.1); margin:15px 0;">
+
+        <div>
+          <h4>失去坐騎 (Loss of Mounts)</h4>
+          <p>
+            如果馬車失去所有坐騎，就無法行駛。如果坐騎數量只剩下一半，它仍可移動至下一個定居點，但速度減半（每班 5 公里），且無法衝撞。
+          </p>
+          <p style="color:#aaa; font-size:0.9em;">
+            ※ 在極端情況下，<strong>玩家角色 (PC)</strong> 可以取代失去的坐騎。需每回合成功進行一次具有劣勢的<strong>力量檢定</strong>。PC 拉的馬車每班最多行駛 5 公里。
+          </p>
+        </div>
+      </div>
+
+      <div class="rule-card highlight">
+        <h3>🔨 打造與更換 (Crafting & Replacement)</h3>
+        <p>
+          玩家可購買設計圖、準備材料並進行工藝檢定打造或改裝；亦可委託專業工匠。失敗將造成材料損耗或車體損傷。
+        </p>
+
+        <h4 style="margin-top:20px;">📜 1. 設計圖價格 (Blueprints)</h4>
+        <div class="table-scroll">
+          <table class="vehicle-stats">
+            <thead><tr><th>稀有度</th><th>價格</th><th>知識需求</th><th>說明</th></tr></thead>
+            <tbody>
+              <tr><td>常見</td><td class="cost-tag">10 GP</td><td>—</td><td>一般車坊可得</td></tr>
+              <tr><td>進階</td><td class="cost-tag">25 GP</td><td>工藝 10+ / 祕聞 10+</td><td>城市工匠公會</td></tr>
+              <tr><td>稀有</td><td class="cost-tag">60 GP</td><td>工藝 14+ / 祕聞 12+</td><td>含符紋與魔法結構</td></tr>
+              <tr><td>傳說</td><td class="cost-tag">120 GP</td><td>工藝 16+ & 祕聞 14+</td><td>任務獎勵為主</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4 style="margin-top:20px;">🛠️ 2. 更換與維修成本</h4>
+        <div class="table-scroll">
+          <table class="vehicle-stats">
+            <thead><tr><th>項目</th><th>花費</th><th>時間</th><th>技能檢定</th></tr></thead>
+            <tbody>
+              <tr><td>更換坐騎</td><td>坐騎價 ×1</td><td>半天</td><td>騎術 10+</td></tr>
+              <tr><td>更換底盤</td><td>底盤價 ×1.2</td><td>2–3 天</td><td>工藝 10+ (需協助)</td></tr>
+              <tr><td>更換設施</td><td>模組價 ×1.5</td><td>1–2 天</td><td>工藝 12+</td></tr>
+              <tr><td>更換裝飾</td><td>附加價 ×1</td><td>半天</td><td>工藝 8+</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4 style="margin-top:20px;">🏗️ 3. 從零打造</h4>
+        <div class="table-scroll">
+          <table class="vehicle-stats">
+            <thead><tr><th>對象</th><th>材料費</th><th>工費(委託)</th><th>工藝需求</th><th>時間</th></tr></thead>
+            <tbody>
+              <tr><td>小型底盤</td><td>8 GP</td><td>5 ◎</td><td>10+</td><td>3 天</td></tr>
+              <tr><td>中型底盤</td><td>15 GP</td><td>10 ◎</td><td>12+</td><td>5 天</td></tr>
+              <tr><td>大型底盤</td><td>25 GP</td><td>15 ◎</td><td>14+</td><td>7 天</td></tr>
+              <tr><td>普通設施</td><td>價 ×0.8</td><td>價 ×0.5</td><td>12+</td><td>2 天</td></tr>
+              <tr><td>特殊設施</td><td>價 ×1</td><td>價 ×1</td><td>14+ / 祕聞 12+</td><td>3–4 天</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4 style="margin-top:20px;">🤝 4. 委託專業工匠</h4>
+        <div class="table-scroll">
+          <table class="vehicle-stats">
+            <thead><tr><th>工匠</th><th>擅長項目</th><th>報價 (每日)</th><th>時間</th></tr></thead>
+            <tbody>
+              <tr><td>木匠</td><td>底盤、座椅、牆壁</td><td>價值 ×0.5</td><td>3–7 天</td></tr>
+              <tr><td>鍛匠</td><td>輪組、護板、機械件</td><td>價值 ×0.6</td><td>2–6 天</td></tr>
+              <tr><td>羽匠</td><td>羽矢陣、靈蛇砲台</td><td>價值 ×0.8</td><td>3–8 天</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="rule-card active">
+        <h3>🎲 檢定與成品結果</h3>
+        <p style="margin-bottom:10px;">
+          <strong style="color:var(--jade);">成功：</strong> 打造完成。<br>
+          <strong style="color:#e74c3c;">失敗：</strong> 材料損耗 50%。<br>
+          <strong style="color:#c0392b;">大失敗：</strong> 可能導致馬車結構受損或材料全毀。
+        </p>
+        <div style="background:rgba(201, 163, 90, 0.1); padding:10px; border-radius:4px; font-size:0.9rem;">
+          <p><strong>🏛️ 地點加成：</strong> 若於神殿或工坊打造，檢定有優勢。</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+ <section id="tab-steeds" class="rule-content">
+    <div class="lore-quote">
+      「我們不依賴嬌貴的馬匹。在帕伊特的密林與內克薩爾的火山岩壁上，唯有與叢林之靈共鳴的巨獸才能開闢道路。」
+    </div>
+    
+    <div class="rule-display-area">
+      <div class="rule-card">
+        <h3>🐾 坐騎概述</h3>
+        <p>
+          坐騎決定了馬車的移動速度與牽引能力。不同種類的坐騎不可混搭。大多數坐騎在野外可透過放牧（Short Rest）自行覓食，但在荒地或酷寒地區需額外準備飼料。
+        </p>
+      </div>
+
+      <div class="rule-card active">
+        <h3>標準坐騎 (Standard Steeds)</h3>
+        <div class="table-scroll">
+          <table class="vehicle-stats">
+            <thead>
+              <tr>
+                <th style="width: 25%;">坐騎名稱</th>
+                <th style="width: 10%;">價格 (◎)</th>
+                <th style="width: 15%;">速度 (km/班)</th>
+                <th style="width: 50%;">能力與數據</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="popup-trigger" data-title="特拉牛 Tlāuox" data-img="images/carriage/Tlāuox.webp" data-desc="在馬茲提卡，牛被稱為「特拉牛（Tlāuox）」，是部族最可靠的馱獸與農耕夥伴。牠們肩背強壯、脾氣溫順，能在酷熱與潮濕的氣候中長時間勞作。部族視牠們為「大地的心臟」，出征或遠行前常以香草與水祭向牠們祈福，象徵堅毅與穩定。">
+                  <span style="border-bottom:1px dashed #aaa; cursor:pointer;">🐂 特拉牛 (Tlāuox)</span><br>
+                  <span style="font-size:0.8em; color:#aaa;">[基礎]</span>
+                </td>
+                <td class="cost-tag">10</td>
+                <td>10</td>
+                <td>
+                  <strong>特性：</strong>速度過慢，無法衝撞。<br>
+                  <strong>數據：</strong>移動 8 | HP 18 | AC 12<br>
+                  <strong>攻擊：</strong>角撞 (1D8)
+                </td>
+              </tr>
+              <tr>
+                <td class="popup-trigger" data-title="泰契奇犬隊 Techichi Team" data-img="images/carriage/Techichi.webp" data-desc="由四隻靈巧的泰契奇犬組成，這種小型犬源自古老的部族培育，忠誠而堅韌。牠們擅長長途跋涉與野外追蹤，是旅商與探路者最常見的坐騎與夥伴，能拉動輕型馬車，穿越叢林與沙地而不怯步。">
+                  <span style="border-bottom:1px dashed #aaa; cursor:pointer;">🐕 泰契奇犬隊</span><br>
+                  <span style="font-size:0.8em; color:#aaa;">[基礎]</span>
+                </td>
+                <td class="cost-tag">40</td>
+                <td>20</td>
+                <td>
+                  <strong>特性：</strong>四隻視為一組。限拉中小型車。每日需兩份食物。<br>
+                  <strong>數據：</strong>移動 14 | HP 8 (每隻) | AC 14<br>
+                  <strong>攻擊：</strong>群體撕咬 (1D8)
+                </td>
+              </tr>
+              <tr>
+                <td class="popup-trigger" data-title="馬 Horse" data-img="images/carriage/horse.webp" data-desc="普通的馬。雖然常見，但這些馬既有耐力又有速度，非常適合拉車。它們價格不菲，但往往被證明是一項明智的投資。">
+                  <span style="border-bottom:1px dashed #aaa; cursor:pointer;">🐎 馬 (Horse)</span><br>
+                  <span style="font-size:0.8em; color:#aaa;">[基礎]</span>
+                </td>
+                <td class="cost-tag">60</td>
+                <td>25</td>
+                <td>
+                  <strong>特性：</strong>若脫離馬車可供騎乘。<br>
+                  <strong>數據：</strong>移動 20 | HP 16 | AC 12<br>
+                  <strong>攻擊：</strong>踢擊 (2D4)
+                </td>
+              </tr>
+              <tr>
+                <td class="popup-trigger" data-title="驢 Donkey" data-img="images/carriage/donkey.webp" data-desc="驢子是一種堅強而頑強的動物。它們以懶惰和脾氣暴躁而聞名，但價格相當便宜。">
+                  <span style="border-bottom:1px dashed #aaa; cursor:pointer;">🫏 驢 (Donkey)</span><br>
+                  <span style="font-size:0.8em; color:#aaa;">[基礎]</span>
+                </td>
+                <td class="cost-tag">12</td>
+                <td>20</td>
+                <td>
+                  <strong>特性：</strong>騎術檢定具劣勢 (頑固)。<br>
+                  <strong>數據：</strong>移動 14 | HP 12 | AC 11<br>
+                  <strong>攻擊：</strong>踢擊 (1D10)
+                </td>
+              </tr>
+              <tr>
+                <td class="popup-trigger" data-title="山羊 Goats" data-img="images/carriage/goats.webp" data-desc="山羊毛茸茸、體格健壯，能夠在荒涼惡劣的環境中生存。如果能忍受它們的氣味，它們雖然不是最好的駝獸，但也是實用的寵物。">
+                  <span style="border-bottom:1px dashed #aaa; cursor:pointer;">🐐 山羊群 (Goats)</span><br>
+                  <span style="font-size:0.8em; color:#aaa;">[基礎]</span>
+                </td>
+                <td class="cost-tag">12</td>
+                <td>17</td>
+                <td>
+                  <strong>特性：</strong>四隻一組。免飼料 (雜食)。限拉小型車。<br>
+                  <strong>數據：</strong>移動 10 | HP 6 | AC 11<br>
+                  <strong>攻擊：</strong>頭槌 (1D6)
+                </td>
+              </tr>
+              <tr>
+                <td class="popup-trigger" data-title="純種馬 Purebred" data-img="images/carriage/purebred.webp" data-desc="純種馬比普通馬體型更大，速度更快，耐力更強。它們是精英坐騎，通常只有貴族和富豪才有資格享用。">
+                  <span style="border-bottom:1px dashed #aaa; cursor:pointer;">🦄 純種馬 (Purebred)</span><br>
+                  <span style="font-size:0.8em; color:var(--gold);">[進階]</span>
+                </td>
+                <td class="cost-tag">200</td>
+                <td>30</td>
+                <td>
+                  <strong>特性：</strong>衝撞攻擊獲優勢。限拉中大型車。<br>
+                  <strong>數據：</strong>移動 20 | HP 18 | AC 13<br>
+                  <strong>攻擊：</strong>強力踢擊 (2D4+2)
+                </td>
+              </tr>
+              <tr>
+                <td class="popup-trigger" data-title="駱駝 Camel" data-img="images/carriage/camel.webp" data-desc="駱駝是沙漠行商最忠實的夥伴，能在酷熱與乾旱中行走數日而不需飲水。它步伐穩定、性情溫順，能負重遠行。">
+                  <span style="border-bottom:1px dashed #aaa; cursor:pointer;">🐫 駱駝 (Camel)</span><br>
+                  <span style="font-size:0.8em; color:var(--gold);">[進階]</span>
+                </td>
+                <td class="cost-tag">40</td>
+                <td>22</td>
+                <td>
+                  <strong>特性：</strong>沙漠適應。可兩日進食一次。<br>
+                  <strong>數據：</strong>移動 14 | HP 12 | AC 11<br>
+                  <strong>攻擊：</strong>踢擊 (1D10)
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="rule-card highlight">
+        <h3>馬茲提卡特殊坐騎 (Exotic Steeds)</h3>
+        <div class="table-scroll">
+          <table class="vehicle-stats">
+            <thead>
+              <tr>
+                <th style="width: 25%;">坐騎名稱</th>
+                <th style="width: 10%;">價格 (◎)</th>
+                <th style="width: 15%;">速度 (km/班)</th>
+                <th style="width: 50%;">能力與數據</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="popup-trigger" data-title="羽鬃駿馬 Pluma Steed" data-img="images/carriage/pluma-steed.webp" data-desc="羽鬃駿馬是馬茲提卡貴族與祭司專用的高貴坐騎，其鬃毛如彩羽般閃耀。傳說牠們能感應祈禱者的心意，化風為翼，越過山巒與沙海。">
+                  <span style="border-bottom:1px dashed #aaa; cursor:pointer;">🦅 羽鬃駿馬 (Pluma Steed)</span><br>
+                  <span style="font-size:0.8em; color:#e74c3c;">[特殊]</span>
+                </td>
+                <td class="cost-tag">120</td>
+                <td>28</td>
+                <td>
+                  <strong>特性：</strong>每日可飛行 15 分鐘 (羽術儀式)。<br>
+                  <strong>數據：</strong>移動 20 (飛60) | HP 18 | AC 13<br>
+                  <strong>攻擊：</strong>踢擊 (2D4)
+                </td>
+              </tr>
+              <tr>
+                <td class="popup-trigger" data-title="甲背巨蜥 Shellback Lizard" data-img="images/carriage/shellback-lizard.webp" data-desc="甲背巨蜥是沙漠與峽谷地帶的強健爬行獸，厚實的鱗甲如鎧般堅硬，能抵禦飛石與弓矢。牠們步伐穩重、耐熱力驚人。">
+                  <span style="border-bottom:1px dashed #aaa; cursor:pointer;">🦎 甲背巨蜥 (Shellback)</span><br>
+                  <span style="font-size:0.8em; color:var(--gold);">[進階]</span>
+                </td>
+                <td class="cost-tag">70</td>
+                <td>18</td>
+                <td>
+                  <strong>特性：</strong>兩棲移動無懲罰。高防禦。<br>
+                  <strong>數據：</strong>移動 10 | HP 24 | AC 16<br>
+                  <strong>攻擊：</strong>咬噬 (1D6+2)
+                </td>
+              </tr>
+              <tr>
+                <td class="popup-trigger" data-title="蟒獸 Serpentox" data-img="images/steeds/serpentox.webp" data-desc="內克薩爾軍團培育的戰爭巨獸。這種擁有蛇頸與牛身的混種生物性格暴躁，但在戰場上是無情的殺人機器。">
+                  <span style="border-bottom:1px dashed #aaa; cursor:pointer;">🐍 蟒獸 (Serpentox)</span><br>
+                  <span style="font-size:0.8em; color:#e74c3c;">[特殊]</span>
+                </td>
+                <td class="cost-tag">80</td>
+                <td>22</td>
+                <td>
+                  <strong>特性：</strong>受到傷害時可反擊。需檢定駕馭。<br>
+                  <strong>數據：</strong>移動 12 | HP 28 | AC 14<br>
+                  <strong>攻擊：</strong>尾鞭 (1D8+3 擊倒)
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+ <section id="tab-chassis" class="rule-content">
+    <div class="lore-quote">
+      「骨架決定了承載的重量，而外皮決定了能穿越的險境。在馬茲提卡，工匠懂得如何將兩者完美結合。」
+    </div>
+
+    <div class="rule-display-area">
+      
+      <div class="rule-card active">
+        <h3>🏗️ 步驟一：選擇基礎底盤 (Base Chassis)</h3>
+        <p>首先，決定馬車的<strong>體型</strong>。這將決定載具的基礎生命值、可安裝的設施數量以及需要的坐騎數量。</p>
+        
+        <div class="table-scroll">
+          <table class="vehicle-stats">
+            <thead>
+              <tr>
+                <th style="width: 25%;">底盤體型</th>
+                <th style="width: 15%;">基礎造價（◎）</th>
+                <th style="width: 10%;">空間格</th>
+                <th style="width: 10%;">生命值</th>
+                <th style="width: 40%;">規格說明</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>小型底盤</strong> (Small)<br><span style="font-size:0.8em; color:#aaa;">單人/輕型</span></td>
+                <td class="cost-tag">10</td>
+                <td style="color:var(--gold); font-weight:bold;">7</td>
+                <td>35</td>
+                <td>需 1 匹坐騎。靈活輕便，適合偵查或狹窄山道。</td>
+              </tr>
+              <tr>
+                <td><strong>中型底盤</strong> (Medium)<br><span style="font-size:0.8em; color:#aaa;">標準商隊</span></td>
+                <td class="cost-tag">20</td>
+                <td style="color:var(--gold); font-weight:bold;">14</td>
+                <td>45</td>
+                <td>需 2 匹坐騎。最通用的選擇，平衡了載重與速度。</td>
+              </tr>
+              <tr>
+                <td><strong>大型底盤</strong> (Large)<br><span style="font-size:0.8em; color:#aaa;">重型運輸</span></td>
+                <td class="cost-tag">30</td>
+                <td style="color:var(--gold); font-weight:bold;">21</td>
+                <td>60</td>
+                <td>需 4 匹坐騎。擁有海量空間，但僅能行駛於寬闊地形。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div style="text-align:center; font-size:2rem; color:var(--gold); margin: 10px 0; text-shadow: 0 0 10px var(--gold);">
+        ⬇ 進行改裝 (可選) ⬇
+      </div>
+
+      <div class="rule-card highlight">
+        <h3>⚒️ 步驟二：選擇強化改裝 (Enhanced Upgrade)</h3>
+        <p>
+          你可以將<strong>任意基礎底盤</strong>改裝為下列特殊形式。
+          <br>改裝費用為：<strong style="color:var(--gold);">基礎底盤造價的 50%</strong> (或參考下列特殊材料費)。
+        </p>
+
+        <div class="table-scroll">
+          <table class="vehicle-stats">
+            <thead>
+              <tr>
+                <th style="width: 30%;">改裝風格</th>
+                <th style="width: 15%;">額外 HP</th>
+                <th style="width: 55%;">特殊能力</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="popup-trigger" 
+                    data-title="浮木底盤 Driftwood" 
+                    data-img="images/frames/driftwood.webp" 
+                    data-desc="使用紅樹林氣根與經過油蠟處理的輕木製作，具有驚人的浮力。">
+                  <span style="border-bottom:1px dashed #aaa; cursor:pointer;">浮木底盤 (Driftwood)</span>
+                </td>
+                <td> + 0</td>
+                <td>
+                  <strong>水上行走：</strong>馬車可漂浮於水面（如沼澤、河流），但除非為兩棲坐騎，否則移動速度減半。
+                </td>
+              </tr>
+              <tr>
+                <td class="popup-trigger" 
+                    data-title="黑曜強化底盤 Obsidian" 
+                    data-img="images/frames/obsidianframe.webp" 
+                    data-desc="在關鍵結構上鑲嵌厚重的黑曜石板與骨架，提供極強的物理防禦，但重量顯著增加。">
+                  <span style="border-bottom:1px dashed #aaa; cursor:pointer;">黑曜強化 (Obsidian)</span>
+                </td>
+                <td> + 10</td>
+                <td>
+                  <strong>重裝甲：</strong>極高防禦，但移動速度 <strong>-5 km/班</strong>。
+                  <br>衝撞傷害視為「揮砍」且傷害骰數+1。
+                </td>
+              </tr>
+              <tr>
+                <td class="popup-trigger" 
+                    data-title="沙行底盤 Sand Skid" 
+                    data-img="images/frames/sandskid.webp" 
+                    data-desc="將輪子替換為寬大的滑板或履帶輪，專為流沙與軟土設計。">
+                  <span style="border-bottom:1px dashed #aaa; cursor:pointer;">沙行底盤 (Sand Skid)</span>
+                </td>
+                <td> + 0</td>
+                <td>
+                  <strong>流沙適應：</strong>在沙漠或鬆軟沙地移動時無視困難地形懲罰。
+                  <br>在一般石板路移動速度 <strong>-5 km/班</strong>。
+                </td>
+              </tr>
+              <tr>
+                <td class="popup-trigger" 
+                    data-title="蟲甲底盤 Chitin Frame" 
+                    data-img="images/frames/chitinframe.webp" 
+                    data-desc="使用巨型甲蟲或火蟻的外殼包覆車體，這種材質輕盈且極度耐熱。">
+                  <span style="border-bottom:1px dashed #aaa; cursor:pointer;">蟲甲底盤 (Chitin)</span>
+                </td>
+                <td> + 5</td>
+                <td>
+                  <strong>耐熱外殼：</strong>馬車與內部乘客對抗「酷熱」狀態有優勢。
+                  <br>馬車 HP 上限 <strong>+10</strong>。
+                </td>
+              </tr>
+              <tr>
+                <td class="popup-trigger" 
+                    data-title="熱風滑車 Zephyr Chariot" 
+                    data-img="images/frames/zephyrchariot.webp" 
+                    data-desc="羽術師打造的風晶滑行底盤，車底刻有氣流符文，可乘風疾行。">
+                  <span style="border-bottom:1px dashed #aaa; cursor:pointer;">🍃 熱風滑車 (Zephyr)</span>
+                </td>
+                <td> + 0</td>
+                <td>
+                  <strong>御風而行：</strong>在平坦開闊地形移動速度 <strong>+5 km/班</strong>。
+                  <br>造價特殊：需額外支付 <strong>+100%</strong> 基礎造價（而非50%）。
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <div class="rule-card">
+        <h3>🔧 改裝規則</h3>
+        <ul style="padding-left:20px; color:#ccc; line-height:1.8;">
+          <li><strong>唯一性：</strong>每輛馬車的底盤同時只能擁有一種「強化改裝」。</li>
+          <li><strong>工藝需求：</strong>進行強化改裝需要尋找專業工匠。</li>
+          <li><strong>改裝時間：</strong>通常需要5-10天的工作時間。</li>
+          <li><strong>更換與移除：</strong>改裝其他強化類型需先拆除舊部件，耗時 1 天並支付 10 ◎ 工料。<br>若使用「鍛造間」模組打造，可進行一次工藝檢定：成功減半費用，極成功可保留舊材料；失敗則延長 1 日。</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+<section id="tab-modules" class="rule-content">
+    <div class="lore-quote">
+      「荒野中的家並非建立在土地上，而是建立在輪軸之上。一個好的設施能讓你在沙暴中安然入睡。」
+    </div>
+
+    <div class="rule-display-area">
+      <div class="rule-card">
+        <h3>📦 設施(Modules)</h3>
+        <p>設施可安裝於馬車上，提供功能、強化防禦或文化象徵效果。安裝設施需要佔用底盤的<strong>「空間格」</strong>。</p>
+      </div>
+
+      <div class="rule-card active">
+        <h3>🛠️ 基礎設施 (Basic Modules)</h3>
+        <div class="table-scroll">
+          <table class="vehicle-stats">
+            <thead>
+              <tr>
+                <th style="width: 25%;">設施名稱</th>
+                <th style="width: 15%;">價格（◎）</th>
+                <th style="width: 10%;">佔用空間格</th>
+                <th style="width: 50%;">效果與說明</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>床鋪 (Bedroll)</td>
+                <td class="cost-tag">4</td><td>2</td>
+                <td><strong>舒適休息：</strong>允許乘客在移動中進行短休，提高長途旅行的恢復效率。</td>
+              </tr>
+              <tr>
+                <td>雞舍 (Coop)</td>
+                <td class="cost-tag">2</td><td>1</td>
+                <td><strong>食物來源：</strong>每日提供 1 單位食物（蛋/肉），減少補給需求。</td>
+              </tr>
+              <tr>
+                <td>儲物間 (Storage)</td>
+                <td class="cost-tag">2</td><td>2</td>
+                <td><strong>擴充貨倉：</strong>可額外存放 25 單位貨物。可多次安裝。</td>
+              </tr>
+              <tr>
+                <td>爐灶 (Stove)</td>
+                <td class="cost-tag">10</td><td>2</td>
+                <td><strong>烹飪取暖：</strong>在寒冷環境提供優勢，並能烹飪熟食提升隊伍士氣。</td>
+              </tr>
+              <tr>
+                <td>獸醫工具 (Vet Kit)</td>
+                <td class="cost-tag">15</td><td>0</td>
+                <td><strong>坐騎照護：</strong>不佔空間。在遠征時治療受傷坐騎，恢復效率翻倍。</td>
+              </tr>
+              <tr>
+                <td>配鐵輪 (Iron Rims)</td>
+                <td class="cost-tag">15</td><td>0</td>
+                <td><strong>結構強化：</strong>不佔空間。駕馭檢定減少一次劣勢，增加輪胎耐久。</td>
+              </tr>
+              <tr>
+                <td class="popup-trigger" 
+                    data-title="遮陽棚 Shade Awning" 
+                    data-img="images/modules/shadeawning.webp" 
+                    data-desc="由獸皮與棕梠葉製作的遮陽棚，提供陰涼並減少疲勞。">
+                  <span style="border-bottom:1px dashed #aaa; cursor:pointer;">遮陽棚</span>
+                </td>
+                <td class="cost-tag">6</td><td>1</td>
+                <td><strong>防曬：</strong>在炎熱地區旅行時，豁免因高溫導致的力竭檢定。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="rule-card">
+        <h3>⚙️ 進階設施 (Advanced Modules)</h3>
+        <div class="table-scroll">
+          <table class="vehicle-stats">
+            <thead>
+              <tr>
+                <th style="width: 25%;">設施名稱</th>
+                <th style="width: 15%;">價格（◎）</th>
+                <th style="width: 10%;">佔用</th>
+                <th style="width: 50%;">效果與說明</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>醫療室 (Med Bay)</td>
+                <td class="cost-tag">30</td><td>4</td>
+                <td><strong>野戰醫院：</strong>醫療檢定獲得優勢。用於防止疾病蔓延與救治重傷。</td>
+              </tr>
+              <tr>
+                <td>工作坊 (Workshop)</td>
+                <td class="cost-tag">30</td><td>5</td>
+                <td><strong>移動工坊：</strong>工藝檢定獲得優勢。可製作箭矢、修理裝備。</td>
+              </tr>
+              <tr>
+                <td>舞台 (Stage)</td>
+                <td class="cost-tag">50</td><td>6</td>
+                <td><strong>巡演平台：</strong>表演與說服檢定獲得優勢。適合吟遊詩人或政客。</td>
+              </tr>
+              <tr>
+                <td>雨林集水槽 (Rain Catcher)</td>
+                <td class="cost-tag">8</td><td>1</td>
+                <td><strong>水資源：</strong>在熱帶或雨季每日自動收集 5 單位淡水。</td>
+              </tr>
+              <tr>
+                <td>飼鴿所 (Dovecote)</td>
+                <td class="cost-tag">4</td><td>1</td>
+                <td><strong>長程通訊：</strong>每日可傳送一次簡訊至指定城市。</td>
+              </tr>
+              <tr>
+                <td>強固木箱 (Strongbox)</td>
+                <td class="cost-tag">12</td><td>3</td>
+                <td><strong>保安：</strong>防火鎖定容器。耐久 30，AC 15。適合存放貴重品。</td>
+              </tr>
+              <tr>
+                <td class="popup-trigger" 
+                    data-title="沙濾水器 Sand Filter" 
+                    data-img="images/modules/sandfilter.webp" 
+                    data-desc="利用礫石與布網收集並過濾空氣中濕氣，每日可產出飲用水。">
+                  <span style="border-bottom:1px dashed #aaa; cursor:pointer;">💧 沙濾水器 (Sand Filter)</span>
+                </td>
+                <td class="cost-tag">8</td><td>1</td>
+                <td><strong>沙漠水源：</strong>每日自產 4 單位淡水。節水設備。</td>
+              </tr>
+              <tr>
+                <td class="popup-trigger" 
+                    data-title="熱風爐 Hotwind Furnace" 
+                    data-img="images/modules/hotwindfurnace.webp" 
+                    data-desc="用石油與火晶加熱空氣，夜間防止沙漠寒冷傷害。">
+                  <span style="border-bottom:1px dashed #aaa; cursor:pointer;">🔥 熱風爐 (Furnace)</span>
+                </td>
+                <td class="cost-tag">10</td><td>2</td>
+                <td><strong>恆溫：</strong>夜間寒冷檢定自動成功。保持內部溫暖。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="rule-card highlight">
+        <h3>✨ 高級設施 (Rare Modules)</h3>
+        <div class="table-scroll">
+          <table class="vehicle-stats">
+            <thead>
+              <tr>
+                <th style="width: 25%;">設施名稱</th>
+                <th style="width: 15%;">價格（◎）</th>
+                <th style="width: 10%;">佔用</th>
+                <th style="width: 50%;">效果與說明</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>黑曜石防禦架 (Shield)</td>
+                <td class="cost-tag">80</td><td>2</td>
+                <td><strong>戰術掩體：</strong>供 4 人獲得掩護 (遠程攻擊劣勢)。戰鬥防守用。</td>
+              </tr>
+              <tr>
+                <td>商神祀壇 (Shrine)</td>
+                <td class="cost-tag">20</td><td>2</td>
+                <td><strong>旅商祈禱：</strong>每日一次祈禱，當天 交易 檢定可獲得一次 優勢。</td>
+              </tr>
+              <tr>
+                <td>神秘結界 (Ward)</td>
+                <td class="cost-tag">80</td><td>5</td>
+                <td><strong>魔法防護：</strong>提供冥想恢復加成。在馬車上短休時額外恢復 1D6 WP。且附有威力等級 1 的 靈界封絕 法術。</td>
+              </tr>
+              <tr>
+                <td class="popup-trigger" 
+                    data-title="風晶導帆 Wind Crystal Sail" 
+                    data-img="images/modules/windcrystalsail.webp" 
+                    data-desc="裝載於車後的魔導帆，能捕捉氣流推進車體。">
+                  <span style="border-bottom:1px dashed #aaa; cursor:pointer;">⛵ 風晶導帆 (Wind Sail)</span>
+                </td>
+                <td class="cost-tag">20</td><td>2</td>
+                <td><strong>氣流推進：</strong>在平坦地形速度 +5 km/班。需消耗風晶充能。</td>
+              </tr>
+              <tr>
+                <td class="popup-trigger" 
+                    data-title="沙暴罩 Sandstorm Cover" 
+                    data-img="images/modules/sandstormcover.webp" 
+                    data-desc="由織羽與膠質膜構成的封閉罩，能阻擋沙暴與風壓。">
+                  <span style="border-bottom:1px dashed #aaa; cursor:pointer;">🛡️ 沙暴罩 (Sand Cover)</span>
+                </td>
+                <td class="cost-tag">25</td><td>3</td>
+                <td><strong>環境免疫：</strong>免疫沙暴造成的視野懲罰與窒息傷害。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="rule-card warning">
+        <h3>🌟 特殊設施 (Epic Modules)</h3>
+        <div class="table-scroll">
+          <table class="vehicle-stats">
+            <thead>
+              <tr>
+                <th style="width: 25%;">設施名稱</th>
+                <th style="width: 15%;">價格（◎）</th>
+                <th style="width: 10%;">佔用</th>
+                <th style="width: 50%;">效果與說明</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>羽矢陣 (Feather Array)</td>
+                <td class="cost-tag">150</td><td>4</td>
+                <td><strong>魔法砲塔：</strong>以動作發射魔法羽鏢，造成 3D6 穿刺傷害。</td>
+              </tr>
+              <tr>
+                <td>靈蛇砲台 (Serpent Turret)</td>
+                <td class="cost-tag">180</td><td>5</td>
+                <td><strong>魔法砲塔：</strong>以動作發射衝擊波，造成 3D6 鈍擊傷害。</td>
+              </tr>
+              <tr>
+                <td>靈光信號塔 (Signal Tower)</td>
+                <td class="cost-tag">50</td><td>3</td>
+                <td><strong>超距通訊：</strong>每日一次，可與其他信號塔進行即時光訊號傳輸。</td>
+              </tr>
+              <tr>
+                <td>玉石嵌板 (Jade Panels)</td>
+                <td class="cost-tag">250</td><td>4</td>
+                <td><strong>神聖裝甲：</strong>馬車 HP +10。車內視為「聖居」，不死生物 或 惡魔 無法進入。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+ <section id="tab-decor" class="rule-content">
+    <div class="lore-quote">
+      「車輛不僅是工具，它是移動的神廟。羽毛的顏色、骨頭的排列，都在向神明與路人訴說著主人的身份。」
+    </div>
+
+    <div class="rule-display-area">
+      <div class="rule-card">
+        <h3>🎀 裝飾與配件 (Extras)</h3>
+        <p>裝飾與配件通常掛載於車體內外部，<strong>不佔用底盤的空間格</strong>，可作為補充裝飾、功能或輔助設備。</p>
+      </div>
+
+      <div class="rule-card active">
+        <h3>🔸 基礎裝飾 (Basic Extras)</h3>
+        <div class="table-scroll">
+          <table class="vehicle-stats">
+            <thead>
+              <tr>
+                <th style="width: 25%;">項目名稱</th>
+                <th style="width: 15%;">價格（◎）</th>
+                <th style="width: 25%;">效果</th>
+                <th style="width: 35%;">說明</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>火盆 (Brazier)<br><span style="font-size:0.8em; color:#aaa;">[基礎]</span></td>
+                <td class="cost-tag">10</td>
+                <td>提供照明與溫暖</td>
+                <td>夜間行軍與營地使用，需消耗燃油或木材。</td>
+              </tr>
+              <tr>
+                <td>車伕 (Driver)<br><span style="font-size:0.8em; color:#aaa;">[雇傭]</span></td>
+                <td class="cost-tag">1/日</td>
+                <td>駕駛與照料馬車</td>
+                <td>專業的 NPC 駕駛。通常不參與戰鬥，遇襲時會優先安撫坐騎。</td>
+              </tr>
+              <tr>
+                <td>風格裝飾 (Decor)<br><span style="font-size:0.8em; color:#aaa;">[基礎]</span></td>
+                <td class="cost-tag">5</td>
+                <td>魅力檢定加值</td>
+                <td>簡單的彩繪或雕刻，提升外觀與吸引力。</td>
+              </tr>
+              <tr>
+                <td class="popup-trigger" 
+                    data-title="水袋架 Waterskin Rack" 
+                    data-img="images/extras/waterskinrack.webp" 
+                    data-desc="固定於車側的皮袋掛架，可攜帶更多水資源。">
+                  <span style="border-bottom:1px dashed #aaa; cursor:pointer;">💧 水袋架 (Water Rack)</span>
+                  
+                </td>
+                <td class="cost-tag">3</td>
+                <td>可攜水量 +10 單位</td>
+                <td>長途沙漠必備，掛於車側不佔內部空間。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="rule-card">
+        <h3>🔹 進階裝飾 (Advanced Extras)</h3>
+        <div class="table-scroll">
+          <table class="vehicle-stats">
+            <thead>
+              <tr>
+                <th style="width: 25%;">項目名稱</th>
+                <th style="width: 15%;">價格（◎）</th>
+                <th style="width: 25%;">效果</th>
+                <th style="width: 35%;">說明</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>鐮刀輪 (Scythe Wheels)</td>
+                <td class="cost-tag">25</td><td>0</td>
+                <td><strong>反制追擊：</strong>對車側敵人造成 2D8 揮砍傷害。</td>
+              </tr>
+              <tr>
+                <td>羽蛇旗 (Coatl Banner)<br><span style="font-size:0.8em; color:var(--gold);">[進階]</span></td>
+                <td class="cost-tag">15</td>
+                <td>鼓舞士氣</td>
+                <td>象徵夸爾特的旗幟。每場戰鬥一次，給予友方 意志 檢定優勢。</td>
+              </tr>
+              <tr>
+                <td class="popup-trigger" 
+                    data-title="沙盤羅針 Desert Compass" 
+                    data-img="images/extras/desertcompass.webp" 
+                    data-desc="以磁砂與日影計時構成的羅針，能於無星夜辨識方向。">
+                  <span style="border-bottom:1px dashed #aaa; cursor:pointer;">🧭 沙盤羅針 (Compass)</span>
+                  
+                </td>
+                <td class="cost-tag">5</td>
+                <td>導航的 求生 檢定有 優勢</td>
+                <td>每場旅行一次。防止在無地標的荒原迷路。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="rule-card highlight">
+        <h3>✨ 高級裝飾 (Rare Extras)</h3>
+        <div class="table-scroll">
+          <table class="vehicle-stats">
+            <thead>
+              <tr>
+                <th style="width: 25%;">項目名稱</th>
+                <th style="width: 15%;">價格（◎）</th>
+                <th style="width: 25%;">效果</th>
+                <th style="width: 35%;">說明</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>圖騰獸頭 (Totem Head)<br><span style="font-size:0.8em; color:#e74c3c;">[高級]</span></td>
+                <td class="cost-tag">20</td>
+                <td>信仰/威嚇加成</td>
+                <td>雕刻精美的獸首。一般生物可能會被嚇退。</td>
+              </tr>
+              <tr>
+                <td>秘密隔間 (Secret Slot)<br><span style="font-size:0.8em; color:#e74c3c;">[高級]</span></td>
+                <td class="cost-tag">10</td>
+                <td>藏匿物品</td>
+                <td>隱藏於底板或夾層的小空間。大幅增加搜索難度。</td>
+              </tr>
+              <tr>
+                <td>華麗羽飾 (Plumage)<br><span style="font-size:0.8em; color:#e74c3c;">[高級]</span></td>
+                <td class="cost-tag">8</td>
+                <td>魅力加值</td>
+                <td>使用華麗羽毛製作。有機會使 社交 檢定 優勢。</td>
+              </tr>
+              <tr>
+                <td class="popup-trigger" 
+                    data-title="沙震鈴 Dune Chime" 
+                    data-img="images/extras/dunechime.webp" 
+                    data-desc="能感應地底震動，發出低鳴警示生物接近。">
+                  <span style="border-bottom:1px dashed #aaa; cursor:pointer;">🔔 沙震鈴 (Dune Chime)</span>
+                  
+                </td>
+                <td class="cost-tag">10</td>
+                <td>偵測掘地生物</td>
+                <td>警戒用具。對潛行或地底接近的敵人（如沙蟲）提供預警。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="rule-card warning">
+        <h3>🌟 特殊裝飾 (Epic Extras)</h3>
+        <div class="table-scroll">
+          <table class="vehicle-stats">
+            <thead>
+              <tr>
+                <th style="width: 25%;">項目名稱</th>
+                <th style="width: 15%;">價格（◎）</th>
+                <th style="width: 25%;">效果</th>
+                <th style="width: 35%;">說明</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="popup-trigger" 
+                    data-title="熱幕布 Heatveil Drapes" 
+                    data-img="images/extras/heatveil.webp" 
+                    data-desc="由羽術織布製成的薄幕，能折射陽光達到偽裝效果。">
+                  <span style="border-bottom:1px dashed #aaa; cursor:pointer;">🌫️ 熱幕布 (Heatveil)</span>
+                  
+                </td>
+                <td class="cost-tag">50</td>
+                <td>隱匿檢定獲得優勢</td>
+                <td>如海市蜃樓般隱藏靜止的車體，難以被肉眼發現。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</main>

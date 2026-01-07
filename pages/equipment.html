@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>裝備與物品 - 馬茲提卡</title>
+</head>
+<body>
+
+<style>
+/* === 1. 核心顯示邏輯 === */
+.rule-content { display: none; animation: fadeIn 0.4s ease; }
+.rule-content.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* === 2. 分頁按鈕 UI === */
+.epoch-nav { 
+  display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; 
+  margin: 0 0 25px 0; padding-bottom: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); 
+}
+.epoch-btn { 
+  background: rgba(0, 0, 0, 0.3); border: 1px solid #888; color: #aaa; 
+  padding: 6px 14px; border-radius: 20px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s; white-space: nowrap; 
+}
+.epoch-btn:hover { border-color: var(--gold); color: #fff; background: rgba(255,255,255,0.05); }
+.epoch-btn.active-tab { background: var(--gold); color: #000; border-color: var(--gold); font-weight: bold; box-shadow: 0 0 10px rgba(201, 163, 90, 0.3); }
+
+/* === 3. 子分頁導航 === */
+.bookmark-nav { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
+.sub-tab-btn { 
+  background: rgba(30, 30, 35, 0.8); border: 1px solid rgba(255, 255, 255, 0.2); 
+  color: #aaa; padding: 6px 12px; border-radius: 4px; cursor: pointer; transition: all 0.2s; font-size: 0.85rem;
+}
+.sub-tab-btn:hover { border-color: var(--gold); color: #fff; }
+.sub-tab-btn.active-sub-tab { background: var(--gold); color: #000; border-color: var(--gold); font-weight: bold; }
+
+/* === 4. 貨幣與特殊樣式 (符號化) === */
+.price-bean { color: #cd853f; font-weight: bold; font-family: "Segoe UI Symbol", sans-serif; } /* 銅色 */
+.price-moon { color: #e0e0e0; font-weight: bold; font-family: "Segoe UI Symbol", sans-serif; } /* 銀色 */
+.price-sun  { color: #ffd700; font-weight: bold; text-shadow: 0 0 5px rgba(255, 215, 0, 0.3); font-family: "Segoe UI Symbol", sans-serif; } /* 金色 */
+
+.currency-legend {
+  display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;
+  margin-bottom: 20px; padding: 15px; background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;
+}
+.currency-item { text-align: center; flex: 1; min-width: 120px; border-right: 1px solid rgba(255,255,255,0.1); }
+.currency-item:last-child { border-right: none; }
+.currency-item h4 { margin: 0 0 5px 0; font-size: 1.1rem; }
+.currency-item span { display: block; font-size: 0.85rem; color: #aaa; }
+
+/* === 5. 搜尋欄 === */
+.gear-search { width: 100%; max-width: 400px; margin: 0 auto 20px; display: block; padding: 10px 15px; border-radius: 20px; border: 1px solid var(--gold); background: rgba(0,0,0,0.3); color: #fff; text-align: center; }
+.gear-search:focus { outline: none; box-shadow: 0 0 10px rgba(201,163,90,0.5); }
+
+/* === 6. 互動元件 === */
+.popup-trigger { 
+  cursor: pointer; color: var(--gold); border-bottom: 1px dotted rgba(201, 163, 90, 0.5); transition: all 0.2s; 
+}
+.popup-trigger:hover { color: #fff; text-shadow: 0 0 5px var(--gold); border-bottom-style: solid; }
+
+  .tag-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; vertical-align: middle; border: 1px solid; letter-spacing: 1px; text-transform: uppercase; }
+  .tag-badge.house { color: #ff9f43; border-color: #ff9f43; background: rgba(255, 159, 67, 0.15); box-shadow: 0 0 5px rgba(255, 159, 67, 0.2); }
+
+/* === 小標籤樣式 (Level 3 - Ghost Style) === */
+  .combat-sub-nav.sub-nav-level-3 {
+    display: flex; justify-content: center; flex-wrap: wrap; gap: 8px;
+    background: rgba(0, 0, 0, 0.3); padding: 10px; border-radius: 8px;
+    border-top: 1px dashed rgba(255,255,255,0.15);
+  }
+  
+  .sub-tab-btn.prop-tab-btn {
+    flex: 0 0 auto; min-width: 5em;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 4px; padding: 6px 12px;
+    font-size: 0.85rem; color: #aaa; transition: all 0.2s; cursor: pointer;
+  }
+  
+  .sub-tab-btn.prop-tab-btn:hover {
+    background: rgba(255, 255, 255, 0.1); color: #fff; border-color: #bbb;
+  }
+  
+  .sub-tab-btn.prop-tab-btn.active-sub-tab {
+    background: transparent; color: var(--gold); border-color: var(--gold);
+    font-weight: bold; box-shadow: 0 0 8px rgba(201, 163, 90, 0.2);
+  }
+  
+  .prop-content { display: none; animation: fadeIn 0.3s ease; }
+  .prop-content.active { display: block; }
+
+/* === 馬茲提卡貨幣卡片系統 === */
+.currency-grid {
+  display: grid;
+  /* 自動適應寬度，每張卡片至少 300px，空間夠就並排，不夠就換行 */
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-top: 15px;
+}
+
+.currency-card {
+  position: relative;
+  background: rgba(30, 30, 35, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 20px;
+  overflow: hidden; /* 讓背景浮水印不超出去 */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.currency-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+}
+
+/* 頂部裝飾條與光暈 */
+.card-bean { border-top: 4px solid #cd853f; }
+.card-bean:hover { box-shadow: 0 10px 20px rgba(205, 133, 63, 0.15); }
+
+.card-moon { border-top: 4px solid #e0e0e0; }
+.card-moon:hover { box-shadow: 0 10px 20px rgba(224, 224, 224, 0.15); }
+
+.card-sun { border-top: 4px solid #ffd700; }
+.card-sun:hover { box-shadow: 0 10px 20px rgba(255, 215, 0, 0.15); }
+
+/* 巨大的背景浮水印符號 (裝飾用) */
+.currency-card::before {
+  content: attr(data-symbol);
+  position: absolute;
+  right: -10px;
+  bottom: -20px;
+  font-size: 8rem;
+  opacity: 0.05;
+  font-family: "Segoe UI Symbol", sans-serif;
+  pointer-events: none;
+}
+
+/* 標題區 */
+.curr-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px dashed rgba(255,255,255,0.1);
+}
+
+.curr-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: bold;
+}
+
+.curr-rate {
+  font-size: 0.75rem;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: rgba(0,0,0,0.3);
+  color: #aaa;
+  white-space: nowrap;
+}
+
+/* 內容文字 */
+.curr-desc {
+  font-size: 0.9rem;
+  color: #ccc;
+  line-height: 1.6;
+  text-align: justify; /* 左右對齊讓文字區塊更好看 */
+  margin: 0;
+  flex-grow: 1; /* 讓卡片高度盡量一致 */
+}
+
+/* 底部小註記 (CP/SP/GP) */
+.curr-meta {
+  margin-top: 15px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.7;
+}
+
+/* === 消耗品圖示標籤 (星塵版) === */
+.consumable-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 4px;
+  vertical-align: middle;
+  cursor: help;
+  position: relative;
+}
+
+/* 圖示本體：閃爍的星塵 ✨ */
+.consumable-tag::after {
+  content: "✨"; 
+  font-size: 1.1em;
+  filter: drop-shadow(0 0 2px rgba(255, 215, 0, 0.6)); /* 金色微光 */
+  animation: pulse-star 2s infinite ease-in-out;
+}
+
+@keyframes pulse-star {
+  0% { transform: scale(1); opacity: 0.8; filter: drop-shadow(0 0 2px rgba(255, 215, 0, 0.4)); }
+  50% { transform: scale(1.2) rotate(15deg); opacity: 1; filter: drop-shadow(0 0 6px rgba(255, 255, 224, 0.9)); }
+  100% { transform: scale(1); opacity: 0.8; filter: drop-shadow(0 0 2px rgba(255, 215, 0, 0.4)); }
+}
+
+/* Tooltip 提示 */
+.consumable-tag:hover::before {
+  content: "此材料將在施法後消耗";
+  position: absolute;
+  bottom: 120%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(20, 20, 30, 0.95);
+  color: #f1c40f; /* 金黃色文字 */
+  border: 1px solid #f1c40f;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.6);
+  pointer-events: none;
+}
+</style>
+
+<header>
+  <h1>裝備與物品</h1>
+  <div class="ornament-divider"></div>
+  <p class="intro-text">
+    自從哀嚎之夜過後，馬茲提卡的武裝與經濟有了巨大的演變。外來者的鑄幣技術將傳統價值標準化，形成了新的交易體系。
+  </p>
+</header>
+
+<main>
+  <div class="epoch-nav">
+    <button class="epoch-btn active-tab" data-target="equip-rules">負重與貨幣</button>
+    <button class="epoch-btn" data-target="equip-weapons">武器庫</button>
+    <button class="epoch-btn" data-target="equip-armor">護甲與頭盔</button>
+    <button class="epoch-btn" data-target="equip-instruments">樂器</button>
+    <button class="epoch-btn" data-target="equip-items">其他物品</button>
+  </div>
+
+  <div id="equip-rules" class="rule-content active">
+    <div class="rule-display-area">
+      
+<div class="rule-card highlight" style="border-left-color: #ffd700;">
+        <h3 style="color:#ffd700;">💰 馬茲提卡貨幣體系</h3>
+        <p style="color:#ddd; margin-bottom: 20px;">
+          在馬茲提卡，價值依循著宇宙的循環：生命從大地發芽（豆），像月亮一樣盈虧（月），最終如太陽般永恆（日）。
+        </p>
+        
+        <div class="currency-grid">
+          
+          <div class="currency-card card-bean" data-symbol="∴">
+            <div class="curr-header">
+              <h4 class="curr-title price-bean">∴ 法印可可</h4>
+              <span class="curr-rate">100 ∴ = 1 ◎</span>
+            </div>
+            <p class="curr-desc">
+              每一顆作為貨幣的可可豆都經過特殊的藥水浸泡處理，使其呈現深紫色的光澤，堅硬如木，且永不腐壞。豆身壓印著一個微小的白色骷髏或城市徽章（代表稅務認證）。
+            </p>
+            <div class="curr-meta price-bean">豆幣 (CP)</div>
+          </div>
+
+          <div class="currency-card card-moon" data-symbol="☾">
+            <div class="curr-header">
+              <h4 class="curr-title price-moon">☾ 新月銅刃</h4>
+              <span class="curr-rate">10 ☾ = 1 ◎</span>
+            </div>
+            <p class="curr-desc">
+              由傳統的「斧形幣 (Tajadera)」演變而來。在外來者的鑄造模具下，它被統一成標準的新月形狀（像是一個縮小的、沒有手柄的斧頭刃口）。邊緣已打磨鈍化，中間穿有方孔，方便成串攜帶。
+            </p>
+            <div class="curr-meta price-moon">月幣 (SP)</div>
+          </div>
+
+          <div class="currency-card card-sun" data-symbol="◎">
+            <div class="curr-header">
+              <h4 class="curr-title price-sun">◎ 太陽金輪</h4>
+              <span class="curr-rate">高階貨幣</span>
+            </div>
+            <p class="curr-desc">
+              這並非普通的金幣。它是一個中心鏤空的圓環，象徵著馬茲提卡的太陽曆石。金輪的一面鑄有羽蛇神的圖案，另一面則刻著發行城邦的圖案。它是財富與永恆的象徵。
+            </p>
+            <div class="curr-meta price-sun">日幣 (GP)</div>
+          </div>
+
+        </div>
+        
+        <div style="margin-top:15px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.1); text-align:right; font-size:0.85rem; color:#aaa;">
+           ※ 錢幣換算：<span class="price-sun">1 ◎</span> = <span class="price-moon">10 ☾</span> = <span class="price-bean">100 ∴</span>
+        </div>
+      </div>
+
+      <div class="rule-card">
+        <h3>⚖️ 負重規則</h3>
+        <ul>
+          <li><strong>負重上限：</strong>物品欄可以攜帶的物品數量 = <strong>力量值的一半</strong>（向上取整）。</li>
+          <li><strong>重量計算：</strong>大多數物品的重量為 1，當記錄在物品欄時，占據一列。</li>
+          <li><strong>重型物品：</strong>重型物品的重量會超過 1，當記錄在物品欄時，重量多少就占據多少列。</li>
+          <li><strong>微型物品：</strong>可以藏在拳頭裡的物品稱為微型物品。這些物品不計入負重，另外寫在角色卡的相應欄位裡，不占物品欄的列數。</li>
+          <li><strong>備戰物品：</strong>你最多可以擁有 <strong>三件備戰物品</strong> ，這些備戰物品會掛在腰間或你隨手可得的地方。拿在手上的物品也視為備戰物品。備戰物品不計入負重。</li>
+          <li><strong>頭盔 & 護甲：</strong>你穿戴的頭盔或護甲記錄在角色卡的對應欄位，不計入負重。</li>
+          <li><strong>食物：</strong>每四份食物視為一個物品。請在物品欄確實記錄你剩餘的口糧數量。</li>
+          <li><strong>火炬 & 提燈：</strong>火炬、油燈或提燈都視為一個物品。</li>
+          <li><strong>箭矢 & 石頭：</strong>你不需要記錄攜帶的箭矢數量。每個箭袋視為一個物品。只要你擁有箭袋，你就擁有足夠的箭矢。石頭則完全不需要記錄。</li>
+          <li><strong>背包：</strong>背包可以讓你的負重上限 +2。背包本身不計入負重，但你只能背一個背包。</li>
+          <li><strong>硬幣：</strong>少於 100 枚的硬幣皆視為微型物品。100~199 枚硬幣視為一個物品，200~299 枚硬幣視為兩個，以此類推。</li>
+          <li><strong>超重：</strong>你可以暫時攜帶超出你平常負重的物品，但當你在戰鬥中想要移動，或在旅行中行走一班時間，你必須進行 <strong>力量</strong> 檢定。若失敗，你必須拋下超重的物品、或停在原地。</li>
+          <li><strong>背負其他人：</strong>當你背負其他人時，你自動視為 <strong>超重</strong> ，且無法進行戰鬥。</li>
+        </ul>
+      </div>
+
+      <div class="rule-card">
+        <h3>稀有度</h3>
+        <ul>
+          <li><strong>常見：</strong>在任何村莊或市場都能買到。</li>
+          <li><strong>罕見：</strong>通常只能在特定工匠的工坊買到。</li>
+          <li><strong>珍稀：</strong>通常只能特別向工匠訂做。</li>
+          <li><strong>獨特：</strong>只能透過冒險或向特定人士取得。</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div id="equip-weapons" class="rule-content">
+    <div class="rule-display-area">
+      
+<div class="rule-card highlight" id="weapon-properties-card">
+        <h3>武器特性</h3>
+        <p>自從哀號之夜過後，馬茲提卡發生了很大的變化，武器裝備也有了巨大的改進。如果黃金軍團今天入侵馬茲提卡，戰爭的結局將與一個多世紀前大不相同。</p>
+        <p>儘管因為外來者入侵帶來了冶金技術，但重量和阻魔性的副作用，使得黑曜石仍是整個馬茲提克大陸種族的首選材料，幾乎所有武器都使用了它。</p>
+
+        <div class="combat-sub-nav sub-nav-level-3" style="margin: 15px 0 20px;">
+           <button class="sub-tab-btn prop-tab-btn active-sub-tab" data-target="wp-general">一般規則</button>
+           <button class="sub-tab-btn prop-tab-btn" data-target="wp-material">材質效果</button>
+           <button class="sub-tab-btn prop-tab-btn" data-target="wp-special">特殊屬性</button>
+        </div>
+
+        <div id="wp-general" class="prop-content active">
+          <ul style="font-size:0.95rem; color:#ccc; line-height:1.8;">
+            <li><strong>精良武器：</strong>花費原價的十倍可購買武器的精良版本 = 力量需求 -3、耐久度 +3。另外每個精良武器至少會有一條特殊屬性。</li>
+            <li><strong>重量：</strong>每一把武器的重量都為 1。</li>
+            <li><strong>技能類型：</strong>使用該武器所需的技能檢定。盾牌使用你最高的力量類近戰武器技能（徒手、劍、斧、棍棒、矛）。</li>
+            <li><strong>持握：</strong>代表你需要一手或兩手才能使用該武器。</li>
+            <li><strong>力量限制：</strong>代表你需要多少力量才能有效使用該武器。若你的力量低於需求，則使用該武器進行攻擊和格擋都會獲得 1 個劣勢。若力量低於需求的一半，則完全無法使用該武器。</li>
+            <li><strong>射程：</strong>該武器進行攻擊的有效射程，單位為米。若使用遠程武器，你最遠可以攻擊兩倍射程內的目標，但獲得 1 個劣勢。</li>
+            <li><strong>耐久：</strong>若你格擋成功，敵人的攻擊會命中你的武器或盾牌。如果敵人的攻擊傷害超過你武器的耐久，該武器會因此受損，無法繼續使用，直到用工藝檢定修復為止。</li>
+            <li><strong>價格：</strong>以正常管道購買的價值，單位為 <span class="price-moon">☾ 月幣</span> 。</li>
+          </ul>
+        </div>
+
+        <div id="wp-material" class="prop-content" style="display:none;">
+          <p style="margin-bottom:15px; color:#aaa;">武器主要攻擊部位的材質：</p>
+          <ul style="font-size:0.95rem; color:#ccc; line-height:1.8;">
+             <li style="margin-bottom:15px;">
+               <strong style="color:#a569bd; font-size:1.05rem;">黑曜石 (Obsidian) <span class="maz-badge">馬茲提卡</span> </strong><br>
+               攻擊穿戴 <strong>金屬護甲</strong> 的敵人時若攻擊檢定 <strong>大失敗</strong> ，該武器 <strong>受損</strong> 。
+             </li>
+             <li style="margin-bottom:15px;">
+               <strong style="color:#2ecc71; font-size:1.05rem;">木質 (Wood) <span class="maz-badge">馬茲提卡</span> </strong><br>
+               由於幾乎隨處可得，你在修復時的 <strong>工藝</strong> 檢定具有 <strong>優勢</strong> 。
+             </li>
+             <li style="margin-bottom:15px;">
+               <strong style="color:#f1c40f; font-size:1.05rem;">金屬 (Metal)</strong><br>
+               因為金屬的阻魔性，當你 <strong>持握金屬武器</strong> 時 <strong>無法施法</strong> 。
+             </li>
+          </ul>
+        </div>
+
+        <div id="wp-special" class="prop-content" style="display:none;">
+          <div style="display: grid; grid-template-columns: 1fr; gap: 10px;">
+            
+            <div style="background:rgba(255,255,255,0.05); padding:12px; border-radius:6px; border-left: 3px solid var(--gold);">
+              <strong style="color:var(--gold); display:block; margin-bottom:5px;">靈巧 (Finesse)</strong>
+              <span style="font-size:0.9rem; color:#bbb; line-height:1.6;">當使用此武器進行偷襲時，攻擊檢定獲得 1 個優勢，且會提升傷害。</span>
+            </div>
+            
+            <div style="background:rgba(255,255,255,0.05); padding:12px; border-radius:6px; border-left: 3px solid var(--gold);">
+              <strong style="color:var(--gold); display:block; margin-bottom:5px;">長柄 (Reach)</strong>
+              <span style="font-size:0.9rem; color:#bbb; line-height:1.6;">此武器可以攻擊最遠 4 米內的敵人。</span>
+            </div>
+
+            <div style="background:rgba(255,255,255,0.05); padding:12px; border-radius:6px; border-left: 3px solid var(--gold);">
+              <strong style="color:var(--gold); display:block; margin-bottom:5px;">絆摔 (Topple)</strong>
+              <span style="font-size:0.9rem; color:#bbb; line-height:1.6;">使用此武器嘗試絆摔敵人時獲得 1 個優勢。</span>
+            </div>
+
+            <div style="background:rgba(255,255,255,0.05); padding:12px; border-radius:6px; border-left: 3px solid #e74c3c;">
+              <strong style="color:#e74c3c; display:block; margin-bottom:5px;">穿刺 (Piercing)</strong>
+              <span style="font-size:0.9rem; color:#bbb; line-height:1.6;">此武器會造成穿刺傷害。當使用穿刺武器時，你可以尋找護甲的空隙，自願讓攻擊檢定承受 1 個劣勢，若仍命中，敵人的護甲無法抵抗該次攻擊。</span>
+            </div>
+
+            <div style="background:rgba(255,255,255,0.05); padding:12px; border-radius:6px; border-left: 3px solid #e74c3c;">
+              <strong style="color:#e74c3c; display:block; margin-bottom:5px;">揮砍 (Slashing)</strong>
+              <span style="font-size:0.9rem; color:#bbb; line-height:1.6;">此武器會造成揮砍傷害。當鎖子甲在抵抗揮砍傷害時，護甲值 +2。</span>
+            </div>
+
+            <div style="background:rgba(255,255,255,0.05); padding:12px; border-radius:6px; border-left: 3px solid #e74c3c;">
+              <strong style="color:#e74c3c; display:block; margin-bottom:5px;">鈍擊 (Bludgeoning)</strong>
+              <span style="font-size:0.9rem; color:#bbb; line-height:1.6;">此武器會造成鈍擊傷害。當獸皮甲和皮革戰甲在抵抗鈍擊傷害時，護甲值 +2。</span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="bookmark-nav">
+        <button class="sub-tab-btn active-sub-tab" data-show="w-unarmed">徒手類</button>
+        <button class="sub-tab-btn" data-show="w-axe">斧類</button>
+        <button class="sub-tab-btn" data-show="w-club">棍棒類</button>
+        <button class="sub-tab-btn" data-show="w-spear">矛類</button>
+        <button class="sub-tab-btn" data-show="w-sword">劍類</button>
+        <button class="sub-tab-btn" data-show="w-shield">盾類</button>
+        <button class="sub-tab-btn" data-show="w-knife">小刀類</button>
+        <button class="sub-tab-btn" data-show="w-sling">投石繩</button>
+        <button class="sub-tab-btn" data-show="w-atlatl">投槍器</button>
+        <button class="sub-tab-btn" data-show="w-bow">弓類</button>
+        <button class="sub-tab-btn" data-show="w-blowgun">吹箭類</button>
+      </div>
+
+      <input type="text" class="gear-search" placeholder="🔍 搜尋武器或特性...">
+
+<div id="w-unarmed" class="sub-list-content">
+        <h3>徒手類 <span class="maz-badge">馬茲提卡 </span> </h3>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>名稱</th><th>技能</th><th>持握</th><th>力量</th><th>射程</th><th>傷害</th><th>耐久</th><th>價格</th><th>供應</th><th>材質</th><th>特性</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>徒手</td><td>徒手</td><td>-</td><td>-</td><td>2</td><td>1D6</td><td>-</td><td>-</td><td>-</td><td>-</td><td>鈍擊</td>
+              </tr>
+              
+              <tr>
+                <td><span class="popup-trigger" data-title="硬木指虎 (Cuauh-Ma)" data-img="images/gear/knuckle_wood.png" data-desc="由極硬的人心果木雕刻而成。體積小，容易藏在腰帶或袖口中。">硬木指虎</span></td><td>徒手</td><td>雙手</td><td>-</td><td>接觸</td><td>1D8</td><td>6</td><td><span class="price-bean">8 ∴</span></td><td>常見</td><td>木頭</td><td>鈍擊、隱藏</td>
+              </tr>
+              <tr>
+                <td><span class="popup-trigger" data-title="銅環指虎 (Tepoztli-Ma)" data-img="images/gear/knuckle_copper.png" data-desc="簡單的銅製指環或護指，增加拳頭的質量與硬度。">銅環指虎</span></td><td>徒手</td><td>雙手</td><td>-</td><td>接觸</td><td>2D4</td><td>9</td><td><span class="price-sun">5 ◎</span></td><td>罕見</td><td>金屬</td><td>鈍擊</td>
+              </tr>
+
+              <tr>
+                <td><span class="popup-trigger" data-title="黑曜石獸爪 (Mā-Itztli)" data-img="images/gear/knuckle_obsidian.png" data-desc="鑲嵌著銳利黑曜石片的皮革手套。能像狩豹一樣撕裂敵人的血肉。">黑曜石獸爪</span></td><td>徒手</td><td>雙手</td><td>-</td><td>接觸</td><td>1D8</td><td>6</td><td><span class="price-sun">2 ◎</span></td><td>常見</td><td>黑曜石</td><td>揮砍、穿刺、靈巧</td>
+              </tr>
+
+              <tr>
+                <td><span class="popup-trigger" data-title="蠍刺手甲 (Colotl-Ma)" data-img="images/gear/knuckle_scorpion.png" data-desc="手腕下方藏有一根尖銳的黑曜石刺或毒牙。適合突襲或塗毒。">蠍刺手甲</span></td><td>徒手</td><td>雙手</td><td>-</td><td>接觸</td><td>2D4</td><td>6</td><td><span class="price-sun">3 ◎</span></td><td>罕見</td><td>黑曜石</td><td>穿刺、隱藏、靈巧</td>
+              </tr>
+              
+              <tr>
+                <td><span class="popup-trigger" data-title="重石拳套 (Tetl-Ma)" data-img="images/gear/knuckle_stone.png" data-desc="綁著打磨光滑的圓石與厚皮革。">重石拳套</span></td><td>徒手</td><td>雙手</td><td>13</td><td>接觸</td><td>1D10</td><td>15</td><td><span class="price-sun">8 ◎</span></td><td>罕見</td><td>石頭</td><td>鈍擊、格檔</td>
+              </tr>
+
+              <tr style="border-top: 1px dashed #555;">
+                <td>輕型鈍器</td><td>徒手</td><td>單手</td><td>-</td><td>力量</td><td>1D8</td><td>3</td><td>-</td><td>-</td><td>-</td><td>鈍擊、可投擲</td>
+              </tr>
+              <tr>
+                <td>重型鈍器</td><td>徒手</td><td>雙手</td><td>-</td><td>16</td><td>2D8</td><td>3</td><td>-</td><td>-</td><td>-</td><td>鈍擊、絆摔</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div id="w-axe" class="sub-list-content" style="display:none;">
+        <h3>斧類 <span class="maz-badge">馬茲提卡 </span> </h3>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>名稱</th><th>技能</th><th>持握</th><th>力量</th><th>射程</th><th>傷害</th><th>耐久</th><th>價格</th><th>供應</th><th>材質</th><th>特性</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>黑曜石斧</td><td>斧</td><td>單手</td><td>7</td><td>力量</td><td>2D6</td><td>6</td><td><span class="price-sun">2 ◎</span></td><td>常見</td><td>黑曜石</td><td>揮砍、絆摔、投擲</td>
+              </tr>
+              <tr>
+                <td><span class="popup-trigger" data-title="銅斧 Itztōpīlli" data-img="images/gear/weapon_copper_axe.png" data-desc="一側有鈍突出物的銅斧。鋒利邊緣用於戰鬥，鈍邊緣可用於擊暈。">銅斧 (Itztōpīlli)</span></td><td>斧</td><td>單手</td><td>10</td><td>2</td><td>2D8</td><td>9</td><td><span class="price-sun">100 ◎</span></td><td>常見</td><td>金屬</td><td>揮砍、鈍擊</td>
+              </tr>
+              <tr>
+                <td>銅製巨斧</td><td>斧</td><td>雙手</td><td>16</td><td>2</td><td>2D10</td><td>9</td><td><span class="price-sun">50 ◎</span></td><td>罕見</td><td>金屬</td><td>揮砍、絆摔</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="w-club" class="sub-list-content" style="display:none;">
+        <h3>棍棒類 <span class="maz-badge">馬茲提卡 </span> </h3>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>名稱</th><th>技能</th><th>持握</th><th>力量</th><th>射程</th><th>傷害</th><th>耐久</th><th>價格</th><th>供應</th><th>材質</th><th>特性</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="popup-trigger" data-title="硬木棒 Cuahuitl" data-img="images/gear/Cuahuitl.png" data-desc="形狀如龍舌蘭葉的硬木短棒，平民防身首選。">硬木棒</span></td><td>棍棒</td><td>單手</td><td>-</td><td>力量</td><td>2D4</td><td>3</td><td><span class="price-moon">5 ☾</span></td><td>常見</td><td>木頭</td><td>鈍擊、絆摔、投擲</td>
+              </tr>
+              <tr>
+                <td><span class="popup-trigger" data-title="碎骨棒 Cuauholōlli" data-img="images/gear/Cuauholōlli.png" data-desc="手柄由木頭製成，頂部裝有石頭、木頭或銅球，威力相當大。">碎骨棒</span></td><td>棍棒</td><td>單手</td><td>7</td><td>2</td><td>1D8</td><td>6</td><td><span class="price-sun">1 ◎</span></td><td>常見</td><td>木頭</td><td>鈍擊、絆摔</td>
+              </tr>
+              <tr>
+                <td><span class="popup-trigger" data-title="刃棒 Huitzauhqui" data-img="images/gear/Huitzauhqui.png" data-desc="側面鑲嵌著黑曜石碎片的扁長大木棍。">刃棒</span></td><td>棍棒</td><td>單手</td><td>10</td><td>2</td><td>2D6</td><td>6</td><td><span class="price-sun">5 ◎</span></td><td>常見</td><td>木頭</td><td>鈍擊、絆摔、揮砍</td>
+              </tr>
+              <tr>
+                <td>銅製輕鎚</td><td>棍棒</td><td>單手</td><td>10</td><td>2</td><td>1D12</td><td>12</td><td><span class="price-sun">20 ◎</span></td><td>罕見</td><td>金屬</td><td>鈍擊、絆摔</td>
+              </tr>
+              <tr>
+                <td>銅製重鎚</td><td>棍棒</td><td>雙手</td><td>16</td><td>2</td><td>2D10</td><td>12</td><td><span class="price-sun">40 ◎</span></td><td>珍稀</td><td>金屬</td><td>鈍擊、絆摔</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="w-spear" class="sub-list-content" style="display:none;">
+        <h3>矛類 <span class="maz-badge">馬茲提卡 </span> </h3>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>名稱</th><th>技能</th><th>持握</th><th>力量</th><th>射程</th><th>傷害</th><th>耐久</th><th>價格</th><th>供應</th><th>材質</th><th>特性</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="popup-trigger" data-title="投射標槍 Tlacochtli" data-img="images/gear/Tlacochtli.png" data-desc="輕木製成的標槍，搭配擲箭器使用威力倍增。">投射標槍</span></td><td>矛</td><td>單手</td><td>7</td><td>力量</td><td>1D6</td><td>3</td><td><span class="price-moon">1 ☾</span></td><td>常見</td><td>黑曜石</td><td>穿刺、投擲</td>
+              </tr>
+              <tr>
+                <td><span class="popup-trigger" data-title="木矛 Tepoztōpīlli" data-img="images/gear/Tepoztōpīlli.png" data-desc="矛頭寬大如槳，嵌有黑曜石刃，既能突刺也能揮砍。">木矛</span></td><td>矛</td><td>雙手</td><td>7</td><td>2</td><td>2D6</td><td>2</td><td><span class="price-sun">2 ◎</span></td><td>常見</td><td>黑曜石</td><td>長柄、穿刺、揮砍</td>
+              </tr>
+              <tr>
+                <td>銅製長矛</td><td>矛</td><td>雙手</td><td>10</td><td>2</td><td>4D8</td><td>9</td><td><span class="price-sun">10 ◎</span></td><td>罕見</td><td>金屬</td><td>穿刺、長柄</td>
+              </tr>
+              <tr>
+                <td>騎槍</td><td>矛</td><td>單手</td><td>13</td><td>2</td><td>4D10</td><td>12</td><td><span class="price-sun">50 ◎</span></td><td>珍稀</td><td>金屬</td><td>長柄、穿刺、需坐騎</td>
+              </tr>
+              <tr>
+                <td>銅製斧槍</td><td>矛</td><td>雙手</td><td>13</td><td>2</td><td>4D8</td><td>12</td><td><span class="price-sun">75 ◎</span></td><td>珍稀</td><td>金屬</td><td>穿刺、揮砍、長柄</td>
+              </tr>
+              <tr>
+                <td>三叉戟</td><td>矛</td><td>單手</td><td>10</td><td>力量</td><td>2D6</td><td>9</td><td><span class="price-sun">30 ◎</span></td><td>罕見</td><td>金屬</td><td>穿刺、絆摔</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="w-sword" class="sub-list-content" style="display:none;">
+        <h3>劍類 <span class="maz-badge">馬茲提卡 </span> </h3>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>名稱</th><th>技能</th><th>持握</th><th>力量</th><th>射程</th><th>傷害</th><th>耐久</th><th>價格</th><th>供應</th><th>材質</th><th>特性</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="popup-trigger" data-title="馬夸威爾特 (Mācuahuitl)" data-img="images/gear/weapon_maca.png" data-desc="豹騎士的標誌性武器。木劍身兩側嵌滿了黑曜石片。">馬夸威特</span></td><td>劍</td><td>單手</td><td>10</td><td>2</td><td>2D6</td><td>9</td><td><span class="price-sun">12 ◎</span></td><td>常見</td><td>黑曜石</td><td>揮砍、鈍擊</td>
+              </tr>
+              <tr>
+                <td><span class="popup-trigger" data-title="馬卡短劍 (Mācuāhuitzōctli)" data-img="images/gear/weapon_maca_short.png" data-desc="末端有尖刺的短劍，可造成穿刺傷害。">馬卡短劍</span></td><td>劍</td><td>單手</td><td>10</td><td>2</td><td>1D10</td><td>9</td><td><span class="price-sun">10 ◎</span></td><td>常見</td><td>黑曜石</td><td>穿刺、揮砍</td>
+              </tr>
+              <tr>
+                <td>銅製短劍</td><td>劍</td><td>單手</td><td>7</td><td>2</td><td>1D10</td><td>12</td><td><span class="price-sun">16 ◎</span></td><td>罕見</td><td>金屬</td><td>穿刺、揮砍</td>
+              </tr>
+              <tr>
+                <td>銅製長劍</td><td>劍</td><td>單手</td><td>13</td><td>2</td><td>2D8</td><td>15</td><td><span class="price-sun">50 ◎</span></td><td>罕見</td><td>金屬</td><td>穿刺、揮砍</td>
+              </tr>
+              <tr>
+                <td>銅製巨劍</td><td>劍</td><td>雙手</td><td>16</td><td>2</td><td>2D10</td><td>18</td><td><span class="price-sun">75 ◎</span></td><td>珍稀</td><td>金屬</td><td>穿刺、揮砍</td>
+              </tr>
+              <tr>
+                <td>彎刀</td><td>劍</td><td>單手</td><td>10</td><td>2</td><td>2D6</td><td>12</td><td><span class="price-sun">30 ◎</span></td><td>珍稀</td><td>金屬</td><td>揮砍</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="w-shield" class="sub-list-content" style="display:none;">
+        <h3>盾類 <span class="maz-badge">馬茲提卡 </span> </h3>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>名稱</th><th>技能</th><th>持握</th><th>力量</th><th>射程</th><th>傷害</th><th>耐久</th><th>價格</th><th>供應</th><th>材質</th><th>特性</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>圓盾 (Chīmalli)</td><td>任意</td><td>單手</td><td>-</td><td>-</td><td>1D6</td><td>-</td><td><span class="price-sun">1 ◎</span></td><td>常見</td><td>木頭</td><td>鈍擊</td>
+              </tr>
+              <tr>
+                <td><span class="popup-trigger" data-title="精緻圓盾 Chīmalli" data-img="images/gear/Chīmalli.png" data-desc="精緻的羽毛圓盾，主要用於格擋投射物。">精緻圓盾</span></td><td>任意</td><td>單手</td><td>7</td><td>-</td><td>1D8</td><td>15</td><td><span class="price-sun">4 ◎</span></td><td>常見</td><td>木頭</td><td>鈍擊</td>
+              </tr>
+              <tr>
+                <td>銅盾</td><td>任意</td><td>單手</td><td>10</td><td>-</td><td>1D8</td><td>18</td><td><span class="price-sun">16 ◎</span></td><td>罕見</td><td>金屬</td><td>鈍擊</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="w-knife" class="sub-list-content" style="display:none;">
+        <h3>小刀類 <span class="maz-badge">馬茲提卡 </span> </h3>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>名稱</th><th>技能</th><th>持握</th><th>力量</th><th>射程</th><th>傷害</th><th>耐久</th><th>價格</th><th>供應</th><th>材質</th><th>特性</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>黑曜石飛刃</td><td>小刀</td><td>單手</td><td>-</td><td>力量 x2</td><td>1D4</td><td>-</td><td><span class="price-moon">3 ☾</span></td><td>常見</td><td>黑曜石</td><td>穿刺、投擲</td>
+              </tr>
+              <tr>
+                <td><span class="popup-trigger" data-title="黑曜石小刀 (Tecpatl)" data-img="images/gear/Tecpatl.png" data-desc="最基礎的祭祀與防身工具。">黑曜石小刀</span></td><td>小刀</td><td>單手</td><td>-</td><td>力量</td><td>1D8</td><td>6</td><td><span class="price-moon">5 ☾</span></td><td>常見</td><td>黑曜石</td><td>靈巧、穿刺、揮砍、投擲</td>
+              </tr>
+              <tr>
+                <td>銅製匕首</td><td>小刀</td><td>單手</td><td>-</td><td>力量</td><td>1D8</td><td>9</td><td><span class="price-sun">10 ◎</span></td><td>罕見</td><td>金屬</td><td>靈巧、穿刺、揮砍、投擲</td>
+              </tr>
+              <tr>
+                <td>格擋匕首</td><td>小刀</td><td>單手</td><td>-</td><td>-</td><td>1D6</td><td>15</td><td><span class="price-sun">16 ◎</span></td><td>珍稀</td><td>金屬</td><td>靈巧、穿刺、揮砍、格擋</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="w-sling" class="sub-list-content" style="display:none;">
+        <h3>投石繩類 <span class="maz-badge">馬茲提卡 </span> </h3>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>名稱</th><th>技能</th><th>持握</th><th>力量</th><th>射程</th><th>傷害</th><th>耐久</th><th>價格</th><th>供應</th><th>材質</th><th>特性</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="popup-trigger" data-title="投石繩 (Tēmātlatl)" data-img="images/gear/Tēmātlatl.png" data-desc="由龍舌蘭纖維製成。使用黏土包裹黑曜石碎片的彈丸。">投石繩</span></td><td>投石繩</td><td>單手</td><td>-</td><td>20</td><td>1D8</td><td>1</td><td><span class="price-moon">5 ☾</span></td><td>常見</td><td>黑曜石</td><td>鈍擊/揮砍、微型物品</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="w-atlatl" class="sub-list-content" style="display:none;">
+        <h3>投槍器類 <span class="maz-badge">馬茲提卡 </span> </h3>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>名稱</th><th>技能</th><th>持握</th><th>力量</th><th>射程</th><th>傷害</th><th>耐久</th><th>價格</th><th>供應</th><th>材質</th><th>特性</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="popup-trigger" data-title="投槍器 Atlatl" data-img="images/gear/atlatl.png" data-desc="延伸的手臂。利用槓桿原理投擲標槍。">投槍器</span></td><td>投槍器</td><td>單手</td><td>-</td><td>力量x2</td><td>1D10</td><td>10</td><td><span class="price-moon">5 ☾</span></td><td>常見</td><td>木頭</td><td>穿刺、需標槍/箭矢</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="w-bow" class="sub-list-content" style="display:none;">
+        <h3>弓類 <span class="maz-badge">馬茲提卡 </span> </h3>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>名稱</th><th>技能</th><th>持握</th><th>力量</th><th>射程</th><th>傷害</th><th>耐久</th><th>價格</th><th>供應</th><th>材質</th><th>特性</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>短弓</td><td>弓</td><td>雙手</td><td>7</td><td>30</td><td>1D8</td><td>6</td><td><span class="price-sun">25 ◎</span></td><td>常見</td><td>木頭</td><td>穿刺、需箭袋</td>
+              </tr>
+              <tr>
+                <td><span class="popup-trigger" data-title="戰弓 Tlahhuītōlli" data-img="images/gear/Tlahhuitolli.png" data-desc="庫爾塔卡高地人常用的長弓，射程極遠。">戰弓</span></td><td>弓</td><td>雙手</td><td>13</td><td>100</td><td>1D10</td><td>10</td><td><span class="price-sun">50 ◎</span></td><td>常見</td><td>木頭</td><td>穿刺、需箭袋</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="w-blowgun" class="sub-list-content" style="display:none;">
+        <h3>吹箭筒類 <span class="maz-badge">馬茲提卡 </span> </h3>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>名稱</th><th>技能</th><th>持握</th><th>力量</th><th>射程</th><th>傷害</th><th>耐久</th><th>價格</th><th>供應</th><th>材質</th><th>特性</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="popup-trigger" data-title="吹箭筒" data-img="images/gear/Tlacalhuazcuahuitl.png" data-desc="叢林半身人最愛的武器，通常搭配神經毒素使用。">吹箭筒</span></td><td>吹箭</td><td>單手</td><td>-</td><td>敏捷x2</td><td>1D6</td><td>3</td><td><span class="price-sun">1 ◎</span></td><td>常見</td><td>木頭</td><td>穿刺、需塗毒/吹箭袋</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="equip-armor" class="rule-content">
+    <div class="rule-display-area">
+      <div class="rule-card">
+        <h3>🛡️ 護甲 與 頭盔 <span class="maz-badge">馬茲提卡 </span> </h3>
+        <p>護甲值：代表當你被攻擊命中時，可以減去多少傷害。你同時只能穿戴一套護甲，但護甲可以和頭盔結合。</p>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>名稱</th><th>價格</th><th>供應</th><th>效果</th><th>護甲值</th></tr></thead>
+            <tbody>
+              <tr><td>獸皮甲</td><td><span class="price-sun">2 ◎</span></td><td>常見</td><td>抵抗鈍擊傷害時，護甲值 +2。</td><td>1</td></tr>
+              <tr><td><span class="popup-trigger" data-title="棉甲 Ichcahuīpīll" data-img="images/gear/Ichcahuīpīlli.png" data-desc="以多層棉布緊密縫製、浸鹽晾乾而成，能有效分散衝擊。">棉甲</span></td><td><span class="price-sun">5 ◎</span></td><td>常見</td><td>抵抗黑曜石傷害時，護甲值 +2。</td><td>1</td></tr>
+              <tr><td><span class="popup-trigger" data-title="皮革戰甲 Tlahuiztli" data-img="images/gear/Tlahuiztli.png" data-desc="堅韌皮革與植物纖維縫製的戰衣。">皮革戰甲</span></td><td><span class="price-sun">20 ◎</span></td><td>罕見</td><td>抵抗黑曜石與鈍擊時，護甲值 +2。</td><td>2</td></tr>
+              <tr><td><span class="popup-trigger" data-title="戰士外衣 Ēhuatl" data-img="images/gear/Ēhuatl.png" data-desc="披掛於護甲之外的儀式戰衣。">戰士外衣</span></td><td><span class="price-sun">50 ◎</span></td><td>罕見</td><td>可疊加。抵抗穿刺時護甲值+1。</td><td>1</td></tr>
+              <tr><td><span class="popup-trigger" data-title="鷹/豹騎士戰甲" data-img="images/gear/knight_armor.png" data-desc="騎士團的專屬鎧甲。私自穿戴者將被視為死罪。">騎士戰甲</span></td><td><span class="price-sun">100 ◎</span></td><td>珍稀</td><td>抵抗黑曜石與鈍擊時，護甲值 +2。</td><td>3</td></tr>
+              <tr><td>鎖子甲</td><td><span class="price-sun">50 ◎</span></td><td>罕見</td><td>閃避、隱匿劣勢。抵抗揮砍 +2。</td><td>4</td></tr>
+              <tr><td>板甲</td><td><span class="price-sun">500 ◎</span></td><td>珍稀</td><td>體操、閃避、隱匿劣勢。</td><td>6</td></tr>
+              <tr style="border-top:2px solid #444;"><td><span class="popup-trigger" data-title="木製戰盔" data-img="images/gear/Cuacalalatli.png" data-desc="由硬木雕刻而成。形狀代表不同的動物。">木製戰盔</span></td><td><span class="price-sun">5 ◎</span></td><td>罕見</td><td>察覺劣勢。大成功命中時破損。</td><td>1</td></tr>
+              <tr><td>開面頭盔</td><td><span class="price-sun">12 ◎</span></td><td>罕見</td><td>察覺劣勢。</td><td>1</td></tr>
+              <tr><td>全筒頭盔</td><td><span class="price-sun">100 ◎</span></td><td>珍稀</td><td>察覺、遠程攻擊劣勢。</td><td>2</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+ <div id="equip-instruments" class="rule-content">
+    <div class="rule-display-area">
+      <div class="rule-card">
+        <h3>🎵 樂器 Instruments <span class="maz-badge">馬茲提卡 </span> </h3>
+        <p>這些樂器是馬茲提卡音樂文化的重要象徵。每件樂器都能讓音樂家展現獨特的音色與靈力。</p>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>名稱</th><th>價格</th><th>重量</th><th>供應</th><th>效果／用途</th></tr></thead>
+            <tbody>
+              <tr><td><span class="popup-trigger" data-title="長鼓 Teponaztli" data-img="images/gear/Teponaztli.png" data-desc="中空的木製長鼓，以木槌敲擊產生低沉共鳴。">長鼓</span></td><td><span class="price-sun">4 ◎</span></td><td>2</td><td>常見</td><td>音樂家能力範圍提升至 20 米。</td></tr>
+              <tr><td><span class="popup-trigger" data-title="海貝號角 Cocolli" data-img="images/gear/Cocolli.png" data-desc="由大型海螺製成的號角，吹響時能遠播千里。">海貝號角</span></td><td><span class="price-sun">6 ◎</span></td><td>2</td><td>常見</td><td>音樂家能力範圍提升至 100 米。</td></tr>
+              <tr><td><span class="popup-trigger" data-title="長笛 Tlapitzalli" data-img="images/gear/Tlapitzalli.png" data-desc="由陶瓷、木材或骨頭製成。">長笛</span></td><td><span class="price-sun">2 ◎</span></td><td>1</td><td>常見</td><td>音樂家優勢效果 WP 消耗降至 2。</td></tr>
+              <tr><td><span class="popup-trigger" data-title="死亡哨 Death Whistle" data-img="images/gear/DeathWhistle.png" data-desc="外形如頭骨的陶哨，吹出如鬼哭般的聲音。">死亡哨</span></td><td><span class="price-sun">10 ◎</span></td><td>-</td><td>罕見</td><td>音樂家劣勢效果範圍 50 米，附帶一次恐懼攻擊。</td></tr>
+              <tr><td><span class="popup-trigger" data-title="四管笛" data-img="images/gear/Flute4.png" data-desc="複雜的陶製樂器，能同時吹奏四個音階。">四管笛</span></td><td><span class="price-sun">30 ◎</span></td><td>1</td><td>罕見</td><td>音樂家 WP 消耗降至 1，範圍 50 米。</td></tr>
+              <tr><td><span class="popup-trigger" data-title="種子莢鈴" data-img="images/gear/Yoyotl.png" data-desc="將乾燥種子莢串聯成串，搖動時發出沙沙聲。">種子莢鈴</span></td><td><span class="price-sun">1 ◎</span></td><td>-</td><td>常見</td><td>音樂家能力範圍提升至 15 米。</td></tr>
+              <tr><td><span class="popup-trigger" data-title="骨銼" data-img="images/gear/Omichicahuaztli.png" data-desc="以長骨刻槽製成，摩擦時發出低沉顫音。">骨銼</span></td><td><span class="price-sun">2 ◎</span></td><td>1</td><td>常見</td><td>音樂家劣勢效果 WP 消耗降至 2。</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="equip-items" class="rule-content">
+    <div class="rule-display-area">
+      <div class="bookmark-nav">
+        <button class="sub-tab-btn active-sub-tab" data-show="i-clothing">服裝</button>
+        <button class="sub-tab-btn" data-show="i-magic">法器與載體</button>
+        <button class="sub-tab-btn" data-show="i-components">施法材料</button>
+        <button class="sub-tab-btn" data-show="i-light">照明</button>
+        <button class="sub-tab-btn" data-show="i-tools">工具</button>
+        <button class="sub-tab-btn" data-show="i-container">容器</button>
+        <button class="sub-tab-btn" data-show="i-medical">醫療</button>
+        <button class="sub-tab-btn" data-show="i-huntfish">狩獵</button>
+        <button class="sub-tab-btn" data-show="i-service">服務</button>
+        <button class="sub-tab-btn" data-show="i-trade">貿易</button>
+        <button class="sub-tab-btn" data-show="i-transport">交通</button>
+        <button class="sub-tab-btn" data-show="i-power">動物</button>
+      </div>
+
+      <input type="text" class="gear-search" placeholder="🔍 搜尋物品..." onkeyup="filterGear(this.value)">
+
+<div id="i-clothing" class="sub-list-content">
+        <h3>服裝 <span class="maz-badge">馬茲提卡 </span> </h3>
+
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>名稱</th><th>價格</th><th>重量</th><th>供應</th><th>說明</th></tr></thead>
+            <tbody>
+              <tr><td>棉布衣裝</td><td><span class="price-moon">5 ☾</span></td><td>1</td><td>常見</td><td>標準的纏腰布(Maxtlatl)與罩衫。若沒穿，魅力檢定獲得劣勢。</td></tr>
+              <tr><td>護脛涼鞋</td><td><span class="price-sun">2 ◎</span></td><td>1</td><td>罕見</td><td>厚鹿皮底與高筒護腿。可避免某些旅行意外(如荊棘、毒蛇)。</td></tr>
+              <tr><td>龍舌蘭披風</td><td><span class="price-moon">8 ☾</span></td><td>1</td><td>罕見</td><td>堅韌的植物纖維織成。可防曬、防蟲，避免某些旅行意外。</td></tr>
+              <tr><td>羽飾華服</td><td><span class="price-sun">10 ◎</span></td><td>1</td><td>罕見</td><td>刺繡棉布加上鮮豔的格查爾鳥羽毛。魅力檢定獲得 1 個優勢。</td></tr>
+              <tr><td>兔毛織袍</td><td><span class="price-sun">1 ◎</span></td><td>1</td><td>常見</td><td>由兔毛紗線與棉線混織的厚袍。抗寒求生檢定獲得 1 個優勢。</td></tr>
+              <tr><td>粗麻破布</td><td><span class="price-bean">5 ∴</span></td><td>-</td><td>常見</td><td>破損且髒污的粗糙纖維布。魅力檢定獲得 1 個劣勢。</td></tr>
+            </tbody>
+          </table>
+        </div>
+<div class="maz-note" style="margin-top:15px;">
+           <strong>【馬茲提卡服飾文化】</strong>
+           在馬茲提卡，披風 (Tilma)的長度與結的打法象徵著社會地位。平民若穿著長度過膝的披風或是穿戴玉石飾品，可能會被視為僭越而受到懲罰。戰士則透過掠奪敵人的裝備與羽毛來裝飾自己。
+        </div>
+      </div>
+
+      <div id="i-magic" class="sub-list-content" style="display:none;">
+
+        <h3>法器 與 載體 <span class="maz-badge">馬茲提卡 </span> </h3>
+
+        <div class="table-scroll">
+<table>
+  <thead><tr><th>物品</th><th>價格</th><th>重量</th><th>稀有度</th><th>效果與描述</th></tr></thead>
+  <tbody>
+    <tr><td>翡翠護符</td><td><span class="price-sun">3 ◎</span></td><td>-</td><td>罕見</td><td><strong></strong> 雕刻成玉米或神靈形象的綠色玉石。可作為法術的法器。</td></tr>
+    <tr><td>樹皮知識卷</td><td><span class="price-sun">25 ◎</span></td><td>1</td><td>罕見</td><td><strong></strong> 繪有歷史圖畫的摺疊長卷。特定主題檢定獲得 1 個優勢。</td></tr>
+    <tr><td>黑曜石飾針</td><td><span class="price-sun">5 ◎</span></td><td>-</td><td>罕見</td><td><strong></strong> 用於固定斗篷的鋒利飾針，也可用於放血。可作為法術的法器。</td></tr>
+    <tr><td>儀式赭石</td><td><span class="price-bean">1 ∴</span></td><td>-</td><td>常見</td><td><strong></strong> 用於在地面或皮膚繪製圖騰的紅土顏料。可作為法術的法器。</td></tr>
+    <tr><td>法術載體</td><td><span class="price-sun">50 ◎+</span></td><td>1</td><td>獨特</td><td><strong></strong> 紀錄法術的媒介(法典、繩結或骨頭)，價格依內容而定。</td></tr>
+    <tr><td>柯巴脂香篆</td><td><span class="price-sun">25 ◎</span></td><td>1</td><td>珍稀</td><td><strong></strong> 透過燃燒神聖柯巴脂(Copal)的長度來計算時間。可作為法術的法器。</td></tr>
+    <tr><td>空白摺本</td><td><span class="price-sun">5 ◎</span></td><td>1</td><td>常見</td><td><strong></strong> 尚未繪製圖畫的樹皮紙長條。可作為空白的法術載體。</td></tr>
+    <tr><td>黑曜石鏡</td><td><span class="price-sun">18 ◎</span></td><td>1</td><td>罕見</td><td><strong></strong> 打磨至極致光滑的黑曜石圓盤，據說能看見靈界。可作為法術的法器。</td></tr>
+    <tr><td>阿瑪特紙 (張)</td><td><span class="price-moon">2 ☾</span></td><td>-</td><td>罕見</td><td><strong></strong> 由無花果樹皮敲打製成的高級紙張。抄寫法術用。</td></tr>
+    <tr><td>鞣製鹿皮 (張)</td><td><span class="price-moon">1 ☾</span></td><td>-</td><td>常見</td><td><strong></strong> 經過處理的動物皮革。抄寫法術用。</td></tr>
+    <tr><td>蘆葦筆 & 胭脂墨</td><td><span class="price-sun">10 ◎</span></td><td>1</td><td>罕見</td><td><strong></strong> 堅硬的蘆葦管與胭脂蟲(Cochineal)研磨的紅墨水。抄寫法術用。</td></tr>
+    <tr><td>神靈雕像</td><td><span class="price-sun">5 ◎</span></td><td>1</td><td>罕見</td><td><strong></strong> 陶土或木頭雕刻的小型神像。可作為法術的法器。</td></tr>
+    <tr><td>祭祀響板</td><td><span class="price-sun">10 ◎</span></td><td>1</td><td>罕見</td><td><strong></strong> 內部裝有種子或碎骨的儀式器具，搖晃可引導靈力。可作為法術的法器。</td></tr>
+  </tbody>
+</table>
+        </div>
+      </div>
+
+<div id="i-components" class="sub-list-content" style="display:none;">
+
+        <h3>施法材料 <span class="maz-badge">馬茲提卡 </span> </h3>
+
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>名稱</th><th>價格</th><th>重量</th><th>供應</th><th>適用法術與說明</th></tr></thead>
+            <tbody>
+              <tr><td>一袋普通羽毛（10根）</td><td><span class="price-bean">5 ∴</span></td><td>-</td><td>常見</td><td>常見鳥類的羽毛。</td></tr>
+              <tr><td>一袋鷹類羽毛（10根）</td><td><span class="price-moon">5 ☾</span></td><td>-</td><td>常見</td><td>象徵寂靜的夜行猛禽羽毛。</td></tr>
+              <tr><td>一袋華麗羽毛（10根）</td><td><span class="price-sun">2 ◎</span></td><td>-</td><td>常見</td><td>色彩鮮豔、帶有強大托納利的羽毛。</td></tr>
+              <tr><td>一袋金色巨鷹羽（5根）</td><td><span class="price-sun">20 ◎</span></td><td>-</td><td>罕見</td><td>來自高山巨鷹的金色羽毛。</td></tr>
+              <tr><td>一袋儀式金粉（5份）</td><td><span class="price-sun">10 ◎</span></td><td>-</td><td>罕見</td><td><strong>(消耗)</strong> 象徵太陽神力的純金粉末。</td></tr>
+            </tbody>
+          </table>
+          <table>
+            <thead><tr><th>名稱</th><th>價格</th><th>重量</th><th>供應</th><th>適用法術與說明</th></tr></thead>
+            <tbody>
+              <tr><td>一塊天然磁石</td><td><span class="price-sun">2 ◎</span></td><td>-</td><td>罕見</td><td>指向北方的磁石。</td></tr>
+              <tr><td>一袋蛇鱗（10片）</td><td><span class="price-bean">5 ∴</span></td><td>-</td><td>常見</td><td>蛇類的鱗片。</td></tr>
+              <tr><td>一袋黑曜石碎片（10片）</td><td><span class="price-bean">5 ∴</span></td><td>-</td><td>常見</td><td>銳利的碎片。</td></tr>
+              <tr><td>一塊野獸毛皮</td><td><span class="price-moon">2 ☾</span></td><td>1</td><td>常見</td><td>各種動物的生皮。</td></tr>
+              <tr><td>一袋毒牙（10根）</td><td><span class="price-moon">5 ☾</span></td><td>-</td><td>罕見</td><td>毒蛇或蜥蜴的尖牙。</td></tr>
+              <tr><td>一袋毒蛇毒囊（5塊）</td><td><span class="price-sun">2 ◎</span></td><td>-</td><td>罕見</td><td>需小心摘取的毒腺。</td></tr>
+              <tr><td>一顆貓科動物的眼球</td><td><span class="price-sun">1 ◎</span></td><td>-</td><td>珍稀</td><td>風乾的眼球。</td></tr>
+              <tr><td>一顆貓眼石</td><td><span class="price-sun">15 ◎</span></td><td>-</td><td>珍稀</td><td>寶石。</td></tr>
+              <tr><td>一根巨蟒蛇骨</td><td><span class="price-sun">5 ◎</span></td><td>1</td><td>罕見</td><td>粗大的脊椎骨。</td></tr>
+              <tr><td>一袋腐敗毒材（5份）</td><td><span class="price-bean">5 ∴</span></td><td>1</td><td>常見</td><td>腐爛的蟾蜍胃或發酵毒液。</td></tr>
+              <tr><td>一袋寄生蟲卵（5顆）</td><td><span class="price-sun">8 ◎</span></td><td>-</td><td>罕見</td><td>危險的蟲卵。</td></tr>
+              <tr><td>一大塊黑曜石</td><td><span class="price-sun">10 ◎</span></td><td>2</td><td>常見</td><td>高品質的石材。</td></tr>
+              <tr><td>一袋黑曜石粉末（5份）</td><td><span class="price-moon">2 ☾</span></td><td>1</td><td>常見</td><td><strong>(消耗)</strong> 研磨成沙的黑曜石。用</td></tr>
+            </tbody>
+          </table>
+          <table>
+            <thead><tr><th>名稱</th><th>價格</th><th>重量</th><th>供應</th><th>適用法術與說明</th></tr></thead>
+            <tbody>
+              <tr><td>一大塊火山岩</td><td><span class="price-sun">5 ◎</span></td><td>1</td><td>常見</td><td><strong>(消耗)</strong> 充滿地熱能量的石頭。用於火系與土系法術。</td></tr>
+
+              <tr><td>一罐神聖柯巴脂（5份）</td><td><span class="price-sun">2 ◎</span></td><td>1</td><td>常見</td><td>馬茲提卡最重要的祭祀香料，煙霧能溝通神靈。</td></tr>
+              <tr><td>一塊藥草包</td><td><span class="price-moon">5 ☾</span></td><td>1</td><td>常見</td><td>蘆薈、鼠尾草與萬壽菊的混合包。</td></tr>
+              <tr><td>一袋玉石粉末（5份）</td><td><span class="price-sun">10 ◎</span></td><td>-</td><td>罕見</td><td>象徵生命與永恆。</td></tr>
+              <tr><td>一袋龍舌蘭刺與纖維</td><td><span class="price-bean">5 ∴</span></td><td>-</td><td>常見</td><td>來自神聖植物的天然針線。</td></tr>
+
+              <tr><td>一袋占卜骨片</td><td><span class="price-moon">2 ☾</span></td><td>-</td><td>常見</td><td>刻有符號的獸骨或人指骨。用於投擲占卜吉凶。</td></tr>
+              <tr><td>一塊琥珀碎片</td><td><span class="price-sun">5 ◎</span></td><td>-</td><td>罕見</td><td><span class="consumable-tag"></span> 封存了遠古陽光的樹脂化石。</td></tr>
+              <tr><td>一塊曝曬銅片</td><td><span class="price-bean">5 ∴</span></td><td>-</td><td>常見</td><td><span class="consumable-tag"></span> 在正午烈日下曝曬過一刻鐘的銅片。</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+
+        <div class="maz-note" style="margin-top:15px;">
+           <strong>【施法材料：自然的恩賜】</strong>
+           <ul>
+             <li><strong>消耗品：</strong>標註為 <span class="consumable-tag"></span> 的材料會在施法過程中粉碎、燃燒或失去魔力。</li>
+             <li><strong>自然採集：</strong>許多 0 階與 1 階法術的材料（如樹枝、花朵、普通的石頭）可以在野外花費時間取得，無需購買。</li>
+           </ul>
+        </div>
+      </div>
+
+<div id="i-light" class="sub-list-content" style="display:none;">
+        <h3>照明 <span class="maz-badge">馬茲提卡 </span> </h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>名稱</th><th>價格</th><th>重量</th><th>供應</th><th>說明</th></tr></thead>
+            <tbody>
+              <tr><td>黃鐵礦取火組</td><td><span class="price-moon">5 ☾</span></td><td>-</td><td>常見</td><td><strong>(本土)</strong> 包含黃鐵礦石、燧石與易燃的火絨。用於生火。</td></tr>
+              <tr><td>油脂/樹脂 (10劑)</td><td><span class="price-moon">3 ☾</span></td><td>1</td><td>常見</td><td>每劑維持一班時間。可用於陶燈或軍團提燈。</td></tr>
+              
+              <tr><td>鏤空陶燈</td><td><span class="price-sun">8 ◎</span></td><td>1</td><td>常見</td><td><strong>(本土)</strong> 精細穿孔的陶罐，無玻璃。照亮10米。防風性普通。點燃後最久可燃燒一班時間，但每經一刻時間需擲 1D8，若擲到 1 則火光熄滅，需重新加油並點燃（動作）。</td></tr>
+              
+              <tr style="background: rgba(243, 156, 18, 0.1);"><td>軍團提燈</td><td><span class="price-sun">45 ◎</span></td><td>1</td><td>珍稀</td><td><strong>(外來)</strong> 鋼鐵與玻璃製成的昂貴舶來品。照亮12米。極度防風。點燃後最久可燃燒一班時間，但每經一刻時間需擲 1D12，若擲到 1 則火光熄滅，需重新加油並點燃（動作）。</td></tr>
+              
+              <tr><td>陶碗油燈</td><td><span class="price-sun">1 ◎</span></td><td>1</td><td>常見</td><td><strong>(本土)</strong> 簡單的黏土淺碗。易灑出。照亮10米。點燃後最久可燃燒一班時間，但每經一刻時間需擲 1D6，若擲到 1 則火光熄滅，需重新加油並點燃（動作）。每當你被攻擊命中時，你必須馬上擲骰判斷火焰是否會熄滅。</td></tr>
+              <tr><td>蜂蠟燭</td><td><span class="price-bean">1 ∴</span></td><td>-</td><td>常見</td><td><strong>(本土)</strong> 無刺蜂蠟製成。照亮4米。點燃後最久可燃燒一班時間。但每經一刻時間，或被攻擊命中都需擲 1D4，若擲到 1 則熄滅。</td></tr>
+              <tr><td>松明火炬</td><td><span class="price-bean">5 ∴</span></td><td>1</td><td>常見</td><td><strong>(本土)</strong> 富含油脂的松木，燃燒猛烈。照亮10米。但每經一刻時間或使用火炬進行攻擊都需擲 1D6，若擲到 1 則熄滅。火炬可以當作武器使用，視為可以造成火焰傷害的「小型木棒」。每當你用火炬攻擊命中敵人時，你必須馬上擲骰判斷火焰是否會熄滅。</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="maz-note" style="margin-top:15px;">
+           <strong>【世界觀補充】</strong>
+           <ul>
+             <li><strong>本土工藝 (Native)：</strong>馬茲提卡人擅長利用自然，奧科特松明(Ocote) 是一種經常用作起火劑的天然燃燒物，即使在雨中也能燃燒，具有非常獨特的特性，它釋放出神秘的香氣。非常像柑橘 /松樹，帶有淡淡的乳香。陶燈 則展現了精湛的燒陶工藝。</li>
+             <li><strong>外來技術 (Foreign)：</strong>黃金軍團帶來了 玻璃 與 冶金 技術。雖然軍團提燈被視為醜陋的鐵籠子，但其在暴風雨中依然穩定的火光，讓富有的商人與貴族趨之若鶩。</li>
+             <li><strong>螢火蟲籠 (Cucujo)：</strong>雖然不在列表中，但在夜間潛行時，獵人常會將發光甲蟲裝在有孔的葫蘆裡，作為微弱但不易被發現的光源（照明範圍僅 1 米）。</li>
+           </ul>
+        </div>
+      </div>
+
+<div id="i-tools" class="sub-list-content" style="display:none;">
+        <h3>工具 <span class="maz-badge">馬茲提卡 </span> </h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>名稱</th><th>價格</th><th>重量</th><th>供應</th><th>說明</th></tr></thead>
+            <tbody>
+              <tr><td>硬木撬棒</td><td><span class="price-sun">2 ◎</span></td><td>1</td><td>常見</td><td>由極硬的人心果木製成，末端包覆銅或硬石。對門或牆造成 2D6 傷害，自動命中且不會受損。</td></tr>
+              <tr><td>玄武岩鎚</td><td><span class="price-sun">1 ◎</span></td><td>1</td><td>常見</td><td>綁在木柄上的磨製石塊。對門或牆造成 2D4 傷害，自動命中且不會受損。</td></tr>
+              <tr><td>骨針與龍舌蘭線</td><td><span class="price-moon">3 ☾</span></td><td>-</td><td>常見</td><td>使用魚骨或仙人掌刺作為針。使用 工藝 技能來修補服裝。</td></tr>
+              <tr><td>鹿角尖嘴鋤</td><td><span class="price-sun">3 ◎</span></td><td>1</td><td>常見</td><td>利用堅硬的鹿角製成，對門或牆造成 2D8 傷害，自動命中且不會受損。</td></tr>
+              <tr><td>黑曜石鋸 </td><td><span class="price-sun">5 ◎</span></td><td>1</td><td>罕見</td><td>鑲嵌鋸齒狀黑曜石的木板。在一刻時間內切割木頭。</td></tr>
+              <tr><td>挖掘棒</td><td><span class="price-sun">2 ◎</span></td><td>1</td><td>常見</td><td>頂端寬扁的硬木棍，農耕與挖掘的核心工具。挖掘時間減半。</td></tr>
+              <tr><td>碎石大鎚</td><td><span class="price-sun">3 ◎</span></td><td>2</td><td>常見</td><td>巨大的原石綁在粗木柄上。對門或牆造成 2D10 傷害，自動命中且不會受損。</td></tr>
+              <tr><td>黑曜石鐮刀</td><td><span class="price-moon">5 ☾</span></td><td>1</td><td>常見</td><td>彎曲的木柄鑲嵌銳利的黑曜石片。用於快速採收龍舌蘭與高草。也可作為 輕型武器 (使用 徒手 造成 1D4 揮砍傷害)。</td></tr>
+              
+              <tr><td>金銀細工組</td><td><span class="price-sun">40 ◎</span></td><td>1</td><td>罕見</td><td>用於冷鍛金、銀與銅飾品。無法處理鋼鐵。工藝檢定用。</td></tr>
+              <tr><td>木雕工具</td><td><span class="price-sun">8 ◎</span></td><td>1</td><td>罕見</td><td>包含各種尺寸的黑曜石刮刀與鑿子。工藝檢定用。</td></tr>
+              <tr><td>皮匠工具</td><td><span class="price-sun">5 ◎</span></td><td>1</td><td>罕見</td><td>骨製刮刀與鞣製用的酸性植物汁液。工藝檢定用。</td></tr>
+              <tr><td>鍛匠工具</td><td><span class="price-sun">20 ◎</span></td><td>1</td><td>罕見</td><td>文明的基石。包含鉛錘、黑曜石鑿子與研磨砂。工藝檢定用。</td></tr>
+              <tr><td>織布工具</td><td><span class="price-sun">10 ◎</span></td><td>1</td><td>罕見</td><td>繫在腰間的攜帶式織布機，用於編織棉布與披風。工藝檢定用。</td></tr>
+              <tr><td>草藥師工具</td><td><span class="price-sun">5 ◎</span></td><td>1</td><td>常見</td><td>包含火山岩磨缽(Molcajete)、黑曜石切刀與分類皮囊。處理 藥草/毒藥 與 製作藥劑 的 求生 檢定獲得 1 個優勢。</td></tr>
+              <tr><td>寶石工具</span></td><td><span class="price-sun">60 ◎</span></td><td>1</td><td>珍稀</td><td><strong>(大師)</strong> 包含鑽石粉末、瑪瑙拋光石與精細的翡翠鑽頭。用於加工寶石與極硬材質。</td></tr>
+              
+              <tr style="background: rgba(243, 156, 18, 0.1);"><td>鐵匠工具</td><td><span class="price-sun">500 ◎</span></td><td>2</td><td>珍稀</td><td><strong>(獨門)</strong> 包含沉重的鐵砧與耐高溫鉗。唯一能修復鋼鐵裝備的工具。</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="maz-note" style="margin-top:15px;">
+           <strong>【世界觀補充】</strong>
+           <li><strong>鋼鐵：</strong>鐵礦在馬茲提卡非常稀缺，且鋼鐵冶煉是由外來者帶來的技術，在馬茲提卡大陸目前只有 矮人一族 習得了這項技術。本土工匠只能處理金、銀、銅等軟金屬（使用金銀細工組）。
+           <br>若冒險者的鋼鐵裝備受損，他們必須支付高昂的費用尋求矮人鐵匠的幫助，或是設法弄到一套極其昂貴且沉重的 矮人鐵匠工具 自己動手。
+           <li><strong>黑曜石：</strong>鋒利到了極致，但脆弱。是戰士與普通工匠的首選，象徵著「死亡」與「犧牲」。</li>
+           </ul>
+        </div>
+      </div>
+
+<div id="i-container" class="sub-list-content" style="display:none;">
+        <h3>容器 <span class="maz-badge">馬茲提卡 </span> </h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>名稱</th><th>價格</th><th>重量</th><th>供應</th><th>說明</th></tr></thead>
+            <tbody>
+              <tr><td>額帶背架</td><td><span class="price-sun">3 ◎</span></td><td>-</td><td>常見</td><td>帶有額頭繫帶(Mecapalli)的木製背架。負重上限 +2。</td></tr>
+              <tr><td>陶甕</td><td><span class="price-sun">2 ◎</span></td><td>2</td><td>常見</td><td>巨型陶甕。容納重量15。HP 8 (易碎), AR 2。</td></tr>
+              <tr><td>蘆葦籃</td><td><span class="price-moon">4 ☾</span></td><td>1</td><td>常見</td><td>緊密編織的硬蘆葦籃，有些甚至可以短暫盛水。容納重量10。</td></tr>
+              <tr><td>葫蘆瓶</td><td><span class="price-sun">1 ◎</span></td><td>1</td><td>常見</td><td>曬乾並掏空的葫蘆，用玉米芯塞住。容納 1 份液體。</td></tr>
+              <tr><td>寬口陶桶</td><td><span class="price-bean">5 ∴</span></td><td>1</td><td>常見</td><td>附有繩索提把的粗陶桶。容納 5 份液體。</td></tr>
+              <tr><td>雪松木箱</td><td><span class="price-sun">5 ◎</span></td><td>3</td><td>常見</td><td>雕刻精美的紅松或雪松木箱。無鎖，以複雜繩結密封。容納重量20。HP 25, AR 5。</td></tr>
+              <tr><td>彩繪泥罐</td><td><span class="price-moon">5 ☾</span></td><td>1</td><td>常見</td><td>繪有幾何圖案的標準容器。容納 1 份液體。</td></tr>
+              <tr><td>馱獸掛袋</td><td><span class="price-sun">6 ◎</span></td><td>-</td><td>常見</td><td>用於掛在巨蜥或罕見馬匹上的雙囊袋。動物負重 +2。</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="maz-note" style="margin-top:15px;">
+           <strong>【馬茲提卡容器工藝】</strong>
+           <ul>
+             <li><strong>額帶 (Mecapalli)：</strong>在外大陸技術傳入前，馬茲提卡人沒有輪車，所有貨物都靠人力運輸。透過將重量分散到額頭與脊椎，背夫 (Tamemes) 能夠揹負極重的貨物長途跋涉。</li>
+             <li><strong>繩結鎖：</strong>這裡的箱子沒有金屬鎖頭。要保護貴重物品，人們使用極其複雜的繩結技巧。解開一個大師級的繩結就像解開一道謎題（需要 巧手 檢定）。</li>
+           </ul>
+        </div>
+      </div>
+
+<div id="i-medical" class="sub-list-content" style="display:none;">
+        <h3>醫療用品 與 毒藥 <span class="maz-badge">馬茲提卡 </span> </h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>名稱</th><th>價格</th><th>重量</th><th>供應</th><th>說明</th></tr></thead>
+            <tbody>
+              <tr><td>蘆薈草膏</td><td><span class="price-sun">1 ◎</span></td><td>1</td><td>罕見</td><td>混合蘆薈與蜂蜜的黏稠藥膏。照顧病患檢定獲得 1 個優勢。</td></tr>
+              <tr><td>神聖活力飲</td><td><span class="price-sun">50 ◎</span></td><td>1</td><td>珍稀</td><td>裝在小葫蘆裡的神聖濃縮藥劑，依產地成分不同。恢復 2D6 HP。</td></tr>
+              <tr><td>乾淨棉布 (10份)</td><td><span class="price-moon">5 ☾</span></td><td>1</td><td>常見</td><td>煮沸過的棉布條。急救必備，無繃帶則檢定劣勢。</td></tr>
+              <tr><td>黑曜石手術組</td><td><span class="price-sun">15 ◎</span></td><td>1</td><td>罕見</td><td>極其鋒利的黑曜石刀片與骨鋸。急救與醫療檢定獲得 1 個優勢。</td></tr>
+              
+              <tr><td>致命毒藥</span></td><td><span class="price-sun">效力x4 ◎</span></td><td>1</td><td>罕見</td><td>常見來源：黃金箭毒蛙、珊瑚蛇、烏頭草、致命生物毒液。</td></tr>
+              <tr><td>麻痺毒藥</td><td><span class="price-moon">效力x12 ☾</span></td><td>1</td><td>罕見</td><td>常見來源：吹箭藤、某些夜行性蕈類。</td></tr>
+              <tr><td>催眠毒藥</td><td><span class="price-moon">效力x6 ☾</span></td><td>1</td><td>罕見</td><td>常見來源：庫拉里 (Kurari) 藤蔓。</td></tr>
+              <tr><td>迷幻毒藥</td><td><span class="price-sun">效力x10 ◎</span></td><td>1</td><td>珍稀</td><td>常見來源：神聖曼陀羅 (Toloache)、內茲卡裸蓋菇 (Nezca)。</td></tr>
+              <tr><td>噁心毒藥</td><td><span class="price-sun">效力x6 ◎</span></td><td>1</td><td>罕見</td><td>常見來源：子彈蟻、胡蜂、蠍子、火辣椒 (Fire Peppers)。</td></tr>
+              <tr><td>劇痛毒藥</td><td><span class="price-sun">效力x2 ◎</span></td><td>1</td><td>常見</td><td>常見來源：血鹽 (Blood Salt)、腐屍水。</td></tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="maz-note" style="margin-top:15px;">
+           <strong>【神聖活力飲：產地與風味】</strong>
+           雖然效果相同（恢復 2D6 HP），但這瓶藥劑的味道取決於製作它的薩滿身處何地：
+           <ul>
+             <li><strong>荒野/沙漠：</strong>由 龍舌蘭 或 仙人掌 汁液濃縮而成。口感黏稠極甜，帶有發酵酒味。</li>
+             <li><strong>叢林：</strong>混合了 珍稀蘭花與 無刺蜂蜂蜜 。色澤金黃，帶有強烈的花香。</li>
+             <li><strong>高山：</strong>浸泡了 古柯葉 與 高山草藥。顏色深綠，口感苦澀但提神醒腦。</li>
+             <li><strong>沼澤：</strong>提煉自 發光蕈類 與 睡蓮根。液體微弱發光，帶有泥土的腥味。</li>
+           </ul>
+        </div>
+        </div>
+
+<div id="i-huntfish" class="sub-list-content" style="display:none;">
+        <h3>陷阱與釣具 <span class="maz-badge">馬茲提卡 </span> </h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>名稱</th><th>價格</th><th>重量</th><th>供應</th><th>說明</th></tr></thead>
+            <tbody>
+              <tr><td>圈套陷阱</td><td><span class="price-bean">5 ∴</span></td><td>-</td><td>常見</td><td>堅韌的植物纖維環。用於捕捉兔子或鬣蜥 (消耗品)。</td></tr>
+              <tr><td>落石機關</td><td><span class="price-sun">3 ◎</span></td><td>2</td><td>罕見</td><td>一組精巧的木製觸發器與繩索。需配合現場的巨木或石塊設置。造成 2D6 傷害並束縛。</td></tr>
+              <tr><td>捕鳥黏膠</td><td><span class="price-moon">5 ☾</span></td><td>1</td><td>罕見</td><td>由樹膠與橡膠混合的黏性物質。塗在樹枝上捕捉珍稀鳥類而不傷及羽毛。</td></tr>
+              <tr><td>隱蔽尖刺坑組</td><td><span class="price-sun">2 ◎</span></td><td>1</td><td>常見</td><td>一袋削尖的黑曜石刺與偽裝網。需挖掘動作。踩中者受 1D6 傷害並減速，用於限制獵物逃跑。</td></tr>
+              
+              <tr><td>蘆葦釣竿</td><td><span class="price-moon">8 ☾</span></td><td>1</td><td>常見</td><td>彈性極佳的蘆葦桿與骨鉤。釣魚獲 1D4 食物。</td></tr>
+              <tr><td>配重拋網</td><td><span class="price-sun">2 ◎</span></td><td>2</td><td>常見</td><td>邊緣掛滿陶墜或石墜的圓網。需技巧拋撒。釣魚獲 1D6 食物。</td></tr>
+              <tr><td>多叉魚矛</td><td><span class="price-sun">1 ◎</span></td><td>1</td><td>常見</td><td>頂端分叉的長矛。在淺水或沼澤釣魚獲得 1 個優勢。釣魚獲 1D3 食物。也可作為武器(視為投擲標槍)。</td></tr>
+              <tr><td>編織魚籠</td><td><span class="price-moon">6 ☾</span></td><td>1</td><td>常見</td><td>漏斗狀的竹編陷阱。放置一班時間後回收。自動捕獲 1D3 食物(無需檢定)。</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="maz-note" style="margin-top:15px;">
+           <strong>【馬茲提卡狩獵：羽毛與橡膠】</strong>
+           <ul>
+             <li><strong>羽毛獵人 (Amantecas)：</strong>在這裡，捕捉一隻擁有翠綠羽毛的格查爾鳥 (Quetzal) 比獵殺一頭鹿更有價值。使用 黏膠 捕捉後，獵人只會拔取最長的那根尾羽，然後將鳥放生，因為殺死格查爾鳥是重罪。</li>
+             <li><strong>橡膠 (Olli)：</strong>馬茲提卡人掌握了處理橡膠的技術，將其用於製作黏膠、防水布以及儀式用的球。</li>
+           </ul>
+        </div>
+        </div>
+
+<div id="i-service" class="sub-list-content" style="display:none;">
+        <h3>服務 <span class="maz-badge">馬茲提卡 </span> </h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>名稱</th><th>價格</th><th>供應</th><th>說明</th></tr></thead>
+            <tbody>
+              <tr><td>特瑪斯卡爾 (蒸汽浴)</td><td><span class="price-bean">6 ∴</span></td><td>常見</td><td>傳統蒸汽浴儀式。由藥草師引導，恢復一個負面狀態 (每日一次，花費一刻鐘)。</td></tr>
+              <tr><td>編織睡墊 (Petate)</td><td><span class="price-moon">1 ☾</span></td><td>常見</td><td><strong></strong> 在公共大廳地板鋪一張草蓆。不用進行 求生 檢定就能長休，但長休後需骰 1D4，骰到 1 代表有人打呼太大聲，讓大家無法睡覺。</td></tr>
+              <tr><td>石屋客房 (Calli)</td><td><span class="price-moon">5 ☾</span></td><td>常見</td><td><strong></strong> 堅固的泥磚或石砌單間。不用進行 求生 檢定就能長休。</td></tr>
+              <tr><td>貴族庭院</td><td><span class="price-sun">2 ◎</span></td><td>罕見</td><td>入住商會或貴族的私人花園別院。不用進行 求生 檢定就能長休。</td></tr>
+              <tr><td>理髮</td><td><span class="price-moon">2 ☾</span></td><td>常見</td><td>使用極鋒利的黑曜石刀片整理儀容。在一刻時間內恢復一個狀態。一週僅一次有效。</td></tr>
+              <tr><td>衣物修補</td><td><span class="price-moon">5 ☾</span></td><td>常見</td><td>修補棉布或編織新的龍舌蘭纖維。消除服裝破損。</td></tr>
+
+              <tr><td>玉米餅與豆泥</td><td><span class="price-bean">5 ∴</span></td><td>常見</td><td><strong></strong> 最基本的裹腹食物。</td></tr>
+              <tr><td>玉米粽</td><td><span class="price-moon">3 ☾</span></td><td>常見</td><td><strong></strong> 包裹肉類與辣椒的蒸玉米糰。美味且便於攜帶。</td></tr>
+              <tr><td>儀式宴席</td><td><span class="price-sun">2 ◎</span></td><td>罕見</td><td>包含火雞、鹿肉與大量香料的豪華饗宴。</td></tr>
+              <tr><td>奧克特力酒 (Octli)</td><td><span class="price-moon">2 ☾</span></td><td>罕見</td><td>發酵的龍舌蘭酒(Pulque)。口感黏稠酸甜。每班限兩杯，過量會中毒。</td></tr>
+              <tr><td>辣可可飲 (Xocolatl)</td><td><span class="price-bean">4 ∴</span></td><td>常見</td><td><strong>(原：索科特爾)</strong> 加了辣椒與胭脂樹紅的苦味巧克力飲。提神飲料。每班限三杯。</td></tr>
+
+              <tr><td>路徑貢金</td><td><span class="price-bean">2 ∴</span></td><td>常見</td><td><strong></strong> 交給當地部落或哨站的過路費，以保平安。</td></tr>
+              <tr><td>飛毛腿信使 (Paynal)</td><td><span class="price-moon">1 ☾</span>/km</td><td>常見</td><td><strong></strong> 專業的長跑者，能以驚人的速度徒步傳遞訊息。</td></tr>
+              <tr><td>人力轎行</td><td><span class="price-sun">1 ◎</span>/km</td><td>罕見</td><td>由四名強壯的背夫抬著轎子移動。僅限貴族或受傷者使用。</td></tr>
+              <tr><td>背夫 (Tameme)</td><td><span class="price-moon">5 ☾</span>/天</td><td>常見</td><td>雇傭專業搬運工。每人可背負 30 單位重量，移動速度不減。</td></tr>
+　　　　　　　<tr style="background: rgba(243, 156, 18, 0.1);"><td>城邦馬車</td><td><span class="price-sun">根據前往地點 ◎</span>/km</td><td>珍稀</td><td>需行駛於大道。可運送大量物資或隊伍至特定地點。</td></tr>
+              
+              <tr><td>傭兵(Holcan)</td><td><span class="price-sun">2 ◎</span>/天</td><td>罕見</td><td>雇傭受過訓練的戰士守衛。</td></tr>
+              <tr><td>神廟淨化</td><td><span class="price-sun">5 ◎</span></td><td>罕見</td><td>由祭司進行柯巴脂薰香儀式。治療檢定自動成功，或移除詛咒。</td></tr>
+              <tr><td>導師</td><td><span class="price-sun">5 ◎</span>/班</td><td>常見</td><td>向村莊耆老學習。在導師底下學習一班時間可以額外獲得一次升級檢定。</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="maz-note" style="margin-top:15px;">
+           <strong>【馬茲提卡生活：沒有輪子的世界】</strong>
+           <ul>
+             <li><strong>人力運輸：</strong>在外大陸技術傳入前，由於沒有馬匹與輪車，所有的貨物運輸都依賴<strong>背夫 (Tamemes)</strong>。他們使用額帶 (Tumpline) 支撐背架，耐力驚人。在城市中看到長長的背夫隊伍是常態。</li>
+             <li><strong>特瑪斯卡爾 (Temazcal)：</strong>這不僅是洗澡，更是一種重生儀式。圓頂的土屋象徵大地母親的子宮，透過高溫蒸汽與藥草，戰士們在此洗淨戰鬥後的血污與心靈創傷。</li>
+           </ul>
+        </div>
+      </div>
+
+ <div id="i-trade" class="sub-list-content" style="display:none;">
+        <h3>貿易商品 和 冒險物品 <span class="maz-badge">馬茲提卡 </span> </h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>名稱</th><th>價格</th><th>重量</th><th>供應</th><th>說明</th></tr></thead>
+            <tbody>
+              <tr><td>玉米計數盤</td><td><span class="price-sun">2 ◎</span></td><td>1</td><td>常見</td><td>由木框與玉米粒組成的計算工具。用於計算的檢定獲得 1 個優勢。</td></tr>
+              <tr><td>棉織毛毯</td><td><span class="price-moon">5 ☾</span></td><td>1</td><td>常見</td><td>染成鮮豔顏色的棉毯。避免抗寒檢定劣勢。</td></tr>
+              <tr><td>帕托利棋組 (Patolli) </td><td><span class="price-sun">1 ◎</span></td><td>1</td><td>常見</td><td>在十字形蓆子上進行的賭博遊戲。智力對抗遊戲。</td></tr>
+              <tr><td>占卜豆</td><td><span class="price-moon">1 ☾</span></td><td>-</td><td>常見</td><td><strong>(原：骰子)</strong> 鑽有孔洞的紅豆，用於遊戲或占卜。隨機決定勝負。</td></tr>
+              <tr><td>陶製野炊組</td><td><span class="price-sun">4 ◎</span></td><td>2</td><td>常見</td><td>包含研磨缽(Molcajete)與陶盤。烹飪檢定獲得 1 個優勢。</td></tr>
+              <tr><td>行軍乾糧 (Totopos)</td><td><span class="price-moon">1 ☾</span></td><td>1/4</td><td>常見</td><td>烤乾的玉米餅與肉乾。每日需一份，否則飢餓。</td></tr>
+              <tr><td>鹿角鉤爪</td><td><span class="price-sun">3 ◎</span></td><td>1</td><td>常見</td><td>綁著繩索的堅硬鹿角。固定繩索用。</td></tr>
+              
+              <tr><td>骨製解繩錐</td><td><span class="price-sun">1 ◎</span></td><td>1</td><td>罕見</td><td>用於挑開複雜繩結的骨錐。避免 巧手 (解繩)檢定劣勢。</td></tr>
+              <tr><td>翡翠解繩針</td><td><span class="price-sun">20 ◎</span></td><td>1</td><td>珍稀</td><td>極其細滑的翡翠針。 巧手 (解繩)檢定獲得 1 個優勢。</td></tr>
+              <tr><td>封印繩索</td><td><span class="price-sun">10 ◎</span></td><td>-</td><td>常見</td><td>經特殊編織的強化繩與封泥。鎖門或箱 (HP 20, AR 5)。需 巧手 才能解開。</td></tr>
+　　　　　　　<tr style="background: rgba(243, 156, 18, 0.1);"><td>鋼鐵開鎖工具</td><td><span class="price-sun">40 ◎</span></td><td>1</td><td>珍稀</td><td>精密的鋼製鉤針與扭力板。開啟鋼鐵鎖頭的必備工具，對本土繩結檢定亦獲 1 優勢。</td></tr>
+              <tr style="background: rgba(243, 156, 18, 0.1);"><td>鋼鐵掛鎖</td><td><span class="price-sun">50 ◎</span></td><td>1</td><td>珍稀</td><td>附帶鑰匙的重型鐵鎖。堅不可摧且更便利。無法用解繩錐開啟。(HP 40, AR 10)。</td></tr>
+              
+              <tr><td>透光水晶</td><td><span class="price-sun">30 ◎</span></td><td>1</td><td>罕見</td><td>打磨過的水晶石。調查檢定獲得 1 個優勢，也可聚光生火。</td></tr>
+              <tr><td>阿瑪特繪卷</td><td><span class="price-sun">5 ◎</span></td><td>-</td><td>罕見</td><td>繪製在樹皮紙上的地理圖。避免帶路檢定劣勢。</td></tr>
+              <tr><td>滑步種子</td><td><span class="price-sun">1 ◎</span></td><td>1</td><td>常見</td><td>撒在地上極滑的圓形種子。可用動作投擲於 10 米內的一個類人生物。對方下一回合必須進行閃避檢定才能移動。</td></tr>
+              <tr><td>芳香油膏</td><td><span class="price-sun">5 ◎</span></td><td>1</td><td>常見</td><td>柯巴脂與花朵萃取的固體香膏。魅力檢定獲得 1 個優勢。</td></tr>
+              <tr><td>彩繪皮牌</td><td><span class="price-moon">5 ☾</span></td><td>1</td><td>罕見</td><td>畫有神話圖案的鹿皮小卡。欺瞞對抗遊戲。</td></tr>
+              
+              <tr><td>硬木箭袋</td><td><span class="price-moon">5 ☾</span></td><td>1</td><td>常見</td><td>經過火烤硬化的木鏃箭。輕易可得，但不易穿透護甲（目標護甲值視為加倍）。</td></tr>
+              <tr><td>骨鏃箭袋</td><td><span class="price-sun">1 ◎</span></td><td>1</td><td>罕見</td><td>磨尖的獸骨箭頭。</td></tr>
+              <tr><td>黑曜石箭袋</td><td><span class="price-sun">2 ◎</span></td><td>1</td><td>常見</td><td>鋒利但易碎。</td></tr>
+              <tr><td>吹箭針袋</td><td><span class="price-sun">2 ◎</span></td><td>1</td><td>常見</td><td>長尖刺，通常會塗毒。</td></tr>
+              <tr><td>黑曜石彈丸袋</td><td><span class="price-sun">2 ◎</span></td><td>1</td><td>常見</td><td>打磨光滑的黑曜石球或鉛丸(+1D4傷)。</td></tr>
+              
+              <tr><td>麻繩 (10米)</td><td><span class="price-sun">1 ◎</span></td><td>1</td><td>常見</td><td>龍舌蘭製成，粗糙但強韌。攀爬檢定獲得 1 個優勢。</td></tr>
+              <tr><td>精織棉繩 (10米)</td><td><span class="price-sun">10 ◎</span></td><td>-</td><td>罕見</td><td>柔軟且安靜。攀爬檢定獲得 1 個優勢(輕便)。</td></tr>
+              <tr><td>馱獸鞍座</td><td><span class="price-sun">10 ◎</span></td><td>1</td><td>常見</td><td>用於巨蜥或外來馬匹。避免騎乘戰鬥劣勢。</td></tr>
+              <tr><td>睡袋卷 (Petate)</td><td><span class="price-sun">1 ◎</span></td><td>1</td><td>常見</td><td>草蓆與毛毯的組合。避免紮營檢定劣勢。</td></tr>
+              <tr><td>防水皮帳 (2人)</td><td><span class="price-sun">2 ◎</span></td><td>2</td><td>常見</td><td>塗油防水的獸皮帳篷。紮營檢定獲得 1 個優勢。</td></tr>
+              <tr><td>大型營帳 (6人)</td><td><span class="price-sun">4 ◎</span></td><td>4</td><td>常見</td><td>軍用或商隊用的大帳篷。紮營檢定獲得 1 個優勢。</td></tr>
+              
+              <tr style="background: rgba(243, 156, 18, 0.1);"><td>望遠鏡</td><td><span class="price-sun">80 ◎</span></td><td>1</td><td>珍稀</td><td>黃金軍團帶來的光學奇蹟。帶路與察覺檢定獲得 1 個優勢。</td></tr>
+              <tr><td>骨哨</td><td><span class="price-moon">5 ☾</span></td><td>-</td><td>常見</td><td>吹響時可傳100米。</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="maz-note" style="margin-top:15px;">
+           <strong>【馬茲提卡雜物：繩結】</strong>
+           <ul>
+             <li><strong>沒有鎖的世界：</strong>在黃金軍團入侵前，這裡沒有金屬鎖頭。人們使用極其複雜的 繩結 來封印箱子或門戶。要打開它們，你需要的是靈巧的手指與解謎的智慧（智力/巧手），而不是開鎖工具。</li>
+           </ul>
+        </div>
+      </div>
+
+<div id="i-transport" class="sub-list-content" style="display:none;">
+        <h3>交通工具 <span class="maz-badge">馬茲提卡 </span> </h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>名稱</th><th>價格</th><th>供應</th><th>說明</th></tr></thead>
+            <tbody>
+              <tr><td>獨木舟 (Acalli)</td><td><span class="price-sun">6 ◎</span></td><td>常見</td><td> 挖空巨木製成。馬茲提卡的主要交通工具。載2人+10重。</td></tr>
+              <tr><td>戰爭獨木舟</td><td><span class="price-sun">20 ◎</span></td><td>罕見</td><td> 強化且繪有威嚇圖騰的長舟。速度快。載10人(戰士)+20重。</td></tr>
+              <tr><td>運河平底船 (Trajinera)</td><td><span class="price-sun">15 ◎</span></td><td>常見</td><td> 色彩鮮豔的方形平底船，靠長篙推動。用於運河貨運或水上宴會。載6人+80重。</td></tr>
+              <tr><td>沿岸雙體船</td><td><span class="price-sun">40 ◎</span></td><td>罕見</td><td> 連結兩艘獨木舟並架設風帆。可進行近海航行。載8人+100重。</td></tr>
+
+              <tr><td>貴族轎子 (Litter)</td><td><span class="price-sun">15 ◎</span></td><td>罕見</td><td> 華麗的羽飾座椅。需雇用 4 名背夫(Tamemes)抬運。乘坐者免疲勞，展現極高地位。</td></tr>
+              
+              <tr style="background: rgba(243, 156, 18, 0.1);"><td>二輪車</td><td><span class="price-sun">50 ◎</span></td><td>珍稀</td><td> 需 1 隻馬/騾拉動。僅能行駛於平地或大道。載2人+100重。</td></tr>
+              <tr style="background: rgba(243, 156, 18, 0.1);"><td>四輪馬車</td><td><span class="price-sun">100 ◎</span></td><td>珍稀</td><td> 需 2 隻馬/騾拉動。移動的堡壘，僅能行駛於大道。載4人+300重。</td></tr>
+              <tr style="background: rgba(243, 156, 18, 0.1);"><td>卡拉維爾帆船</td><td><span class="price-sun">2000 ◎</span></td><td>獨特</td><td> 來自外大陸的巨型帆船，停泊在特定港口。可跨洋航行。載員50+。</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="maz-note" style="margin-top:15px;">
+           <strong>【馬茲提卡交通：水路與道路】</strong>
+           <ul>
+             <li><strong>水之都：</strong>在馬茲提卡，河流與運河就是高速公路。擁有一艘<strong>獨木舟 (Acalli)</strong> 是每個家庭的基本配備。平底船 (Trajinera) 則是水上的移動市場與貨車。</li>
+             <li><strong>輪子的限制：</strong>在外大陸入侵之前，馬茲提卡人雖知道輪子的原理（用於玩具），但由於地形崎嶇且缺乏大型馱獸，從未發展出車輛。</li>
+             <li><strong>軍團大道：</strong>外來的四輪馬車雖然載貨量巨大，但一旦離開鋪設的大道，就會陷入叢林的泥沼中動彈不得。</li>
+           </ul>
+        </div>
+      </div>
+
+<div id="i-power" class="sub-list-content" style="display:none;">
+        <h3>動物 <span class="maz-badge">馬茲提卡 </span> </h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>名稱</th><th>價格</th><th>供應</th><th>說明</th></tr></thead>
+            <tbody>
+              <tr><td>食用豚鼠</td><td><span class="price-bean">2 ∴</span></td><td>常見</td><td>養在廚房角落的圓胖嚙齒類。肉質鮮美(1份)，是極佳的「攜帶式生鮮口糧」。</td></tr>
+              <tr><td>綠鬣蜥</td><td><span class="price-bean">5 ∴</span></td><td>常見</td><td>被稱為「樹上的雞」。四肢通常被綁住販售。肉(1份)或產皮。</td></tr>
+              <tr><td>火雞</td><td><span class="price-moon">4 ☾</span></td><td>常見</td><td>主要肉食來源。肉(1大份)。羽毛可用於裝飾。</td></tr>
+              
+              <tr><td>西貒 </td><td><span class="price-sun">2 ◎</span></td><td>常見</td><td>類似野豬的小型動物。肉(1D6份)。性情兇猛，可作警示獸。</td></tr>
+              <tr><td>馴化山貘</td><td><span class="price-sun">10 ◎</span></td><td>罕見</td><td>溫馴的長鼻巨獸。肉量巨大(3D6份)，也能像牛一樣緩慢耕田。</td></tr>
+              <tr><td>馱運駱駝</td><td><span class="price-sun">12 ◎</span></td><td>常見</td><td>高山部落的主要運獸。載重10，無法載人。產毛與肉。</td></tr>
+              <tr><td>無毛犬</td><td><span class="price-sun">15 ◎</span></td><td>常見</td><td>被視為靈魂嚮導的無毛狗。能察覺靈體，體溫極高可取暖。</td></tr>
+              <tr><td>信使鸚鵡</td><td><span class="price-sun">5 ◎</span></td><td>罕見</td><td>聰明的金剛鸚鵡，能記憶短句並飛往特定地點。</td></tr>
+              
+              <tr><td>騎乘巨蜥</td><td><span class="price-sun">50 ◎</span></td><td>罕見</td><td>馴化的雙足奔跑蜥蜴。速度快，無視叢林困難地形。載1人。</td></tr>
+              <tr><td>巨型甲蟲</td><td><span class="price-sun">20 ◎</span></td><td>罕見</td><td>動作緩慢但力大無窮的甲蟲。載重高達 40。可攀爬垂直壁面。</td></tr>
+              
+              <tr style="background: rgba(243, 156, 18, 0.1);"><td>戰馬</td><td><span class="price-sun">500 ◎</span></td><td>珍稀</td><td><strong>(外來)</strong> 披甲的恐怖巨獸。受過戰鬥訓練，對步兵有踐踏優勢。本土人稱「巨鹿」。</td></tr>
+              <tr style="background: rgba(243, 156, 18, 0.1);"><td>騎乘馬</td><td><span class="price-sun">80 ◎</span></td><td>罕見</td><td><strong>(外來)</strong> 速度極快，但在茂密叢林中移動困難(劣勢)。載1人+10重。</td></tr>
+              <tr style="background: rgba(243, 156, 18, 0.1);"><td>運貨騾</td><td><span class="price-sun">15 ◎</span></td><td>常見</td><td><strong>(外來)</strong> 外大陸引進的雜交獸，耐力比馬好。載重15。</td></tr>
+              <tr style="background: rgba(243, 156, 18, 0.1);"><td>獒犬</td><td><span class="price-sun">30 ◎</span></td><td>罕見</td><td><strong>(外來)</strong> 專門用來狩獵的兇殘獵犬。戰鬥力遠高於土狗。</td></tr>
+              <tr style="background: rgba(243, 156, 18, 0.1);"><td>綿羊/山羊</td><td><span class="price-sun">5 ◎</span></td><td>常見</td><td><strong>(外來)</strong> 被視為會走路的棉花球。肉(2D4份)。</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="maz-note" style="margin-top:15px;">
+           <strong>【馬茲提卡獸群：廚房裡的口糧】</strong>
+           <ul>
+             <li><strong>豚鼠 (Cuy)：</strong>冒險者最喜歡的「活口糧」。這些小東西通常被養在普通家庭的廚房地上，吃剩菜長大。旅行時只需塞進籠子或大口袋，就能隨時保證有新鮮的肉食，完全不需要醃製防腐。</li>
+             <li><strong>騎乘巨蜥：</strong>適應叢林環境的最佳坐騎。雖然負重不如馬匹，但牠們能輕易穿越藤蔓與樹根，甚至攀爬低矮的岩壁。</li>
+           </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+</body>
+<script>
+(function() {
+  console.log('🛡️ 裝備頁面腳本已啟動');
+
+  // === 1. 上方大分類切換 (.epoch-btn) ===
+  const mainTabs = document.querySelectorAll('.epoch-btn');
+  mainTabs.forEach(btn => {
+    btn.onclick = function() {
+      // 變色
+      mainTabs.forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+
+      // 隱藏所有 .rule-content
+      document.querySelectorAll('.rule-content').forEach(el => {
+        el.style.display = 'none';
+        el.classList.remove('active');
+      });
+      
+      // 顯示目標
+      const target = document.getElementById(this.dataset.target);
+      if (target) {
+        target.style.display = 'block';
+        target.classList.add('active');
+      }
+    };
+  });
+
+  // === 2. 內部小標籤切換 (.prop-tab-btn) ===
+  const propTabs = document.querySelectorAll('.prop-tab-btn');
+  propTabs.forEach(btn => {
+    btn.onclick = function(e) {
+      e.stopPropagation(); // 防止點擊穿透
+
+      // 找到按鈕所在的卡片容器 (只影響這個卡片內部)
+      const container = this.closest('.rule-card') || this.closest('.rule-display-area');
+      if (!container) return;
+
+      // 按鈕變色
+      container.querySelectorAll('.prop-tab-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+
+      // 內容切換：只隱藏這個容器內的 .prop-content
+      container.querySelectorAll('.prop-content').forEach(el => el.style.display = 'none');
+      
+      const targetId = this.dataset.target;
+      const targetContent = container.querySelector(`#${targetId}`);
+      if (targetContent) {
+        targetContent.style.display = 'block';
+      }
+    };
+  });
+})();
+</script>
+</html>

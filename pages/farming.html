@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>種植與烹飪 - 馬茲提卡</title>
+</head>
+<body>
+
+<style>
+/* === 1. 核心顯示邏輯 === */
+.rule-content { 
+  display: none; 
+  animation: fadeIn 0.4s ease; 
+}
+.rule-content.active { 
+  display: block; 
+}
+
+@keyframes fadeIn { 
+  from { opacity: 0; transform: translateY(10px); } 
+  to { opacity: 1; transform: translateY(0); } 
+}
+
+/* === 2. 分頁按鈕 UI (強制覆蓋，確保樣式統一) === */
+.epoch-nav { 
+  display: flex; 
+  justify-content: center; 
+  flex-wrap: wrap; 
+  gap: 8px; 
+  margin: 0 0 25px 0; 
+  padding-bottom: 15px; 
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1); 
+}
+
+.epoch-btn { 
+  background: rgba(0, 0, 0, 0.3); 
+  border: 1px solid #888; 
+  color: #aaa; 
+  padding: 6px 14px; 
+  border-radius: 20px; 
+  cursor: pointer; 
+  font-size: 0.9rem; 
+  transition: all 0.3s; 
+  letter-spacing: 1px; 
+  white-space: nowrap; 
+}
+
+.epoch-btn:hover { 
+  border-color: var(--gold); 
+  color: #fff; 
+  background: rgba(255,255,255,0.05); 
+}
+
+.epoch-btn.active-tab { 
+  background: var(--gold); 
+  color: #000; 
+  border-color: var(--gold); 
+  font-weight: bold; 
+  box-shadow: 0 0 10px rgba(201, 163, 90, 0.3); 
+}
+
+/* === 3. 頁面專屬元件 === */
+.tag { 
+  display: inline-block; padding: 2px 8px; 
+  border: 1px solid var(--gold); border-radius: 12px; 
+  font-size: 0.8rem; color: var(--gold); 
+  margin-right: 5px; margin-bottom: 5px; 
+  background: rgba(201, 163, 90, 0.1);
+}
+
+.popup-trigger { 
+  cursor: pointer; color: var(--gold); 
+  border-bottom: 1px dotted rgba(201, 163, 90, 0.5); 
+  transition: all 0.2s; 
+}
+.popup-trigger:hover { 
+  color: #fff; text-shadow: 0 0 5px var(--gold); 
+  border-bottom-style: solid; 
+}
+
+/* 神奇作物專屬樣式 */
+.magic-crop-row td {
+  background: linear-gradient(90deg, rgba(201, 163, 90, 0.15), rgba(0,0,0,0));
+  border-top: 1px solid rgba(201, 163, 90, 0.3);
+  border-bottom: 1px solid rgba(201, 163, 90, 0.3);
+  color: #fff;
+}
+.magic-badge {
+  display: inline-block; background: var(--gold); color: #000; 
+  font-weight: bold; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem;
+  margin-right: 5px; vertical-align: text-bottom;
+}
+
+/* 插圖容器 */
+.illus-container {
+  width: 100%; margin: 20px 0;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 8px; overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+  position: relative;
+}
+.illus-container img {
+  width: 100%; display: block;
+  opacity: 0.85; transition: 0.3s;
+  filter: sepia(0.2);
+}
+.illus-container:hover img { opacity: 1; transform: scale(1.02); filter: sepia(0); }
+.illus-caption {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+  color: #ddd; padding: 15px 15px 5px 15px; 
+  font-size: 0.9rem; font-style: italic; text-align: right;
+}
+
+/* Dragonbane 風格數據塊 */
+.stat-block {
+  background: rgba(0,0,0,0.3); border-left: 3px solid var(--jade);
+  padding: 10px 15px; margin: 10px 0; font-size: 0.9rem; color: #ccc;
+}
+.stat-block strong { color: #fff; }
+.stat-block .wp { color: var(--gold); font-weight: bold; font-family: monospace; }
+</style>
+
+<header>
+  <h1>種植與烹飪</h1>
+  <div class="ornament-divider"></div>
+  <p class="intro-text">
+    浮田（Chinampa）讓城市緊貼水域而生長；農民的耕藝與大廚的美食，構成馬茲提卡的日常與儀式。
+  </p>
+</header>
+
+<main>
+  <div class="epoch-nav">
+    <button class="epoch-btn active-tab" data-target="farm-chinampa">浮田技術</button>
+    <button class="epoch-btn" data-target="farm-plant">種植規則</button>
+    <button class="epoch-btn" data-target="farm-magic">神奇作物</button>
+    <button class="epoch-btn" data-target="farm-cook">烹飪料理</button>
+  </div>
+
+  <div id="farm-chinampa" class="rule-content active">
+    
+    <div class="rule-display-area">
+      <div class="rule-card highlight">
+        <h3>浮田 (Chinampa) —— 湖面上的編織花園</h3>
+        <p>浮田並非自然形成的島嶼，而是馬茲提卡農民運用智慧與勞力創造的奇蹟。這些長方形的人造耕地如同巨大的籃子，漂浮在淺湖與沼澤之上。</p>
+        
+        <div class="illus-container">
+          <img src="images/chinampa-hero.png" alt="阿茲特克浮田結構圖">
+          <div class="illus-caption">「編織柳條，填入淤泥，讓根系擁抱湖水。」</div>
+        </div>
+
+        <h4>建造工藝</h4>
+        <ul>
+          <li><strong>阿韋霍特 (Ahuejote) 柳樁：</strong> 農民首先將這種生長快速的柳樹樁打入湖底，圍出長方形的邊界。柳樹的根系會迅速在水下交織，形成天然的「擋土牆」。</li>
+          <li><strong>編織與填土：</strong> 在柳樁之間編織蘆葦與樹枝，形成圍籬。接著，農民潛入湖底，挖掘富含腐殖質與魚類排泄物的淤泥（Limo），將其填入圍籬中，直到高出水面。</li>
+          <li><strong>永續肥力：</strong> 這種結構讓作物能直接從湖水中吸取水分（毛細現象），農民只需定期將湖底的新鮮淤泥覆蓋在田面上，便能維持土地的永恆肥沃，無需休耕。</li>
+        </ul>
+      </div>
+
+      <div class="rule-card">
+        <h3>三姊妹農法 (The Three Sisters)</h3>
+        <p>這是一種神聖的共生種植法，模仿了自然界的互助法則。在同一塊土地上同時種植三種作物，能發揮出 1+1+1 > 3 的效果：</p>
+        <div class="stat-block">
+          <ul>
+            <li><strong>🌽 玉米 (Maize)：</strong> 提供支架，讓豆類攀爬，並作為主食來源。</li>
+            <li><strong>🌱 豆類 (Beans)：</strong> 攀附在玉米桿上，其根系能將空氣中的氮固定在土壤中，為玉米和南瓜提供養分。</li>
+            <li><strong>🎃 南瓜 (Squash)：</strong> 巨大的葉片覆蓋地表，保持土壤濕潤，並抑制雜草生長，其帶刺的藤蔓還能嚇阻小型害獸。</li>
+          </ul>
+        </div>
+        <p><strong>遊戲效果：</strong> 當你在同一塊浮田上集齊「三姊妹」時，該次收穫檢定獲得 <strong>優勢 (Boon)</strong>，且產量 +1。</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="farm-plant" class="rule-content">
+    <div class="rule-display-area">
+      
+      <div class="rule-card" style="border-left-color: #3498db; background: rgba(10, 30, 50, 0.6);">
+        <h3 style="color:#3498db;">建造浮田 (Constructing Chinampa)</h3>
+        <p>擁有<strong>「浮田耕藝」</strong>英雄能力的農民，能在水域上創造耕地。</p>
+        <div class="stat-block">
+          <p><strong>先決條件：</strong> <span class="wp">求生 12</span> + <span class="wp">游泳 12</span> (需具備 浮田耕藝 能力)</p>
+          <p><strong>消耗時間：</strong> 1 班 (Shift)</p>
+          <p><strong>效果：</strong> 在水域建造一座「小型浮田」。視為一塊標準耕地，具備自動灌溉功能。若無浮田，則只能在旱地種植（需額外澆水）。</p>
+        </div>
+      </div>
+
+      <div class="rule-card highlight">
+        <h3>種植循環 (Farming Cycle)</h3>
+        <p>擁有浮田後，你便開始了與自然的契約。所有農業檢定皆使用你的<strong>「浮田術 (Chinampa Craft)」</strong>技能。</p>
+        <ul style="line-height:1.8;">
+          <li><strong>1. 播種 (Sowing)：</strong> 花費 <strong>1 班</strong> 與 <strong>1 WP</strong> 進行 <strong>浮田術 (智力)</strong> 檢定。成功則種下作物。</li>
+          <li><strong>2. 成長 (Growth)：</strong> 等待作物成熟（見下表）。浮田會自動照顧作物。</li>
+          <li><strong>3. 收穫 (Harvest)：</strong> 成長期滿後，進行 <strong>浮田術 (智力)</strong> 檢定。
+            <ul>
+              <li><em>成功：</em> 獲得標準產量（收穫骰）。</li>
+              <li><em>大成功 (Nat 1)：</em> <span style="color:var(--gold);"><strong>奇蹟發生！</strong></span> 除了產量翻倍 (2×骰子)，你會額外獲得 <strong>1 份對應類型的「神奇作物」</strong>（見神奇作物分頁）。</li>
+              <li><em>失敗：</em> 產量減半（向下取整，最少 1 份）。</li>
+              <li><em>大失敗 (Nat 20)：</em> 作物全毀，擲災害表。</li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+
+      <div class="rule-card">
+        <h3>作物一覽表</h3>
+        <p style="font-size:0.9rem; color:#aaa; margin-bottom:10px;">點擊作物名稱可查看詳細圖鑑與描述。</p>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr><th>作物</th><th>成長</th><th>收穫骰</th><th>備註</th></tr>
+            </thead>
+            <tbody>
+              <tr><td colspan="5" style="background:rgba(201,163,90,0.1); color:var(--gold); font-weight:bold; text-align:center;">--- 速成作物 (1班/一夜) ---</td></tr>
+              <tr>
+                <td class="popup-trigger" data-title="莧菜嫩芽" data-img="images/farmer/amaranth-sprout.png" data-desc="馬茲提卡最常見的速成糧，僅需一晝夜便可收穫。柔軟且富含能量。">莧菜嫩芽</td>
+                <td>1班</td><td>1d4</td><td>速食 (2份=1餐)</td>
+              </tr>
+              <tr>
+                <td class="popup-trigger" data-title="香草 (Epazote)" data-img="images/farmer/herb-epazote.png" data-desc="浮田邊緣易生長的野草，氣味濃烈，能驅蟲避邪。">香草 (Epazote)</td>
+                <td>1班</td><td>1d2+1</td><td>香料 (烹飪必備)</td>
+              </tr>
+              <tr>
+                <td class="popup-trigger" data-title="雨生苔菜" data-img="images/farmer/waterweed.png" data-desc="漂浮的細葉植物，富含水分與鹽分。需當日食用。">雨生苔菜</td>
+                <td>1班</td><td>2d4+2</td><td>水耕 (2份=1餐)</td>
+              </tr>
+
+              <tr><td colspan="5" style="background:rgba(201,163,90,0.1); color:var(--gold); font-weight:bold; text-align:center;">--- 短期作物 (數日) ---</td></tr>
+              <tr>
+                <td class="popup-trigger" data-title="日榮果 (普通)" data-img="images/farmer/sunfruit.png" data-desc="傳說僅在黎明第一縷陽光照耀的浮田上出現。果實散發微光。">日榮果</td>
+                <td>1日</td><td>1d4</td><td>珍稀，恢復體力。</td>
+              </tr>
+              <tr>
+                <td class="popup-trigger" data-title="辣椒" data-img="images/farmer/chili.png" data-desc="火神的恩賜。能驅散寒冷、提振精神。">辣椒</td>
+                <td>2日</td><td>1d4</td><td>調味/武器 (致盲粉)</td>
+              </tr>
+              <tr>
+                <td class="popup-trigger" data-title="番茄" data-img="images/farmer/tomato.png" data-desc="多汁的紅色果實，是幾乎所有燉菜和醬料的基底。">番茄</td>
+                <td>3日</td><td>1d4+1</td><td>食材 (易腐)</td>
+              </tr>
+
+              <tr><td colspan="5" style="background:rgba(201,163,90,0.1); color:var(--gold); font-weight:bold; text-align:center;">--- 常規作物 (週/月) ---</td></tr>
+              <tr>
+                <td class="popup-trigger" data-title="豆類" data-img="images/farmer/beans.png" data-desc="三姊妹之一，富含蛋白質。乾燥後可長期保存。">豆類</td>
+                <td>1週</td><td>1d4+2</td><td>耐保存 (三姊妹)</td>
+              </tr>
+              <tr>
+                <td class="popup-trigger" data-title="香蕉/芭蕉" data-img="images/farmer/banana.png" data-desc="生長快速的熱帶果實，甜味是恢復心情的良藥。">香蕉</td>
+                <td>1週</td><td>1d6</td><td>甜食 (解壓力)</td>
+              </tr>
+              <tr>
+                <td class="popup-trigger" data-title="奇亞籽 (Chia)" data-img="images/farmer/chia.png" data-desc="戰士的能量來源。一小把種子泡水後形成的膠狀物足以支撐整日行軍。">奇亞籽</td>
+                <td>1週</td><td>1d4袋</td><td>能量 (解疲勞)</td>
+              </tr>
+              <tr>
+                <td class="popup-trigger" data-title="玉米" data-img="images/farmer/maize.png" data-desc="生命之源。可磨成粉製作玉米餅或蒸粽。">玉米</td>
+                <td>2週</td><td>1d6+1</td><td>主食 (三姊妹)</td>
+              </tr>
+              <tr>
+                <td class="popup-trigger" data-title="南瓜" data-img="images/farmer/squash.png" data-desc="果肉厚實，種子亦可食用。">南瓜</td>
+                <td>2週</td><td>1d3+1</td><td>食材 (三姊妹)</td>
+              </tr>
+              <tr>
+                <td class="popup-trigger" data-title="酪梨" data-img="images/farmer/avocado.png" data-desc="森林奶油。富含油脂，能讓料理變得濃郁飽足。">酪梨</td>
+                <td>2週</td><td>1d4</td><td>高級食材 (解飢餓)</td>
+              </tr>
+              <tr>
+                <td class="popup-trigger" data-title="可可" data-img="images/farmer/cacao.png" data-desc="黑色黃金。可可豆不僅是製作神聖飲料的原料，更是通用的貨幣。">可可</td>
+                <td>1月</td><td>D6x10G</td><td>經濟/貨幣</td>
+              </tr>
+              <tr>
+                <td class="popup-trigger" data-title="龍舌蘭" data-img="images/farmer/agave.png" data-desc="萬能植物。葉片取纖維製衣，汁液發酵成普逵酒，刺可做針。">龍舌蘭</td>
+                <td>特殊</td><td>1d4</td><td>纖維/酒汁/針刺</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="margin-top:15px; background:rgba(255,255,255,0.05); padding:10px; border-left:3px solid var(--jade); color:#ccc;">
+          <strong>💡 三姐妹套組：</strong>若區域內同時種植 玉米 + 豆類 + 南瓜，每次收穫量 +1，並獲得一次「收成失敗重擲」機會。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="farm-magic" class="rule-content">
+    <div class="rule-display-area">
+      <div class="rule-card highlight" style="border-left-color:#9b59b6; background:linear-gradient(135deg, rgba(60, 20, 60, 0.6), rgba(20,20,25,0.8));">
+        <h3 style="color:#e0aaff;">✧ 神奇作物 (Magical Crops)</h3>
+        <p>這些作物不存在於一般的種子店中，它們是大地的恩賜，或是神靈在凡間的玩笑。只有在最完美的種植條件下（收穫檢定大成功），它們才會混雜在普通作物中出現。</p>
+        <p><strong>規則：</strong> 食用神奇作物通常需要花費一個動作。其效果強大且帶有魔法性質。</p>
+      </div>
+
+      <div class="rule-card">
+        <h3>稀有變異圖鑑</h3>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr><th width="25%">神奇作物</th><th width="15%">原型</th><th>食用/使用效果</th></tr>
+            </thead>
+            <tbody>
+              <tr class="magic-crop-row">
+                <td class="popup-trigger" data-title="日榮果 (神話)" data-img="images/farmer/sunfruit.png" data-desc="完全成熟的日榮果，外皮如黃金般發光，果肉溫熱。傳說是太陽神托納蒂烏滴下的汗水。">
+                  <span class="magic-badge">傳說</span>日榮果
+                </td>
+                <td>番茄/水果</td>
+                <td>
+                  <strong>【太陽恩賜】</strong> 食用後回復 2D6 HP，並移除所有 恐懼 與 寒冷 狀態。<br>
+                  且你的身體會發出半徑 10 米的明亮光照，持續一刻時間。
+                </td>
+              </tr>
+              <tr class="magic-crop-row">
+                <td class="popup-trigger" data-title="血玉蜀黍 (Blood-Maize)" data-img="images/farmer/blood-maize.png" data-desc="紫紅色的玉米粒，彷彿吸飽了鮮血。嚼碎時會感受到一股原始的怒氣與力量。">
+                  <span class="magic-badge">稀有</span>血玉蜀黍
+                </td>
+                <td>玉米</td>
+                <td>
+                  <strong>【狂戰士之糧】</strong> 食用後獲得 1D8 點 <strong>臨時 HP</strong>。<br>
+                  在一刻時間內，你的 力量 檢定獲得 1 個優勢，且免疫疼痛。
+                </td>
+              </tr>
+              <tr class="magic-crop-row">
+                <td class="popup-trigger" data-title="月淚百合 (Moon-Lily Bulb)" data-img="images/farmer/moon-lily.png" data-desc="只有在滿月之夜才會顯形的半透明球根。吃起來像脆梨，帶著淡淡的哀傷。">
+                  <span class="magic-badge">稀有</span>月淚球根
+                </td>
+                <td>洋蔥/根莖</td>
+                <td>
+                  <strong>【夜之隱匿】</strong> 食用後你的身形變得模糊半透明。<br>
+                  在一刻時間內，你的 隱匿 檢定獲得 1 個優勢，且獲得 夜視 能力。
+                </td>
+              </tr>
+              <tr class="magic-crop-row">
+                <td class="popup-trigger" data-title="冥界辣椒 (Ghost-Chili)" data-img="images/farmer/ghost-chili.png" data-desc="蒼白如骨的辣椒。入口瞬間極度冰冷，隨後爆發出靈魂深處的灼熱。">
+                  <span class="magic-badge">極稀有</span>冥界辣椒
+                </td>
+                <td>辣椒</td>
+                <td>
+                  <strong>【靈視與驅邪】</strong> 食用後需進行 體質 檢定（失敗則 暈眩 1 輪）。<br>
+                  成功後，你獲得 <strong>靈視</strong>（能看見隱形生物與靈體），且對死靈生物的攻擊造成雙倍傷害，持續一場戰鬥。
+                </td>
+              </tr>
+              <tr class="magic-crop-row">
+                <td class="popup-trigger" data-title="黑曜石瓜 (Obsidian Gourd)" data-img="images/farmer/obsidian-gourd.png" data-desc="外殼硬如岩石，敲擊有金石之聲。果肉堅硬苦澀，能強化皮膚。">
+                  <span class="magic-badge">稀有</span>黑曜石瓜
+                </td>
+                <td>南瓜</td>
+                <td>
+                  <strong>【岩石皮膚】</strong> 食用後皮膚硬化如石。<br>
+                  在一刻時間內，你的天生護甲值 +2（可與裝備疊加），但 敏捷 檢定獲得 1 個劣勢。
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<div id="farm-cook" class="rule-content">
+    <div class="rule-display-area">
+      
+      <div class="rule-card highlight">
+        <h3>🔥 烹飪規則與料理星級</h3>
+        <p>
+          烹飪不僅是生存技能，更是將大自然的恩惠轉化為力量的儀式。
+          玩家需消耗對應的<strong>食材</strong>與<strong>時間</strong>，並進行 <strong>廚藝 (Cooking)</strong> 檢定。
+          檢定成功與否決定了成品的品質；失敗可能導致食材浪費或產出「黑暗料理」。
+        </p>
+        <hr style="border-color:rgba(255,255,255,0.1); margin:15px 0;">
+        <ul style="list-style: none; padding-left: 0;">
+          <li style="margin-bottom: 12px;">
+            <strong style="color:#f1c40f;">★ 充飢便飯 (Simple)</strong>
+            <br><span style="color:#aaa; font-size:0.9rem;">耗時：1 刻 │ 難度：低</span>
+            <br>僅需簡單加熱或組裝。主要用於<strong>填飽肚子</strong>與<strong>基礎HP/WP回復</strong>，無特殊增益。
+          </li>
+          <li style="margin-bottom: 12px;">
+            <strong style="color:#f1c40f;">★★ 暖心家常 (Comfort)</strong>
+            <br><span style="color:#aaa; font-size:0.9rem;">耗時：2 刻 │ 難度：中</span>
+            <br>撫慰身心的熱食。除了回復量提升外，通常附帶<strong>解除輕微負面狀態</strong>（如力竭、畏縮、寒冷）的效果。
+          </li>
+          <li style="margin-bottom: 12px;">
+            <strong style="color:#f1c40f;">★★★ 精緻佳餚 (Delicacy)</strong>
+            <br><span style="color:#aaa; font-size:0.9rem;">耗時：1 小時 │ 難度：中高</span>
+            <br>講究火候與香料的搭配。能賦予角色<strong>屬性檢定優勢</strong>（如力量優勢、敏捷優勢），適合冒險前的準備。
+          </li>
+          <li style="margin-bottom: 12px;">
+            <strong style="color:#f1c40f;">★★★★ 宮廷饗宴 (Banquet)</strong>
+            <br><span style="color:#aaa; font-size:0.9rem;">耗時：1 小時+ │ 難度：高</span>
+            <br>使用珍稀肉類與繁複工序。提供<strong>大量回復</strong>以及<strong>環境抗性</strong>（如抗寒、抗毒），效果顯著。
+          </li>
+          <li>
+            <strong style="color:#f1c40f;">★★★★★ 神聖祭宴 (Divine Feast)</strong>
+            <br><span style="color:#aaa; font-size:0.9rem;">耗時：1 班 (約6小時) │ 難度：極高</span>
+            <br>傳說中的味道，足以獻祭給神靈。<strong>完全回復 (Full Heal)</strong> 所有HP/WP，移除所有負面狀態，並提供長效且強力的祝福。
+          </li>
+        </ul>
+      </div>
+
+      <div class="rule-card">
+        <h3>🥕 常用食材參考</h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>食材</th><th>類別</th><th>價格（◎）</th><th>備註</th></tr></thead>
+            <tbody>
+              <tr><td>玉米 / 玉米粉</td><td>穀物</td><td>0.25</td><td>主食，隨處可見</td></tr>
+              <tr><td>番茄 / 南瓜</td><td>蔬果</td><td>2~4</td><td>常見作物</td></tr>
+              <tr><td>香草 / 辣椒</td><td>香料</td><td>0.25</td><td>賦予料理靈魂的關鍵</td></tr>
+              <tr><td>蜂蜜 / 龍舌蘭漿</td><td>甜味</td><td>0.5</td><td>稀有的能量來源</td></tr>
+              <tr><td>可可豆</td><td>稀有</td><td>1G</td><td>貨幣兼神聖飲品材料</td></tr>
+              <tr><td>火雞 / 豬 / 牛肉</td><td>肉類</td><td>3</td><td>主要的蛋白質來源</td></tr>
+              <tr><td>河鮮魚 / 河蝦</td><td>河鮮</td><td>8</td><td>保存困難，需新鮮烹調</td></tr>
+              <tr><td>蜥肉 / 鱷魚肉</td><td>野味</td><td>20</td><td>口感強韌，祭典首選</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+<div class="rule-card">
+        <h3>📜 大廚食譜技能表（20 道｜由簡至難）</h3>
+        <p style="font-size:0.9rem; color:#aaa; margin-bottom:10px;">點擊料理名稱可查看詳細描述與圖片。</p>
+        
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th width="40">★</th>
+                <th>料理名稱</th>
+                <th>食材需求</th>
+                <th>時間</th>
+                <th>WP</th>
+                <th>效果</th>
+                <th width="50">價格</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>★</td>
+                <td class="popup-trigger"
+                    data-title="酪梨醬 Guacamole"
+                    data-img="images/farmer/Guacamole.png"
+                    data-desc="將成熟的酪梨切半，去核，然後將果肉舀入碗中。用叉子搗碎，直至達到您想要的濃稠度。拌入切碎番茄丁和新鮮切碎的香菜。如果您喜歡辣味，可以用鹽、胡椒和辣椒粉調味。將所有材料混合均勻，盛入碗中即可享用。">
+                    酪梨醬
+                </td>
+                <td>酪梨×1、番茄×1、香草×1</td>
+                <td>1刻</td>
+                <td>1</td>
+                <td>食用可回復 1 WP</td>
+                <td>5G</td>
+              </tr>
+              <tr>
+                <td>★</td>
+                <td class="popup-trigger"
+                    data-title="玉米餅 Tortilla"
+                    data-img="images/farmer/Tortilla.png"
+                    data-desc="在一個大碗中，將玉米粉和鹽混合。逐漸加入溫水，並充分揉捏麵團，直至光滑柔軟。如果麵團感覺太乾，可以加一點植物油。將麵團分成適當的份數，並將每份揉成球狀。輕輕按壓，使其變薄、均勻，形成一個形狀良好的玉米餅。用中火預熱煎鍋，將每個玉米餅兩面各煎約30秒，直至略呈金黃色。">
+                    玉米餅
+                </td>
+                <td>玉米粉×2</td>
+                <td>1刻</td>
+                <td>1</td>
+                <td>可保存，產出 1d4 份</td>
+                <td>6G</td>
+              </tr>
+              <tr>
+                <td>★</td>
+                <td class="popup-trigger"
+                    data-title="玉米香草羹 Tortilla Cilantro Soup"
+                    data-img="images/farmer/TortillaCilantroSuop.png"
+                    data-desc="湯底：將番茄、洋蔥、大蒜、歐芹、辣椒和鹽混合，攪拌均勻。在鍋中用少量油翻炒番茄混合物，直至呈現濃鬱的紅色。然後倒入新鮮的玉米粉和熱水，蓋上鍋蓋，小火慢燉約15分鐘。上菜時，可加入新鮮的配料，例如辣椒丁、起司絲、酪梨丁。">
+                    玉米香草羹
+                </td>
+                <td>玉米粉×1、番茄×1、香草×1</td>
+                <td>2刻</td>
+                <td>1</td>
+                <td>食用可回復 2 HP</td>
+                <td>6G</td>
+              </tr>
+              <tr>
+                <td>★</td>
+                <td class="popup-trigger"
+                    data-title="莧菜蜂蜜塊 Amaranth-Honey Clusters"
+                    data-img="images/farmer/Amaranth-Honey.png"
+                    data-desc="將蜂蜜微微加熱至液體狀。然後拌入膨化莧菜。（可選）添加食用花卉、仙人掌碎、燕麥、乾果或堅果。將混合物壓在鋪有玉米皮的烤盤上。待其冷卻後，切成小塊。適合長途行軍攜帶。">
+                    莧菜蜂蜜塊
+                </td>
+                <td>莧菜籽×1、蜂蜜×1</td>
+                <td>2刻</td>
+                <td>1</td>
+                <td>可保存，解除 力竭/暈眩/虛弱</td>
+                <td>7G</td>
+              </tr>
+              <tr>
+                <td>★</td>
+                <td class="popup-trigger"
+                    data-title="玉米熱飲 Atole"
+                    data-img="images/farmer/Atole.png"
+                    data-desc="將玉米粉和少量冷水混合，直至順滑無顆粒。在鍋中，將剩餘的水和肉桂棒一起煮沸。慢慢倒入玉米粉混合物，以中火加熱，不斷攪拌，直到飲料變稠（約10-15分鐘）。加入糖或蜂蜜，充分攪拌至完全溶解。趁熱享用。">
+                    玉米熱飲
+                </td>
+                <td>玉米粉×1、蜂蜜×1</td>
+                <td>2刻</td>
+                <td>1</td>
+                <td>回復 1 HP，驅散寒冷</td>
+                <td>8G</td>
+              </tr>
+
+              <tr>
+                <td>★★</td>
+                <td class="popup-trigger"
+                    data-title="南瓜奶油湯 Pumpkin Cream Soup"
+                    data-img="images/farmer/PumpkinCreamSoup.png"
+                    data-desc="將南瓜切成兩半，去籽切塊。在大鍋中以中火加熱橄欖油，翻炒洋蔥與大蒜。加入南瓜塊、蔬菜湯、辣椒碎和孜然。將所有材料煮沸，慢燉約20分鐘，直到南瓜變軟。調低火候，拌入椰奶，將湯打至順滑細膩。最後撒上南瓜籽和新鮮香菜即可享用。">
+                    南瓜奶油湯
+                </td>
+                <td>南瓜×1、辣椒×1、香草×1</td>
+                <td>2刻</td>
+                <td>2</td>
+                <td>驅散寒冷，1班內抗寒優勢</td>
+                <td>10G</td>
+              </tr>
+              <tr>
+                <td>★★</td>
+                <td class="popup-trigger"
+                    data-title="玉米粥 Corn Mash"
+                    data-img="images/farmer/CornMash.png"
+                    data-desc="將乾玉米粒用足量的水浸泡一夜。第二天瀝乾，用清水和少許鹽煮約30分鐘。將洋蔥和大蒜切碎翻炒至半透明。將煮熟的玉米粒和洋蔥混合物攪拌至順滑。倒回鍋中，用葛縷子粉和切碎的香菜葉調味，略微加熱。">
+                    玉米粥
+                </td>
+                <td>玉米×2、洋蔥×1、香草×1</td>
+                <td>1時</td>
+                <td>2</td>
+                <td>回復 2 HP，解除虛弱</td>
+                <td>8G</td>
+              </tr>
+              <tr>
+                <td>★★</td>
+                <td class="popup-trigger"
+                    data-title="辣味焦糖蕉 Spicy Caramel Plantains"
+                    data-img="images/farmer/Plantains.png"
+                    data-desc="將芭蕉去皮切半。在鍋中用中火融化奶油，放入芭蕉煎至金黃酥脆。在小碗中將糖和水混合，倒入鍋中煮沸溶解。加入切碎的辣椒，小火慢燉至略微焦糖化。將辣椒焦糖均勻地淋在芭蕉上，撒上少許鹽。">
+                    辣味焦糖蕉
+                </td>
+                <td>蕉×1、蜂蜜×1、辣椒×1</td>
+                <td>1刻</td>
+                <td>2</td>
+                <td>解除 畏縮/沮喪</td>
+                <td>10G</td>
+              </tr>
+              <tr>
+                <td>★★</td>
+                <td class="popup-trigger"
+                    data-title="奇亞鮮奶布丁 Chia Milk Pudding"
+                    data-img="images/farmer/Pudding.png"
+                    data-desc="在碗中將奇亞籽、鮮奶、蜂蜜攪拌均勻。蓋上蓋子密封，放入冰水中冷藏至少4小時或過夜，讓奇亞籽充分浸泡形成凝膠。食用前充分攪拌，可放上新鮮水果點綴。">
+                    奇亞鮮奶布丁
+                </td>
+                <td>奇亞籽×1、椰奶×1、蜂蜜×1</td>
+                <td>1班</td>
+                <td>2</td>
+                <td>回復 1d4 WP，解憤怒</td>
+                <td>12G</td>
+              </tr>
+              <tr>
+                <td>★★</td>
+                <td class="popup-trigger"
+                    data-title="莧菜餅乾 Amaranth Cookies"
+                    data-img="images/farmer/cookies.png"
+                    data-desc="將軟化的奶油和紅糖打至順滑，加入雞蛋和香草。另取碗混合莧菜粉、鹽、小荳蔻和肉桂粉。將兩者混合揉成麵團。分成小塊放在烤盤上，烘烤5分鐘至呈金黃色。冷卻後口感酥脆。">
+                    莧菜餅乾
+                </td>
+                <td>莧菜籽×1、麵粉×1、蜂蜜×1</td>
+                <td>2刻</td>
+                <td>2</td>
+                <td>可保存，食用回復 1 HP</td>
+                <td>10G</td>
+              </tr>
+
+              <tr>
+                <td>★★★</td>
+                <td class="popup-trigger"
+                    data-title="豆餡玉米粽 Bean-Filled Tamales"
+                    data-img="images/farmer/Tamales.png"
+                    data-desc="以玉米粉團包裹豆餡後蒸製而成，是馬茲提卡地區常見的節慶與日常主食。香氣濃郁、口感紮實，豆餡甜鹹皆宜，象徵土地與勞作的豐饒恩賜。">
+                    豆餡玉米粽
+                </td>
+                <td>玉米粉×1、黑豆×1、玉米殼×1</td>
+                <td>1時</td>
+                <td>2</td>
+                <td>可保存，1班內體質檢定優勢</td>
+                <td>12G</td>
+              </tr>
+              <tr>
+                <td>★★★</td>
+                <td class="popup-trigger"
+                    data-title="奇亞籽醬 Chia Jam"
+                    data-img="images/farmer/ChiaJam.png"
+                    data-desc="將新鮮水果切碎，以小火加熱至軟爛。加入蜂蜜調味，攪拌均勻。倒入奇亞籽，小火續煮2–3分鐘後關火。靜置冷卻約20分鐘，奇亞籽會吸收水分並使果醬自然變稠。放入罐中密封冷藏。">
+                    奇亞籽醬
+                </td>
+                <td>奇亞籽×1、番茄×1、蜂蜜×1</td>
+                <td>1刻</td>
+                <td>2</td>
+                <td>解 憤怒/畏縮/沮喪，魅力優勢</td>
+                <td>12G</td>
+              </tr>
+              <tr>
+                <td>★★★</td>
+                <td class="popup-trigger"
+                    data-title="索科特爾 Xocolatl"
+                    data-img="images/farmer/Xocolatl.png"
+                    data-desc="將鍋中的水燒開。同時，將可可粉與香草、肉桂和辣椒混合。加入少量熱水，攪拌成順滑的糊狀。將糊狀物倒入沸水中，攪拌均勻。用小火慢煮 5-10 分鐘。如有需要，可以加入龍舌蘭糖漿調味，趁熱享用。">
+                    索科特爾
+                </td>
+                <td>可可豆×1、辣椒×1、香料×1</td>
+                <td>1刻</td>
+                <td>2</td>
+                <td>回復 1d4 WP，意志優勢</td>
+                <td>15G</td>
+              </tr>
+              <tr>
+                <td>★★★</td>
+                <td class="popup-trigger"
+                    data-title="香料豬肉串 Spiced Pork Skewers"
+                    data-img="images/farmer/PorkSkewers.png"
+                    data-desc="將豬肉切成方塊，以鹽、胡椒、孜然、辣椒粉、蒜末調味。靜置醃製約30分鐘至1小時。將豬肉串在竹籤上，可間隔穿插洋蔥與甜椒。以中火烤至金黃焦脆，邊刷油邊翻面。起鍋後可灑上少許香菜或辣椒碎。">
+                    香料豬肉串
+                </td>
+                <td>豬肉×1、辣椒×1、香草×1</td>
+                <td>2刻</td>
+                <td>2</td>
+                <td>回復 1d4 HP，力量優勢</td>
+                <td>12G</td>
+              </tr>
+              <tr>
+                <td>★★★</td>
+                <td class="popup-trigger"
+                    data-title="香煎河鮮魚 Pan-Seared River Fish"
+                    data-img="images/farmer/RiverFish.png"
+                    data-desc="將新鮮河魚清洗乾淨，擦乾水分。用鹽、檸檬汁與少許辣椒粉醃製10分鐘。平底鍋中倒入少許油，以中火加熱。放入魚身，煎至雙面金黃酥脆（每面約3-5分鐘）。起鍋後可擠上檸檬汁，灑上香菜或辣椒碎增香。">
+                    香煎河鮮魚
+                </td>
+                <td>河魚×1、香草×1、酸果×1</td>
+                <td>2刻</td>
+                <td>2</td>
+                <td>回復 1d4 HP，敏捷優勢</td>
+                <td>15G</td>
+              </tr>
+
+              <tr>
+                <td>★★★★</td>
+                <td class="popup-trigger"
+                    data-title="可可辣醬火雞肉 Turkey Mole"
+                    data-img="images/farmer/TurkeyMole.png"
+                    data-desc="將辣椒烤至表皮變黑後去皮切開。洋蔥蒜末炒香。混合奶油乳酪、孜然、辣椒粉、青檸汁製成醬料。將雞胸肉橫切，塞入醬料與烤辣椒。放入鍋中烘烤約30分鐘至熟透。Mole醬汁層次豐富，是款待貴客的佳餚。">
+                    可可辣醬火雞
+                </td>
+                <td>火雞×1、玉米×1、辣椒×1、可可×1</td>
+                <td>1時</td>
+                <td>3</td>
+                <td>解除任一狀態，1班內抗寒優勢</td>
+                <td>25G</td>
+              </tr>
+              <tr>
+                <td>★★★★</td>
+                <td class="popup-trigger"
+                    data-title="香草燉羊肉 Cilantro Stewed Lamb"
+                    data-img="images/farmer/StewedLamb.png"
+                    data-desc="將羊肉切塊，用鹽、黑胡椒、水芹與檸檬汁略醃。鍋中加少許油，將羊肉煎至表面金黃。加入洋蔥、大蒜與香草，翻炒至出香。倒入少量酒，小火燉煮1至1.5小時。起鍋前加入少許香菜與辣椒片增香。">
+                    香草燉羊肉
+                </td>
+                <td>羊肉×1、香草×1、洋蔥×1</td>
+                <td>1時</td>
+                <td>3</td>
+                <td>回復 1d4 HP+1d4 WP，體質優勢</td>
+                <td>22G</td>
+              </tr>
+              <tr>
+                <td>★★★★</td>
+                <td class="popup-trigger"
+                    data-title="牛肉玉米燉鍋 Beef and Corn Stew"
+                    data-img="images/farmer/StewedLamb.png"
+                    data-desc="將牛肉切塊，用鹽、黑胡椒和孜然粉略醃。鍋中加油，煎至牛肉表面金黃。加入洋蔥、番茄丁、蒜末與玉米粒，翻炒出香氣。倒入高湯與少量辣椒粉，小火燉煮約1小時。湯汁香甜濃厚，融合穀物與肉香的溫暖風味。">
+                    牛肉玉米燉鍋
+                </td>
+                <td>牛肉×1、玉米×1、番茄×1、辣椒×1</td>
+                <td>1時</td>
+                <td>3</td>
+                <td>回復 2d4 HP，體質優勢</td>
+                <td>20G</td>
+              </tr>
+              <tr>
+                <td>★★★★</td>
+                <td class="popup-trigger"
+                    data-title="香辣河蝦 Spicy River Shrimp"
+                    data-img="images/farmer/SpicyRiverShrimp.png"
+                    data-desc="將新鮮河蝦剪去長鬚，用烈酒與鹽略醃。鍋中熱油，爆香大量的乾辣椒、花椒與蒜片。倒入河蝦大火快炒，鎖住鮮味。起鍋前淋入檸檬汁與撒上香菜。蝦殼酥脆可食，肉質彈牙，香辣刺激，能瞬間驅散寒意與疲憊。">
+                    香辣河蝦
+                </td>
+                <td>河蝦×1、辣椒×1、香草×1</td>
+                <td>2刻</td>
+                <td>2</td>
+                <td>回復 2d4 WP，驅散寒冷，解畏縮</td>
+                <td>14G</td>
+              </tr>
+
+              <tr>
+                <td>★★★★★</td>
+                <td class="popup-trigger"
+                    data-title="香草蜥肉湯 Cilantro Lizard Soup"
+                    data-img="images/farmer/lizardSoup.png"
+                    data-desc="以巨蜥肉和香草慢燉，湯色清亮、風味濃郁。據傳能補氣養身、強健筋骨，常作為部族儀式或長途狩獵後的滋補佳餚。將蜥肉洗淨切塊，用鹽、檸檬汁與薑片略醃去腥。鍋中加水，放入蜥肉煮沸。加入香草（如水芹、香菜、月桂葉）與大蒜、辣椒同燉。小火熬煮約1.5小時，湯汁變濃、肉質軟嫩。">
+                    香草蜥肉湯
+                </td>
+                <td>蜥肉/鱷魚肉×1、玉米×1、香草×1</td>
+                <td>1時</td>
+                <td>3</td>
+                <td>回復 2d6 HP，解 力竭/暈眩/虛弱</td>
+                <td>25G</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// 備用彈窗腳本 (確保獨立預覽時正常運作)
+window.addEventListener('load', () => {
+  if (typeof initGlobalPopups !== 'function') {
+    const GOLD = getComputedStyle(document.documentElement).getPropertyValue('--gold')?.trim() || '#c9a35a';
+    let modalEl = null;
+
+    function openPortalModal({ title, desc, img }) {
+      if (modalEl) modalEl.remove();
+
+      modalEl = document.createElement('div');
+      Object.assign(modalEl.style, {
+        position: 'fixed', inset: '0', width: '100vw', height: '100vh',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(6px)', zIndex: '9999',
+        opacity: '0', transition: 'opacity .25s ease'
+      });
+
+      const card = document.createElement('div');
+      Object.assign(card.style, {
+        position: 'relative', width: 'min(90vw, 500px)', maxHeight: '80vh', overflowY: 'auto',
+        background: 'rgba(30,30,35,0.95)', border: `2px solid ${GOLD}`, borderRadius: '12px',
+        boxShadow: `0 0 20px ${GOLD}40`, padding: '25px', color: '#f4f1ea', textAlign: 'center',
+        transform: 'scale(0.95)', transition: 'transform .25s ease'
+      });
+
+      const closeBtn = document.createElement('span');
+      closeBtn.textContent = '×';
+      Object.assign(closeBtn.style, {
+        position: 'absolute', right: '15px', top: '10px', color: GOLD, fontSize: '30px', cursor: 'pointer', lineHeight: '1'
+      });
+
+      const h2 = document.createElement('h2');
+      h2.textContent = title;
+      Object.assign(h2.style, { color: GOLD, marginBottom: '15px', marginTop: '10px', fontSize: '1.5rem', fontFamily: 'Noto Serif TC' });
+
+      const imgEl = document.createElement('img');
+      if (img && img !== 'undefined') {
+        imgEl.src = img;
+        Object.assign(imgEl.style, {
+          maxWidth: '100%', borderRadius: '8px', border: `1px solid ${GOLD}`, marginBottom: '15px'
+        });
+      }
+
+      const p = document.createElement('p');
+      p.textContent = desc;
+      Object.assign(p.style, { lineHeight: '1.6', textAlign: 'justify', color: '#ddd' });
+
+      card.append(closeBtn, h2, img ? imgEl : '', p);
+      modalEl.appendChild(card);
+      document.body.appendChild(modalEl);
+
+      requestAnimationFrame(() => {
+        modalEl.style.opacity = '1';
+        card.style.transform = 'scale(1)';
+      });
+
+      const close = () => {
+        modalEl.style.opacity = '0';
+        card.style.transform = 'scale(0.95)';
+        setTimeout(() => modalEl.remove(), 250);
+      };
+
+      closeBtn.onclick = close;
+      modalEl.onclick = (e) => { if (e.target === modalEl) close(); };
+    }
+
+    document.querySelectorAll('.popup-trigger').forEach(el => {
+      el.addEventListener('click', e => {
+        openPortalModal({
+          title: el.dataset.title,
+          desc: el.dataset.desc,
+          img: el.dataset.img
+        });
+      });
+    });
+  }
+});
+</script>
+
+</body>
+</html>

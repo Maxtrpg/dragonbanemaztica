@@ -1,0 +1,251 @@
+<style>
+  /* 分頁切換動畫 */
+  .magic-section { display: none; animation: fadeIn 0.4s ease; }
+  .magic-section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* 學院專用微調 */
+  .academy-quote {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 1.2rem;
+    color: var(--gold);
+    text-align: center;
+    font-style: italic;
+    margin-bottom: 20px;
+    padding: 15px;
+    border-top: 1px solid rgba(201, 163, 90, 0.3);
+    border-bottom: 1px solid rgba(201, 163, 90, 0.3);
+    background: rgba(0,0,0,0.2);
+  }
+  
+  .school-icon { font-size: 2.5rem; display: block; margin-bottom: 10px; color: var(--gold); }
+  
+  /* 學派內文樣式 */
+  .school-quote { 
+    font-family: 'Noto Serif TC', serif;
+    font-style: italic; 
+    color: #e7d3a8; 
+    margin-bottom: 20px; 
+    border-left: 3px solid var(--gold); 
+    padding-left: 15px;
+    line-height: 1.6;
+  }
+  .school-footer-quote { 
+    text-align: right; 
+    font-size: 0.9em; 
+    color: #888; 
+    margin-top: 20px; 
+    padding-top: 15px;
+    border-top: 1px dashed rgba(255,255,255,0.1); 
+    font-style: italic;
+  }
+  .sub-title {
+    color: var(--jade);
+    font-weight: bold;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    display: inline-block;
+    border-bottom: 1px solid rgba(27, 94, 60, 0.5);
+  }
+
+  /* RWD 優化：5個按鈕在手機上改為 3+2 排列，避免太擠 */
+  @media (max-width: 600px) {
+    .index-links { grid-template-columns: repeat(3, 1fr) !important; }
+    .index-links button:nth-last-child(-n+2) { grid-column: auto / span 1; } /* 讓最後兩個自動填滿或換行 */
+    .index-links button:last-child { grid-column: span 2; } /* 讓最後一個佔兩格 (若想置中) */
+  }
+</style>
+
+<header>
+  <h1>三聖學院</h1>
+  <div class="ornament-divider"></div>
+  <p class="intro-text">
+    馬茲提卡大陸上最權威的知識體系，連結天象、數理與神學的殿堂。在這裡，理性之火長燃於神與凡人之間。<br>
+    <span style="font-size: 0.9em; color: var(--gold);">總院：帕伊特 / 烏拉托斯 (Ulatos)</span>
+  </p>
+</header>
+
+<nav class="page-index">
+  <span class="index-label">學院檔案 ACADEMY ARCHIVES</span>
+  <div class="index-links" style="grid-template-columns: repeat(5, 1fr);">
+    <button class="index-btn active-tab" data-target="tab-overview">學院概覽</button>
+    <button class="index-btn" data-target="tab-vitalogy">生知學</button>
+    <button class="index-btn" data-target="tab-celestonomy">天律學</button>
+    <button class="index-btn" data-target="tab-numeronomy">數律學</button>
+    <button class="index-btn" data-target="tab-theonomy">神律學</button>
+  </div>
+</nav>
+
+<main>
+
+  <section id="tab-overview" class="magic-section active">
+    
+    <div class="academy-quote">
+      「知識之環連結天地，理性之火長燃於神與凡之間。」
+    </div>
+
+    <div class="rule-display-area">
+      
+      <div class="rule-card active">
+        <h3>🏛️ 組織與架構 (Organization)</h3>
+        <p>
+          三聖學院是馬茲提卡大陸上最權威的知識體系，由天律、數律與神律三大學院組成。其總院位於帕伊特的烏拉托斯，由數律學派主導研究，象徵理性與科技的核心。
+          學院設有理事院，由三院導師與中立的「平衡者」共同主持，以維持各派權力與資源的均衡。分院遍布佩澤拉克、圖坎與比丘烏姆，分別象徵應用、觀測與信仰的延伸。
+        </p>
+        <div class="table-scroll">
+          <table class="vehicle-stats">
+            <thead><tr><th>機構</th><th>職責</th><th>組成</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><strong>理事院</strong><br>(The Council)</td>
+                <td>最高決策機構，協調資源與權力平衡。</td>
+                <td>三院導師 + 中立「平衡者」</td>
+              </tr>
+              <tr>
+                <td><strong>烏拉托斯總院</strong><br>(Ulatos Main)</td>
+                <td>核心研究與檔案保存。</td>
+                <td>數律主導，藏有古老的創世石板。</td>
+              </tr>
+              <tr>
+                <td><strong>分院體系</strong></td>
+                <td>延伸研究與應用。</td>
+                <td>
+                  <strong>佩澤拉克：</strong>應用技術與軍事工程<br>
+                  <strong>圖坎：</strong>天文觀測與曆法維護<br>
+                  <strong>比丘烏姆：</strong>信仰研究與神學辯證
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="rule-card highlight">
+        <h3>🌍 學院的社會角色</h3>
+        <p>
+          三聖學院不僅是知識殿堂，更是大陸秩序的維繫者。理事院負責制訂曆法、監督祭期、審核律法，並在戰亂或災變時提供決策指導。
+          學者被尊稱為「理性祭司」，他們以理解而非權力引導信仰。每十年舉行的「羽律朝聖行」象徵理性回歸信仰，提醒學者知識的最終目標是平衡與和諧。
+          正因三聖學院的存在，馬茲提卡才能在神與凡人之間維持持久的秩序。
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="tab-vitalogy" class="magic-section">
+    <div class="rule-display-area">
+      <div class="rule-card highlight">
+        <span class="school-icon">🌱</span>
+        <h3>生知學 Vitalogy</h3>
+        <div class="school-quote">「若理性源於觀察，那觀察的起點，必是生命本身。」</div>
+        
+        <h4 class="sub-title">〈起源與信念〉</h4>
+        <p>
+          生知學是三聖學出現之前最古老的知識體系，起源於馬茲提卡南部部落的口述傳統。早期智者認為，真正的智慧來自生命本身，而非文字記錄。他們以「活知」為信條，主張唯有親歷、觀察與痛苦才能獲得理解。狩獵、耕作與疾病都是教課書，風、雨與火是教師。這種源自生活的知識後來被稱為「生知學」，意指「由生命所生的學問」。
+        </p>
+
+        <h4 class="sub-title">〈教義與實踐〉</h4>
+        <p>
+          生知學拒絕抽象理論，強調經驗與體驗的重要。智者在叢林與山谷間教導弟子觀察獸跡、辨識氣味與節氣，並從自然互動中領悟秩序。知識被視為一種呼吸的行為，而非書本的內容。三聖學院成立後，學者將生知學的理念融入課程，設立「田野實修」與「生命記錄」課程。學生必須在自然環境中度過一季，以體驗理性與生命的共鳴。
+        </p>
+
+        <h4 class="sub-title">〈學派與影響〉</h4>
+        <p>
+          雖然生知學缺乏嚴謹體制，但其影響深遠。許多薩滿、醫者與探險家皆被視為其傳人。他們以故事與符號記錄知識，成為馬茲提卡最早的教育形式。三聖學者將其尊為「理性之母學」，認為理性若脫離生命，終將枯竭。生知學提醒人們：學問的根源並非書本，而是呼吸與感受。它象徵著人類對世界最原始也最真誠的理解。
+        </p>
+
+        <div class="school-footer-quote">
+          「文字不會教會你如何生存，唯有飢餓與雨水能。」 —— 伊札特．長行者，《行於生命之書》
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-celestonomy" class="magic-section">
+    <div class="rule-display-area">
+      <div class="rule-card active">
+        <span class="school-icon">✨</span>
+        <h3>天律學 Celestonomy</h3>
+        <div class="school-quote">「當夜空被第一顆恆星劃破時，人們學會了數算時間，也學會了仰望。」</div>
+        
+        <h4 class="sub-title">〈起源與信念〉</h4>
+        <p>
+          天律學起源於帕伊特早期的航海文明。最初的觀星者為了追蹤潮汐與季風，在海岸與高原上建立了「石影塔」，記錄星辰與太陽的運行。這些塔最終形成了天律學的雛形。隨著曆法的出現與農業的穩定，觀星者開始意識到星辰的週期性蘊含某種更高秩序的力量。天律學由此誕生，並逐步形成一套以「觀測」為核心的信念：唯有理解天體的軌跡，才能理解神祉創造世界的邏輯。
+        </p>
+
+        <h4 class="sub-title">〈教義與實踐〉</h4>
+        <p>
+          天律學者主張「觀測即信仰」。他們相信神祉並非以奇蹟干預凡世，而是透過天體的運行揭示法則。每一次日蝕、流星或風暴，皆是宇宙秩序的回聲。學派成員花費數十年研究恆星移動的微小偏差，並以此預測季節、氣候與祭典時序。對天律學者而言，祈禱的形式不是言語，而是紀錄與理解。他們在圖坎沙漠中建立了「觀星高塔」，由矮人工匠協助設計，能在烈風中精準追蹤星軌，成為理性信仰的象徵。
+        </p>
+
+        <h4 class="sub-title">〈學派與影響〉</h4>
+        <p>
+          隨著學派擴張，天律學分為三支：主張星象決定命運的「預兆派」、強調理性觀測的「秩序派」、以及試圖將天象與神學結合的「符兆派」。三派理念時有爭論，但共同奠定了馬茲提卡的曆法學、航海學與氣候學。天律學者的研究使城邦能在乾季與雨季間精確安排農耕，並推動了早期的天象儀器與金屬觀測鏡的製作。時至今日，天律學仍是理性信仰的基礎之一，代表人類仰望星空的求知之心。
+        </p>
+
+        <div class="school-footer-quote">
+          「星辰無言，卻循其軌；理解天道者，方能理解命運。」 —— 瑪索亞．光觀者，《天體秩序論》
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-numeronomy" class="magic-section">
+    <div class="rule-display-area">
+      <div class="rule-card active">
+        <span class="school-icon">📐</span>
+        <h3>數律學 Numeronomy</h3>
+        <div class="school-quote">「神以數創世，凡人以數理解神。」</div>
+
+        <h4 class="sub-title">〈起源與信念〉</h4>
+        <p>
+          數律學興起於帕伊特的烏拉托斯城，是三聖學體系的理性核心。最早的學者發現，不論是建築結構、樂曲節奏還是貿易價格，皆能以比例與數列解釋。這使他們相信：神在創世時以「數」作為秩序之語。於是，一群數學與哲學兼修的學者建立了「比例學院」，致力於尋找萬物之間的幾何平衡。他們稱自己為「秩序的抄錄者」，視理解數律為模仿神的創造行為。
+        </p>
+
+        <h4 class="sub-title">〈教義與實踐〉</h4>
+        <p>
+          數律學者主張萬物可被計算。凡存在於世界的現象，無論自然、社會或精神，皆可化為可測量的關係。他們研究黃金比例、振動頻率與城市幾何，並認為理性的精確是對神最崇高的敬意。學派內部分為兩大流派：「計序派」相信透過完備的方程，人類能最終預測命運；「均衡派」則主張數字只是理解神意的象徵，而非掌控世界的工具。兩派雖爭辯不休，但其辯論推動了邏輯學與工程學的成熟。
+        </p>
+
+        <h4 class="sub-title">〈學派與影響〉</h4>
+        <p>
+          烏拉托斯城因此成為馬茲提卡的科技中心。數律學者設計的建築以比例聞名，其三螺旋塔即為象徵。學派的理論推動了曆法改革、貿易制度與城邦防禦，甚至影響到軍事陣形與宗教儀式的佈局。對他們而言，混沌並非無序，而是尚未解出的方程。雖然薩滿與神律學者常指責他們「試圖計算神」，但數律學者堅信理解不等於僭越。正如奧蘇特．計序者所言：「秩序是神留下的最明確印記。」
+        </p>
+
+        <div class="school-footer-quote">
+          「萬物皆有結構，混沌只是尚未被看見的秩序。」 —— 奧蘇特．計序者，《秩序的幾何》
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-theonomy" class="magic-section">
+    <div class="rule-display-area">
+      <div class="rule-card active">
+        <span class="school-icon">🔥</span>
+        <h3>神律學 Theonomy</h3>
+        <div class="school-quote">「若宇宙有法，則神必在其律中；理解律者，乃是理解神的第一步。」</div>
+
+        <h4 class="sub-title">〈起源與信念〉</h4>
+        <p>
+          神律學誕生於宗教權威崩解的年代。當舊神殿的祭司失去信眾信任，一群理性派學者提出新論：神蹟並非違反自然，而是運行於更高層次的法則之中。這場思想革命讓信仰走出盲目崇拜，進入理性研究的時代。神律學者相信神祉在創世時立下「律」，而所有現象──從河川流向到人心動盪──皆受此律支配。研究神學即是研究秩序本身。
+        </p>
+
+        <h4 class="sub-title">〈教義與實踐〉</h4>
+        <p>
+          神律學將信仰化為推理。祭儀不再是單純的祈禱，而是依據精確公式與符文結構執行。著名的《羽蛇法典》記錄了神祉等階與律令的數學化形式，被視為理性神學的聖典。神律學者以符號、幾何與天象為工具，模擬神意運行的圖式。他們主張：「人不可成神，但可理解神的法則。」這種信念讓他們在馬茲提卡南部建立起學術與宗教並行的體系。
+        </p>
+
+        <h4 class="sub-title">〈學派與影響〉</h4>
+        <p>
+          比丘烏姆聖城是神律學的核心。當地的聖院學派將三聖理論融合為「羽蛇法典學」，試圖在數理與信仰間尋找統一。每十年一次的「羽律朝聖行」象徵理性對信仰的朝覲。雖然薩滿與神律學者理念對立──前者以靈性理解神，後者以理性推演神──但兩者最終形成共治。神律學的出現使馬茲提卡的宗教由感性走向理性，也奠定了現代祭儀體系的基礎。
+        </p>
+
+        <div class="school-footer-quote">
+          「神蹟不是違反自然的奇蹟，而是自然在更高層次中運行的秩序。」 —— 亞瑪赫．奎奧提爾，《羽蛇之法論》
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>

@@ -1,0 +1,638 @@
+<div id="page-top" class="rule-card highlight" style="border-left-color: #e63946;">
+  <h3><span style="color: #e63946;">⚔️</span> 技能與檢定</h3>
+  <p>技能代表你在作為冒險者期間（或之前）所獲得的知識和能力。它們決定了你在遊戲中執行行動的效率。</p>
+</div>
+
+<style>
+  /* === 頁面專屬變數 === */
+  .skill-page-container {
+    --str: #e63946; /* 力量-紅 */
+    --dex: #2e7d32; /* 敏捷-綠 */
+    --int: #3f7ebe; /* 智力-藍 */
+    --cha: #ff77aa; /* 魅力-粉 */
+    
+    width: 100%;
+    padding-bottom: 60px; /* 預留回頂部按鈕空間 */
+  }
+
+  /* === 上層分頁導覽 === */
+  .skill-nav {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin: 20px 0 30px;
+  }
+
+  .skill-nav-btn {
+    padding: 10px 30px;
+    border: 1px solid var(--border-gold);
+    color: var(--gold);
+    background: rgba(0,0,0,0.5);
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+    user-select: none;
+  }
+
+  .skill-nav-btn:hover {
+    box-shadow: 0 0 15px rgba(201, 163, 90, 0.3);
+    background: rgba(201, 163, 90, 0.1);
+  }
+
+  /* 上層分頁激活狀態 */
+  #tab-rules:checked ~ .skill-nav label[for="tab-rules"],
+  #tab-skills:checked ~ .skill-nav label[for="tab-skills"] {
+    background: var(--gold);
+    color: #000;
+    font-weight: bold;
+    box-shadow: 0 0 20px rgba(201, 163, 90, 0.5);
+  }
+
+  /* === 內容區塊顯示控制 === */
+  .content-section {
+    display: none;
+    animation: fadeIn 0.5s ease;
+  }
+
+  #tab-rules:checked ~ .section-rules,
+  #tab-skills:checked ~ .section-skills {
+    display: block;
+  }
+
+  /* === 規則書籤列 === */
+  .rules-bookmark-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 25px;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 6px;
+    border: 1px dashed rgba(201, 163, 90, 0.3);
+    align-items: center;
+  }
+
+  .rules-bookmark-bar span {
+    color: var(--text-dim);
+    font-size: 0.9rem;
+    margin-right: 5px;
+  }
+
+  .bookmark-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--gold);
+    padding: 5px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+  }
+
+  .bookmark-btn:hover {
+    background: var(--gold);
+    color: #000;
+  }
+
+  /* === 規則區塊樣式 === */
+  .text-block {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--border-gold);
+    padding: 25px;
+    margin-bottom: 25px;
+    border-radius: 8px;
+    scroll-margin-top: 20px; /* 讓捲動定位時留出空間 */
+  }
+
+  .text-block h2 {
+    color: var(--gold);
+    font-family: "Quatl", serif;
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    border-bottom: 1px dashed rgba(255,255,255,0.1);
+    padding-bottom: 8px;
+  }
+  
+  .text-block h3 {
+    color: #fff;
+    font-size: 1.2rem;
+    margin-top: 20px;
+    margin-bottom: 10px;
+  }
+
+  .text-block ul { margin-left: 20px; line-height: 1.8; color: #ddd; }
+  .text-block li { margin-bottom: 8px; }
+  .text-block p { line-height: 1.8; color: #ddd; margin-bottom: 15px; }
+  .text-block strong { color: var(--gold); }
+
+  /* === 技能選單樣式 === */
+  .skill-group-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 30px;
+  }
+
+  details {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  details[open] {
+    border-color: var(--border-color);
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  summary {
+    padding: 12px;
+    cursor: pointer;
+    font-weight: bold;
+    user-select: none;
+    list-style: none;
+    text-align: center;
+    transition: background 0.3s;
+    font-size: 1.1rem;
+    color: #fff;
+    border-bottom: 1px solid transparent;
+  }
+  
+  details[open] summary {
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+
+  /* 自定義顏色邊框 */
+  details.g-str { border-top: 3px solid var(--str); }
+  details.g-str summary { color: var(--str); }
+  details.g-str[open] { box-shadow: 0 5px 15px rgba(230, 57, 70, 0.15); }
+
+  details.g-dex { border-top: 3px solid var(--dex); }
+  details.g-dex summary { color: var(--dex); }
+  details.g-dex[open] { box-shadow: 0 5px 15px rgba(46, 125, 50, 0.15); }
+
+  details.g-int { border-top: 3px solid var(--int); }
+  details.g-int summary { color: var(--int); }
+  details.g-int[open] { box-shadow: 0 5px 15px rgba(63, 126, 190, 0.15); }
+
+  details.g-cha { border-top: 3px solid var(--cha); }
+  details.g-cha summary { color: var(--cha); }
+  details.g-cha[open] { box-shadow: 0 5px 15px rgba(255, 119, 170, 0.15); }
+
+  /* 技能按鈕列表 */
+  .skill-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 10px;
+  }
+
+  .skill-label {
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 4px;
+    color: #aaa;
+    transition: all 0.2s;
+    text-align: center;
+    border: 1px solid transparent;
+  }
+
+  .skill-label:hover {
+    background: rgba(255,255,255,0.05);
+    color: #fff;
+  }
+
+  /* 技能按鈕激活狀態 */
+  #s-craft:checked ~ .section-skills .g-str label[for="s-craft"],
+  #s-weapon:checked ~ .section-skills .g-str label[for="s-weapon"] {
+    background: rgba(230, 57, 70, 0.2); color: var(--str); border-color: var(--str);
+  }
+
+  #s-acro:checked ~ .section-skills .g-dex label[for="s-acro"],
+  #s-dodge:checked ~ .section-skills .g-dex label[for="s-dodge"],
+  #s-hunt:checked ~ .section-skills .g-dex label[for="s-hunt"],
+  #s-ride:checked ~ .section-skills .g-dex label[for="s-ride"],
+  #s-sleight:checked ~ .section-skills .g-dex label[for="s-sleight"],
+  #s-stealth:checked ~ .section-skills .g-dex label[for="s-stealth"],
+  #s-swim:checked ~ .section-skills .g-dex label[for="s-swim"] {
+    background: rgba(46, 125, 50, 0.2); color: var(--dex); border-color: var(--dex);
+  }
+
+  #s-perc:checked ~ .section-skills .g-int label[for="s-perc"],
+  #s-beast:checked ~ .section-skills .g-int label[for="s-beast"],
+  #s-surv:checked ~ .section-skills .g-int label[for="s-surv"],
+  #s-heal:checked ~ .section-skills .g-int label[for="s-heal"],
+  #s-lang:checked ~ .section-skills .g-int label[for="s-lang"],
+  #s-lore:checked ~ .section-skills .g-int label[for="s-lore"],
+  #s-sail:checked ~ .section-skills .g-int label[for="s-sail"],
+  #s-invest:checked ~ .section-skills .g-int label[for="s-invest"] {
+    background: rgba(63, 126, 190, 0.2); color: var(--int); border-color: var(--int);
+  }
+
+  #s-trade:checked ~ .section-skills .g-cha label[for="s-trade"],
+  #s-decep:checked ~ .section-skills .g-cha label[for="s-decep"],
+  #s-perform:checked ~ .section-skills .g-cha label[for="s-perform"],
+  #s-persuade:checked ~ .section-skills .g-cha label[for="s-persuade"] {
+    background: rgba(255, 119, 170, 0.2); color: var(--cha); border-color: var(--cha);
+  }
+
+  /* === 詳情面板樣式 === */
+  .skill-detail-panel-box {
+    min-height: 250px;
+    background: rgba(15, 15, 20, 0.8);
+    border: 1px solid var(--gold);
+    border-radius: 8px;
+    padding: 30px;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
+
+  .skill-content {
+    display: none;
+    animation: slideUp 0.4s ease;
+  }
+
+  .skill-content h2 {
+    color: var(--gold);
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    font-family: "Quatl", serif;
+  }
+  
+  .skill-content p { margin-bottom: 15px; line-height: 1.8; color: #d0d0d0; }
+  .skill-content ul { margin-left: 20px; color: #ccc; }
+  .skill-content li { margin-bottom: 8px; }
+  .skill-content strong { color: #fff; }
+
+  /* 顯示對應的技能內容 */
+  #s-craft:checked ~ .section-skills .skill-detail-panel-box .c-craft,
+  #s-weapon:checked ~ .section-skills .skill-detail-panel-box .c-weapon,
+  #s-acro:checked ~ .section-skills .skill-detail-panel-box .c-acro,
+  #s-dodge:checked ~ .section-skills .skill-detail-panel-box .c-dodge,
+  #s-hunt:checked ~ .section-skills .skill-detail-panel-box .c-hunt,
+  #s-ride:checked ~ .section-skills .skill-detail-panel-box .c-ride,
+  #s-sleight:checked ~ .section-skills .skill-detail-panel-box .c-sleight,
+  #s-stealth:checked ~ .section-skills .skill-detail-panel-box .c-stealth,
+  #s-swim:checked ~ .section-skills .skill-detail-panel-box .c-swim,
+  #s-perc:checked ~ .section-skills .skill-detail-panel-box .c-perc,
+  #s-beast:checked ~ .section-skills .skill-detail-panel-box .c-beast,
+  #s-surv:checked ~ .section-skills .skill-detail-panel-box .c-surv,
+  #s-heal:checked ~ .section-skills .skill-detail-panel-box .c-heal,
+  #s-lang:checked ~ .section-skills .skill-detail-panel-box .c-lang,
+  #s-lore:checked ~ .section-skills .skill-detail-panel-box .c-lore,
+  #s-sail:checked ~ .section-skills .skill-detail-panel-box .c-sail,
+  #s-invest:checked ~ .section-skills .skill-detail-panel-box .c-invest,
+  #s-trade:checked ~ .section-skills .skill-detail-panel-box .c-trade,
+  #s-decep:checked ~ .section-skills .skill-detail-panel-box .c-decep,
+  #s-perform:checked ~ .section-skills .skill-detail-panel-box .c-perform,
+  #s-persuade:checked ~ .section-skills .skill-detail-panel-box .c-persuade {
+    display: block;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* === 回頂部按鈕 === */
+  .back-to-top-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: rgba(201, 163, 90, 0.8);
+    color: #000;
+    border: 1px solid var(--gold);
+    cursor: pointer;
+    font-size: 1.2rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    transition: all 0.3s ease;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.8;
+  }
+
+  .back-to-top-btn:hover {
+    transform: translateY(-5px);
+    opacity: 1;
+    background: var(--gold);
+    box-shadow: 0 0 20px rgba(201, 163, 90, 0.6);
+  }
+</style>
+
+<div class="skill-page-container">
+  
+  <input type="radio" name="main-tabs" id="tab-rules" hidden>
+  <input type="radio" name="main-tabs" id="tab-skills" checked hidden>
+
+  <input type="radio" name="skill-select" id="s-craft" checked hidden>
+  <input type="radio" name="skill-select" id="s-weapon" hidden>
+  <input type="radio" name="skill-select" id="s-acro" hidden>
+  <input type="radio" name="skill-select" id="s-dodge" hidden>
+  <input type="radio" name="skill-select" id="s-hunt" hidden>
+  <input type="radio" name="skill-select" id="s-ride" hidden>
+  <input type="radio" name="skill-select" id="s-sleight" hidden>
+  <input type="radio" name="skill-select" id="s-stealth" hidden>
+  <input type="radio" name="skill-select" id="s-swim" hidden>
+  <input type="radio" name="skill-select" id="s-perc" hidden>
+  <input type="radio" name="skill-select" id="s-beast" hidden>
+  <input type="radio" name="skill-select" id="s-surv" hidden>
+  <input type="radio" name="skill-select" id="s-heal" hidden>
+  <input type="radio" name="skill-select" id="s-lang" hidden>
+  <input type="radio" name="skill-select" id="s-lore" hidden>
+  <input type="radio" name="skill-select" id="s-sail" hidden>
+  <input type="radio" name="skill-select" id="s-invest" hidden>
+  <input type="radio" name="skill-select" id="s-trade" hidden>
+  <input type="radio" name="skill-select" id="s-decep" hidden>
+  <input type="radio" name="skill-select" id="s-perform" hidden>
+  <input type="radio" name="skill-select" id="s-persuade" hidden>
+
+  <div class="skill-nav">
+    <label for="tab-rules" class="skill-nav-btn">檢定規則</label>
+    <label for="tab-skills" class="skill-nav-btn">技能介紹</label>
+  </div>
+
+  <div class="content-section section-rules">
+    
+    <div class="rules-bookmark-bar">
+      <span>快速導覽：</span>
+      <button class="bookmark-btn" onclick="document.getElementById('r-roll').scrollIntoView({behavior:'smooth', block:'start'})">擲骰檢定</button>
+      <button class="bookmark-btn" onclick="document.getElementById('r-adv').scrollIntoView({behavior:'smooth', block:'start'})">優劣勢</button>
+      <button class="bookmark-btn" onclick="document.getElementById('r-push').scrollIntoView({behavior:'smooth', block:'start'})">強推</button>
+      <button class="bookmark-btn" onclick="document.getElementById('r-assist').scrollIntoView({behavior:'smooth', block:'start'})">協助</button>
+      <button class="bookmark-btn" onclick="document.getElementById('r-oppose').scrollIntoView({behavior:'smooth', block:'start'})">對抗</button>
+    </div>
+
+    <div class="text-block" id="r-roll">
+      <h2>擲骰檢定</h2>
+      <ul>
+        <li>當進行檢定時，描述你角色想要達成的事情，然後骰 1D20。</li>
+        <li>若擲骰結果 ≦ 技能等級，檢定成功。
+          <ul>
+            <li>在戰鬥中檢定成功會有特定的效果。</li>
+            <li>在戰鬥外，由 GM 或擲骰玩家決定檢定結果。</li>
+          </ul>
+        </li>
+        <li>若擲骰結果 &gt; 技能等級，檢定失敗。
+          <ul>
+            <li>你沒有達成預期的目標，或是發生意想不到的事件，和 GM 一起發想結果。</li>
+            <li>失敗不代表故事停滯，你可能仍然達成目標，但花了更多時間、有危險發生，或損失什麼東西。</li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+
+    <div class="text-block" id="r-adv">
+      <h2>優勢 &amp; 劣勢</h2>
+      <ul>
+        <li>有時候，GM 會判斷有些額外因素會協助或妨礙你的檢定，這時候，你的檢定就會獲得<strong>優勢</strong>或<strong>劣勢</strong>。
+          <ul>
+            <li>若你的檢定擁有一個<strong>優勢</strong>，你骰 2D20，取較低的結果。</li>
+            <li>若你的檢定擁有一個<strong>劣勢</strong>，你骰 2D20，取較高的結果。</li>
+          </ul>
+        </li>
+      </ul>
+      <h3>複數優勢 &amp; 複數劣勢</h3>
+      <p>若你在一個檢定中擁有多個優勢或多個劣勢，每擁有一個優勢/劣勢就會額外 +1D20，然後全部一起擲骰，取最低或最高的結果。</p>
+
+      <h3>同時擁有優勢和劣勢</h3>
+      <ul>
+        <li>若你在一個檢定中同時擁有優勢和劣勢，則倆倆互相抵消。
+          <ul>
+            <li>例如，你擁有一個優勢和一個劣勢，則互相抵消，正常擲骰。</li>
+            <li>例如，你擁有兩個優勢和一個劣勢，則抵消之後，還剩一個優勢。</li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+
+    <div class="text-block" id="r-push">
+      <h2>強推檢定 (Pushing)</h2>
+      <ul>
+        <li>若你檢定失敗，你可以選擇<strong>「強推檢定」</strong>，代表你可以重骰一次，並使用新的擲骰結果。
+          <ul>
+            <li>若你原本的檢定有優勢或劣勢，則強推檢定一樣會有優勢或劣勢。</li>
+            <li>你不能強推骰出<strong>大失敗</strong>的檢定。</li>
+          </ul>
+        </li>
+        <li>在你強推檢定後，你會獲得一個<strong>狀態 (Condition)</strong>，代表你基於該屬性的所有技能檢定都會獲得一個劣勢。每個狀態都與一個屬性連結，如下：
+          <ul>
+            <li><span style="color:var(--str)">力竭（力量）</span></li>
+            <li><span style="color:var(--str)">虛弱（體質）</span></li>
+            <li><span style="color:var(--dex)">暈眩（敏捷）</span></li>
+            <li><span style="color:var(--int)">憤怒（智力）</span></li>
+            <li><span style="color:var(--int)">畏縮（意志）</span></li>
+            <li><span style="color:var(--cha)">沮喪（魅力）</span></li>
+          </ul>
+        </li>
+        <li>由你自己決定獲得哪一個<strong>狀態</strong>，但有以下兩個條件：
+          <ul>
+            <li>你不能選擇你已經擁有的<strong>狀態</strong>。</li>
+            <li>你必須解釋為什麼你的行動會獲得該<strong>狀態</strong>。</li>
+          </ul>
+        </li>
+        <li>當你擁有所有六種<strong>狀態</strong>時，你就無法強推檢定。</li>
+        <li>你可以藉由休息來恢復狀態。</li>
+      </ul>
+    </div>
+
+    <div class="text-block" id="r-assist">
+      <h2>協助檢定</h2>
+      <ul>
+        <li>其他 PC 或 NPC 可以協助你進行檢定。協助必須在檢定前宣告，且必須在故事中合理呈現，協助者必須在你附近，且有能力提供幫助，由 GM 判定。</li>
+        <li>若你獲得協助，你的檢定就會獲得一個優勢。</li>
+        <li>在戰鬥中，協助他人是一個動作。</li>
+        <li>同時只能有一個人對一個檢定進行協助。</li>
+      </ul>
+    </div>
+
+    <div class="text-block" id="r-oppose">
+      <h2>對抗檢定</h2>
+      <ul>
+        <li>有時候你必須在對抗檢定中贏過對手，才能在行動中獲得成功。只有當該行動明顯有人對抗你時，才會進行對抗檢定（在戰鬥中攻擊對方不算對抗檢定，而是有特定的戰鬥規則）。</li>
+        <li>若要進行對抗檢定，雙方骰各自的技能檢定。
+          <ul>
+            <li>若主動方檢定失敗，無論對方擲骰結果如何，你的行動都會失敗。</li>
+            <li>若主動方檢定成功，而對方檢定失敗，你的行動成功。</li>
+            <li>若雙方都檢定成功，只要你的擲骰結果 ≦ 對方，你行動成功。若對方擲骰結果 &lt; 你，則你行動失敗。</li>
+          </ul>
+        </li>
+      </ul>
+      <p><strong>強推檢定：</strong>雙方都可以強推對抗檢定，甚至可以在對方擲骰後決定要不要強推。</p>
+      <p><strong>公開對抗：</strong>若雙方都檢定失敗、或雙方都成功但骰到相同的結果，則必須<strong>重骰</strong>對抗。雙方一樣都可以強推檢定。</p>
+    </div>
+  </div>
+
+  <div class="content-section section-skills">
+    
+    <div class="skill-group-container">
+      
+      <details class="g-str" open>
+        <summary>力量技能 STR</summary>
+        <div class="skill-list">
+          <label for="s-craft" class="skill-label">工藝</label>
+          <label for="s-weapon" class="skill-label">武器技能</label>
+        </div>
+      </details>
+
+      <details class="g-dex" open>
+        <summary>敏捷技能 DEX</summary>
+        <div class="skill-list">
+          <label for="s-acro" class="skill-label">體操</label>
+          <label for="s-dodge" class="skill-label">閃避</label>
+          <label for="s-hunt" class="skill-label">狩獵</label>
+          <label for="s-ride" class="skill-label">騎術</label>
+          <label for="s-sleight" class="skill-label">巧手</label>
+          <label for="s-stealth" class="skill-label">隱匿</label>
+          <label for="s-swim" class="skill-label">游泳</label>
+        </div>
+      </details>
+
+      <details class="g-int" open>
+        <summary>智力技能 INT</summary>
+        <div class="skill-list">
+          <label for="s-perc" class="skill-label">察覺</label>
+          <label for="s-beast" class="skill-label">野獸知識</label>
+          <label for="s-surv" class="skill-label">求生</label>
+          <label for="s-heal" class="skill-label">醫療</label>
+          <label for="s-lang" class="skill-label">語言</label>
+          <label for="s-lore" class="skill-label">祕聞傳說</label>
+          <label for="s-sail" class="skill-label">船藝</label>
+          <label for="s-invest" class="skill-label">調查</label>
+        </div>
+      </details>
+
+      <details class="g-cha" open>
+        <summary>魅力技能 CHA</summary>
+        <div class="skill-list">
+          <label for="s-trade" class="skill-label">交易</label>
+          <label for="s-decep" class="skill-label">欺瞞</label>
+          <label for="s-perform" class="skill-label">表演</label>
+          <label for="s-persuade" class="skill-label">遊說</label>
+        </div>
+      </details>
+
+    </div>
+
+    <div class="skill-detail-panel-box">
+      <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #555; pointer-events: none; z-index: 0;">
+
+      </div>
+
+      <div class="skill-content c-craft">
+        <h2>工藝（力量）</h2>
+        <p>身為一名冒險者，你經常要自己修理損壞的裝備。通常來說，修理受損的物品需要耗時<strong>一班時間</strong>，且你必須擁有適合的工具。</p>
+      </div>
+      <div class="skill-content c-weapon">
+        <h2>武器技能（力量/敏捷）</h2>
+        <p>揮舞不同的武器需要不同的武器技能：</p>
+        <ul>
+          <li><strong>徒手（力量）：</strong>用於拳腳、牙齒利爪等徒手格鬥。</li>
+          <li><strong>斧（力量）：</strong>用於各式斧頭，包括投擲。</li>
+          <li><strong>棍棒（力量）：</strong>用於棒類或其他鈍器。</li>
+          <li><strong>矛（力量）：</strong>用於木矛、投射標槍等。</li>
+          <li><strong>劍（力量）：</strong>用於各式刀劍。</li>
+          <li><strong>小刀（敏捷）：</strong>用於小刀和匕首，包括投擲。</li>
+          <li><strong>弓（敏捷）：</strong>用於各式弓類武器。</li>
+          <li><strong>投槍器（力量）<span class="maz-badge">馬茲提卡</span>：</strong>用於投擲投射標槍或箭矢。</li>
+          <li><strong>投石繩（敏捷）：</strong>用於投石繩。</li>
+          <li><strong>吹箭筒（敏捷）<span class="maz-badge">馬茲提卡</span>：</strong>用於吹箭筒。</li>
+        </ul>
+      </div>
+
+      <div class="skill-content c-acro">
+        <h2>體操（敏捷）</h2>
+        <p>當你嘗試跳躍、攀爬、維持平衡或執行類似的身體動作時，進行<strong>體操</strong>檢定。</p>
+      </div>
+      <div class="skill-content c-dodge">
+        <h2>閃避（敏捷）</h2>
+        <p>當你嘗試閃避攻擊或逃離戰鬥時，進行<strong>閃避</strong>檢定。</p>
+      </div>
+      <div class="skill-content c-hunt">
+        <h2>狩獵（敏捷）</h2>
+        <p>在野外時，你經常要透過狩獵來自己找到食物。</p>
+      </div>
+      <div class="skill-content c-ride">
+        <h2>騎術（敏捷）</h2>
+        <p>單純騎上馬匹或慢速騎乘不需要進行檢定，但若要執行更困難的特技就需要進行<strong>騎術</strong>檢定。</p>
+      </div>
+      <div class="skill-content c-sleight">
+        <h2>巧手（敏捷）</h2>
+        <p>當你嘗試偷竊、開鎖，或其他需要精密操作的行動時，進行<strong>巧手</strong>檢定。</p>
+      </div>
+      <div class="skill-content c-stealth">
+        <h2>隱匿（敏捷）</h2>
+        <p>有時候，躲起來避開戰鬥或悄悄通過敵人是更明智的做法。若你<strong>隱匿</strong>檢定成功，你不會被敵人發現。通常這只需要一般的技能檢定，但如果有人在主動尋找你，就需要用你的檢定來對抗敵人的<strong>察覺</strong>檢定。</p>
+        <p>注意，只有當你能看見或聽見你想躲避的敵人時，才能嘗試檢定。你不能因為想防止「萬一」附近有敵人而進行檢定。</p>
+      </div>
+      <div class="skill-content c-swim">
+        <h2>游泳（敏捷）</h2>
+        <p>所有 PC 都可以在短時間內漂浮在水面上，但如果有更險峻的情勢就必須進行<strong>游泳</strong>檢定。</p>
+      </div>
+
+      <div class="skill-content c-perc">
+        <h2>察覺（智力）</h2>
+        <p>身為一名冒險者，你必須隨時保持警惕。你使用<strong>察覺</strong>檢定來發現或聆聽在附近偷偷摸摸的人（對抗<strong>隱匿</strong>）。有時候 GM 會讓你進行被動式檢定來注意危險，這種檢定無法強推。</p>
+        <p>若有多個 PC 在相同地點，<strong>察覺</strong>檢定只能各自進行，無法互相協助。</p>
+      </div>
+      <div class="skill-content c-beast">
+        <h2>野獸知識（智力）</h2>
+        <p>辨識動物或怪物、理解其習性、能力與弱點時進行<strong>野獸知識</strong>檢定；成功時 GM 應提供有用資訊。</p>
+      </div>
+      <div class="skill-content c-surv">
+        <h2>求生（智力）</h2>
+        <p>在荒野帶路、紮營、烹煮食物，或在寒冷天氣中保持溫暖時，進行<strong>求生</strong>檢定。</p>
+      </div>
+      <div class="skill-content c-heal">
+        <h2>醫療（智力）</h2>
+        <p>你可以用<strong>醫療</strong>檢定讓倒下的同伴再次站起來，甚至救治他們的生命。</p>
+      </div>
+      <div class="skill-content c-lang">
+        <h2>語言（智力）</h2>
+        <p>所有 PC 都會說通用語與閱讀簡單文字；若要理解外國或古老語言，進行<strong>語言</strong>檢定。</p>
+      </div>
+      <div class="skill-content c-lore">
+        <h2>祕聞傳說（智力）</h2>
+        <p>當你嘗試想起古老或遙遠地區的故事，或找出古往今來的連結，進行<strong>祕聞傳說</strong>檢定。</p>
+      </div>
+      <div class="skill-content c-sail">
+        <h2>船藝（智力）</h2>
+        <p>任何人都能慢慢划船，但在更險峻的情勢須進行<strong>船藝</strong>檢定來操作水上載具。</p>
+      </div>
+      <div class="skill-content c-invest">
+        <h2>調查（智力）</h2>
+        <p>當你嘗試尋找被隱藏起來的東西時，進行<strong>調查</strong>檢定。若你非常精確地描述你要找的地方，GM 可能給你優勢，甚至不需擲骰即成功。</p>
+        <p>每次檢定約耗時<strong>一刻時間</strong>；同一地點尋找同一物只有一次嘗試機會。多個 PC 可在同地同時尋找同一東西。</p>
+      </div>
+
+      <div class="skill-content c-trade">
+        <h2>交易（魅力）</h2>
+        <p>購買或販賣時，你可進行<strong>交易</strong>檢定嘗試議價。成功：價格±20%；大成功：價格減半/加倍；大失敗：嚴重冒犯對方、交易破局。</p>
+      </div>
+      <div class="skill-content c-decep">
+        <h2>欺瞞（魅力）</h2>
+        <p>快速編出可信的謊言。若 GM 認為內容不夠可信，你的檢定有劣勢；若完全無法讓人信服，則自動失敗。</p>
+      </div>
+      <div class="skill-content c-perform">
+        <h2>表演（魅力）</h2>
+        <p>當你唱歌、吟詩、說笑話或其他取悅群眾的行動時，進行<strong>表演</strong>檢定。</p>
+      </div>
+      <div class="skill-content c-persuade">
+        <h2>遊說（魅力）</h2>
+        <p>在不使用暴力的情況下，透過誘惑、威脅或講道理來達成目標時，進行<strong>遊說</strong>檢定。成功則 NPC 依你所言行事，可能要求回報（由 GM 決定）。</p>
+        <p>若你的要求會讓 NPC 犧牲或賭上重要事物，檢定會更困難，並改為你的<strong>遊說</strong>對抗對方的<strong>意志</strong>。無論多成功，NPC 不會做出違抗其意志的行為（由 GM 裁決）。</p>
+        <p>你無法遊說怪物，除非另有說明。</p>
+      </div>
+
+    </div>
+  </div>
+
+  <button class="back-to-top-btn" onclick="document.getElementById('page-top').scrollIntoView({behavior:'smooth'})">▲</button>
+</div>

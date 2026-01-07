@@ -1,0 +1,1546 @@
+<div id="hero-top" class="rule-card highlight" style="border-left-color: #c9a35a;">
+  <h3><span style="color: #c9a35a;">👑</span> 英雄能力</h3>
+  <p>英雄能力是區分凡人與傳奇的關鍵。除了薩滿外，其他職業在創角時都會獲得一項英雄能力。當你將一項技能等級第一次提升至 18 時，可以獲得一項自選英雄能力。</p>
+</div>
+
+<style>
+  /* === 頁面專屬變數 === */
+  .hero-page-container {
+    --h-gold: #c9a35a;
+    --h-red: #a85754;
+    --h-green: #3b8b5a;
+    --h-blue: #5277c1;
+    --bg-dark: rgba(15, 15, 20, 0.6);
+    width: 100%;
+    padding-bottom: 60px;
+  }
+
+  /* === 主分頁導覽 === */
+  .hero-main-nav {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px 0 25px;
+    flex-wrap: wrap;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 15px;
+  }
+
+  .main-tab-btn {
+    padding: 10px 24px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--border-gold);
+    color: var(--text-dim);
+    cursor: pointer;
+    border-radius: 4px 4px 0 0;
+    transition: all 0.2s;
+    font-size: 1.1rem;
+    font-weight: bold;
+    position: relative;
+    top: 2px;
+    user-select: none;
+  }
+
+  .main-tab-btn:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  /* 主分頁激活樣式 (根據分類變色) */
+  #tab-gen:checked ~ .hero-main-nav label[for="tab-gen"] { background: var(--h-gold); color: #000; border-color: var(--h-gold); box-shadow: 0 -5px 15px rgba(201, 163, 90, 0.3); }
+  #tab-com:checked ~ .hero-main-nav label[for="tab-com"] { background: var(--h-red); color: #fff; border-color: var(--h-red); box-shadow: 0 -5px 15px rgba(168, 87, 84, 0.3); }
+  #tab-exp:checked ~ .hero-main-nav label[for="tab-exp"] { background: var(--h-green); color: #fff; border-color: var(--h-green); box-shadow: 0 -5px 15px rgba(59, 139, 90, 0.3); }
+  #tab-soc:checked ~ .hero-main-nav label[for="tab-soc"] { background: var(--h-blue); color: #fff; border-color: var(--h-blue); box-shadow: 0 -5px 15px rgba(82, 119, 193, 0.3); }
+
+  /* === 內容顯示控制 === */
+  .hero-section { display: none; animation: fadeIn 0.4s ease; }
+
+  #tab-gen:checked ~ .sect-gen,
+  #tab-com:checked ~ .sect-com,
+  #tab-exp:checked ~ .sect-exp,
+  #tab-soc:checked ~ .sect-soc {
+    display: block;
+  }
+
+  /* === 能力按鈕網格 (6列) === */
+  .ability-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+    margin-bottom: 25px;
+  }
+  
+  @media (max-width: 900px) { .ability-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 600px) { .ability-grid { grid-template-columns: repeat(2, 1fr); } }
+
+  .ab-btn {
+    height: 48px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+    user-select: none;
+    text-align: center;
+    color: #aaa;
+  }
+
+  .ab-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 10px rgba(0,0,0,0.3); color: #fff; }
+
+/* 1. 在 .hero-page-container 內新增紫色變數 */
+.hero-page-container {
+  /* ...既有的變數... */
+  --h-ord: #9b59b6; /* 新增騎士團紫色 */
+}
+
+/* 2. 新增分頁激活樣式 (加入到主分頁導覽區塊) */
+#tab-ord:checked ~ .hero-main-nav label[for="tab-ord"] { 
+  background: var(--h-ord); color: #fff; border-color: var(--h-ord); box-shadow: 0 -5px 15px rgba(155, 89, 182, 0.3); 
+}
+
+/* 3. 新增內容顯示控制 */
+#tab-ord:checked ~ .sect-ord { display: block; }
+
+/* 4. 新增騎士團按鈕樣式 */
+.sect-ord .ab-btn { border-color: var(--h-ord); color: var(--h-ord); }
+.sect-ord .ab-btn:hover { background: rgba(155, 89, 182, 0.15); }
+
+/* 5. 騎士團標題樣式 (鷹與豹的分隔線) */
+.order-header {
+  margin: 30px 0 15px 0;
+  padding-bottom: 10px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* 6. 個別按鈕激活邏輯 - 騎士團 (包含鷹騎士與豹騎士) */
+/* 鷹騎士 (Eagle) & 豹騎士 (Jaguar) 按鈕變色 */
+#ab-raptordive:checked ~ .sect-ord label[for="ab-raptordive"],
+#ab-sunradiance:checked ~ .sect-ord label[for="ab-sunradiance"],
+#ab-plumashield:checked ~ .sect-ord label[for="ab-plumashield"],
+#ab-captor:checked ~ .sect-ord label[for="ab-captor"],
+#ab-windchild:checked ~ .sect-ord label[for="ab-windchild"],
+#ab-sunpierce:checked ~ .sect-ord label[for="ab-sunpierce"],
+#ab-shornvow:checked ~ .sect-ord label[for="ab-shornvow"],
+#ab-jaguarclaw:checked ~ .sect-ord label[for="ab-jaguarclaw"],
+#ab-grapple:checked ~ .sect-ord label[for="ab-grapple"],
+#ab-execution:checked ~ .sect-ord label[for="ab-execution"],
+#ab-shadowcamo:checked ~ .sect-ord label[for="ab-shadowcamo"],
+#ab-bloodscent:checked ~ .sect-ord label[for="ab-bloodscent"],
+#ab-deathscream:checked ~ .sect-ord label[for="ab-deathscream"],
+#ab-zaltecfeast:checked ~ .sect-ord label[for="ab-zaltecfeast"] {
+  background: var(--h-ord); color: #fff; box-shadow: 0 0 15px rgba(155, 89, 182, 0.5);
+}
+
+/* 7. 內容顯示邏輯 - 騎士團 */
+#ab-raptordive:checked ~ .sect-ord .detail-raptordive,
+#ab-sunradiance:checked ~ .sect-ord .detail-sunradiance,
+#ab-plumashield:checked ~ .sect-ord .detail-plumashield,
+#ab-captor:checked ~ .sect-ord .detail-captor,
+#ab-windchild:checked ~ .sect-ord .detail-windchild,
+#ab-sunpierce:checked ~ .sect-ord .detail-sunpierce,
+#ab-shornvow:checked ~ .sect-ord .detail-shornvow,
+#ab-jaguarclaw:checked ~ .sect-ord .detail-jaguarclaw,
+#ab-grapple:checked ~ .sect-ord .detail-grapple,
+#ab-execution:checked ~ .sect-ord .detail-execution,
+#ab-shadowcamo:checked ~ .sect-ord .detail-shadowcamo,
+#ab-bloodscent:checked ~ .sect-ord .detail-bloodscent,
+#ab-deathscream:checked ~ .sect-ord .detail-deathscream,
+#ab-zaltecfeast:checked ~ .sect-ord .detail-zaltecfeast {
+  display: block;
+}
+
+  /* === 能力按鈕激活狀態 === */
+  /* 通用 (金色) */
+  .sect-gen .ab-btn { border-color: var(--h-gold); color: var(--h-gold); }
+  .sect-gen .ab-btn:hover { background: rgba(201, 163, 90, 0.15); }
+  
+  /* 戰鬥 (紅色) */
+  .sect-com .ab-btn { border-color: var(--h-red); color: var(--h-red); }
+  .sect-com .ab-btn:hover { background: rgba(168, 87, 84, 0.15); }
+
+  /* 探索 (綠色) */
+  .sect-exp .ab-btn { border-color: var(--h-green); color: var(--h-green); }
+  .sect-exp .ab-btn:hover { background: rgba(59, 139, 90, 0.15); }
+
+  /* 社交 (藍色) */
+  .sect-soc .ab-btn { border-color: var(--h-blue); color: var(--h-blue); }
+  .sect-soc .ab-btn:hover { background: rgba(82, 119, 193, 0.15); }
+
+  /* 個別按鈕激活邏輯 - 通用 */
+  #ab-fasthealer:checked ~ .sect-gen label[for="ab-fasthealer"],
+  #ab-fearless:checked ~ .sect-gen label[for="ab-fearless"],
+  #ab-focused:checked ~ .sect-gen label[for="ab-focused"],
+  #ab-robust:checked ~ .sect-gen label[for="ab-robust"],
+  #ab-intuition:checked ~ .sect-gen label[for="ab-intuition"],
+  #ab-magic:checked ~ .sect-gen label[for="ab-magic"],
+  #ab-smith:checked ~ .sect-gen label[for="ab-smith"],
+  #ab-carpenter:checked ~ .sect-gen label[for="ab-carpenter"],
+  #ab-tanner:checked ~ .sect-gen label[for="ab-tanner"],
+  #ab-pluma:checked ~ .sect-gen label[for="ab-pluma"],
+  #ab-chef:checked ~ .sect-gen label[for="ab-chef"],
+  #ab-song:checked ~ .sect-gen label[for="ab-song"],
+  #ab-hymn:checked ~ .sect-gen label[for="ab-hymn"],
+  #ab-teach:checked ~ .sect-gen label[for="ab-teach"],
+  #ab-share:checked ~ .sect-gen label[for="ab-share"],
+  #ab-cat:checked ~ .sect-gen label[for="ab-cat"],
+  #ab-companion:checked ~ .sect-gen label[for="ab-companion"],
+  #ab-eagle:checked ~ .sect-gen label[for="ab-eagle"],
+  #ab-broker:checked ~ .sect-gen label[for="ab-broker"],
+  #ab-chinampa:checked ~ .sect-gen label[for="ab-chinampa"],
+  #ab-aquatic:checked ~ .sect-gen label[for="ab-aquatic"],
+#ab-polymath:checked ~ .sect-gen label[for="ab-polymath"],
+#ab-hymnheroes:checked ~ .sect-gen label[for="ab-hymnheroes"] { background: var(--h-gold); color: #000; box-shadow: 0 0 15px rgba(201, 163, 90, 0.5); }
+
+
+
+
+  /* 個別按鈕激活邏輯 - 戰鬥 */
+  #ab-veteran:checked ~ .sect-com label[for="ab-veteran"],
+  #ab-musician:checked ~ .sect-com label[for="ab-musician"],
+  #ab-berserker:checked ~ .sect-com label[for="ab-berserker"],
+  #ab-assassin:checked ~ .sect-com label[for="ab-assassin"],
+  #ab-backstab:checked ~ .sect-com label[for="ab-backstab"],
+  #ab-battlesong:checked ~ .sect-com label[for="ab-battlesong"],
+  #ab-defensive:checked ~ .sect-com label[for="ab-defensive"],
+  #ab-deflect:checked ~ .sect-com label[for="ab-deflect"],
+  #ab-double:checked ~ .sect-com label[for="ab-double"],
+  #ab-dual:checked ~ .sect-com label[for="ab-dual"],
+  #ab-savage:checked ~ .sect-com label[for="ab-savage"],
+  #ab-dragon:checked ~ .sect-com label[for="ab-dragon"],
+  #ab-footwork:checked ~ .sect-com label[for="ab-footwork"],
+  #ab-guardian:checked ~ .sect-com label[for="ab-guardian"],
+  #ab-iron:checked ~ .sect-com label[for="ab-iron"],
+  #ab-lightning:checked ~ .sect-com label[for="ab-lightning"],
+  #ab-massive:checked ~ .sect-com label[for="ab-massive"],
+  #ab-shield:checked ~ .sect-com label[for="ab-shield"],
+  #ab-throw:checked ~ .sect-com label[for="ab-throw"],
+  #ab-twin:checked ~ .sect-com label[for="ab-twin"],
+  #ab-weasel:checked ~ .sect-com label[for="ab-weasel"],
+  #ab-mastercast:checked ~ .sect-com label[for="ab-mastercast"],
+  #ab-viper:checked ~ .sect-com label[for="ab-viper"],
+  #ab-hummingbird:checked ~ .sect-com label[for="ab-hummingbird"],
+  #ab-focusedhunt:checked ~ .sect-com label[for="ab-focusedhunt"],
+#ab-obsidian:checked ~ .sect-com label[for="ab-obsidian"],
+#ab-armorbreak:checked ~ .sect-com label[for="ab-armorbreak"],
+#ab-undying:checked ~ .sect-com label[for="ab-undying"],
+#ab-bonecrusher:checked ~ .sect-com label[for="ab-bonecrusher"],
+#ab-copperhook:checked ~ .sect-com label[for="ab-copperhook"],
+#ab-spearwall:checked ~ .sect-com label[for="ab-spearwall"],
+#ab-hummingstone:checked ~ .sect-com label[for="ab-hummingstone"],
+#ab-skypiercer:checked ~ .sect-com label[for="ab-skypiercer"],
+#ab-surgery:checked ~ .sect-com label[for="ab-surgery"],
+#ab-warning:checked ~ .sect-com label[for="ab-warning"],
+#ab-bounty:checked ~ .sect-com label[for="ab-bounty"],
+#ab-dirtytrick:checked ~ .sect-com label[for="ab-dirtytrick"],
+#ab-combattheft:checked ~ .sect-com label[for="ab-combattheft"],
+  #ab-quickpoison:checked ~ .sect-com label[for="ab-quickpoison"],
+#ab-harvest:checked ~ .sect-com label[for="ab-harvest"],
+#ab-weathered:checked ~ .sect-com label[for="ab-weathered"],
+#ab-roots:checked ~ .sect-com label[for="ab-roots"] {
+    background: var(--h-red); color: #fff; box-shadow: 0 0 15px rgba(168, 87, 84, 0.5);
+  }
+
+  /* 個別按鈕激活邏輯 - 探索 */
+  #ab-contortion:checked ~ .sect-exp label[for="ab-contortion"],
+  #ab-lonewolf:checked ~ .sect-exp label[for="ab-lonewolf"],
+  #ab-monster:checked ~ .sect-exp label[for="ab-monster"],
+  #ab-path:checked ~ .sect-exp label[for="ab-path"],
+  #ab-quarter:checked ~ .sect-exp label[for="ab-quarter"],
+  #ab-sea:checked ~ .sect-exp label[for="ab-sea"],
+  #ab-treasure:checked ~ .sect-exp label[for="ab-treasure"],
+  #ab-gather:checked ~ .sect-exp label[for="ab-gather"],
+  #ab-trap:checked ~ .sect-exp label[for="ab-trap"],
+  #ab-caravan:checked ~ .sect-exp label[for="ab-caravan"], 
+#ab-ruinwalker:checked ~ .sect-exp label[for="ab-ruinwalker"],
+#ab-poisonsense:checked ~ .sect-exp label[for="ab-poisonsense"] {
+  background: var(--h-green); color: #fff; box-shadow: 0 0 15px rgba(59, 139, 90, 0.5);
+}
+
+  /* 個別按鈕激活邏輯 - 社交 */
+  #ab-disguise:checked ~ .sect-soc label[for="ab-disguise"],
+  #ab-insight:checked ~ .sect-soc label[for="ab-insight"],
+#ab-intimidate:checked ~ .sect-soc label[for="ab-intimidate"],
+#ab-orator:checked ~ .sect-soc label[for="ab-orator"],
+#ab-proclaim:checked ~ .sect-soc label[for="ab-proclaim"],
+#ab-calpulli:checked ~ .sect-soc label[for="ab-calpulli"],
+#ab-bloodoath:checked ~ .sect-soc label[for="ab-bloodoath"],
+#ab-bribery:checked ~ .sect-soc label[for="ab-bribery"],
+#ab-pochteca:checked ~ .sect-soc label[for="ab-pochteca"],
+#ab-royalpresence:checked ~ .sect-soc label[for="ab-royalpresence"] { background: var(--h-blue); color: #fff; box-shadow: 0 0 15px rgba(82, 119, 193, 0.5); }
+
+
+  /* === 詳情面板樣式 === */
+  .ability-detail-box {
+    background: var(--bg-dark);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 30px;
+    min-height: 250px;
+    position: relative;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+  }
+
+  .detail-content { display: none; animation: slideUp 0.3s ease; }
+  
+  .detail-content h3 { font-size: 1.4rem; margin-bottom: 15px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 10px; }
+  .detail-content p { margin-bottom: 10px; line-height: 1.7; color: #ddd; }
+  .detail-content ul { margin-left: 20px; color: #ccc; }
+  .detail-content li { margin-bottom: 6px; }
+  .detail-content strong { color: #fff; }
+
+  /* 顯示對應內容 */
+  /* 通用 */
+  #ab-fasthealer:checked ~ .sect-gen .detail-fasthealer,
+  #ab-fearless:checked ~ .sect-gen .detail-fearless,
+  #ab-focused:checked ~ .sect-gen .detail-focused,
+  #ab-robust:checked ~ .sect-gen .detail-robust,
+  #ab-intuition:checked ~ .sect-gen .detail-intuition,
+  #ab-magic:checked ~ .sect-gen .detail-magic,
+  #ab-smith:checked ~ .sect-gen .detail-smith,
+  #ab-carpenter:checked ~ .sect-gen .detail-carpenter,
+  #ab-tanner:checked ~ .sect-gen .detail-tanner,
+  #ab-pluma:checked ~ .sect-gen .detail-pluma,
+  #ab-chef:checked ~ .sect-gen .detail-chef,
+  #ab-song:checked ~ .sect-gen .detail-song,
+  #ab-hymn:checked ~ .sect-gen .detail-hymn,
+  #ab-teach:checked ~ .sect-gen .detail-teach,
+  #ab-share:checked ~ .sect-gen .detail-share,
+  #ab-cat:checked ~ .sect-gen .detail-cat,
+  #ab-companion:checked ~ .sect-gen .detail-companion,
+  #ab-eagle:checked ~ .sect-gen .detail-eagle,
+  #ab-broker:checked ~ .sect-gen .detail-broker,
+  #ab-chinampa:checked ~ .sect-gen .detail-chinampa,
+  #ab-aquatic:checked ~ .sect-gen .detail-aquatic,
+#ab-polymath:checked ~ .sect-gen .detail-polymath,
+#ab-hymnheroes:checked ~ .sect-gen .detail-hymnheroes { display: block; }
+
+  /* 戰鬥 */
+  #ab-veteran:checked ~ .sect-com .detail-veteran,
+  #ab-musician:checked ~ .sect-com .detail-musician,
+  #ab-berserker:checked ~ .sect-com .detail-berserker,
+  #ab-assassin:checked ~ .sect-com .detail-assassin,
+  #ab-backstab:checked ~ .sect-com .detail-backstab,
+  #ab-battlesong:checked ~ .sect-com .detail-battlesong,
+  #ab-defensive:checked ~ .sect-com .detail-defensive,
+  #ab-deflect:checked ~ .sect-com .detail-deflect,
+  #ab-double:checked ~ .sect-com .detail-double,
+  #ab-dual:checked ~ .sect-com .detail-dual,
+  #ab-savage:checked ~ .sect-com .detail-savage,
+  #ab-dragon:checked ~ .sect-com .detail-dragon,
+  #ab-footwork:checked ~ .sect-com .detail-footwork,
+  #ab-guardian:checked ~ .sect-com .detail-guardian,
+  #ab-iron:checked ~ .sect-com .detail-iron,
+  #ab-lightning:checked ~ .sect-com .detail-lightning,
+  #ab-massive:checked ~ .sect-com .detail-massive,
+  #ab-shield:checked ~ .sect-com .detail-shield,
+  #ab-throw:checked ~ .sect-com .detail-throw,
+  #ab-twin:checked ~ .sect-com .detail-twin,
+  #ab-weasel:checked ~ .sect-com .detail-weasel,
+  #ab-mastercast:checked ~ .sect-com .detail-mastercast,
+  /* 新增的獵人能力顯示 */
+  #ab-viper:checked ~ .sect-com .detail-viper,
+  #ab-hummingbird:checked ~ .sect-com .detail-hummingbird,
+  #ab-focusedhunt:checked ~ .sect-com .detail-focusedhunt,
+#ab-obsidian:checked ~ .sect-com .detail-obsidian,
+#ab-armorbreak:checked ~ .sect-com .detail-armorbreak,
+#ab-undying:checked ~ .sect-com .detail-undying,
+#ab-bonecrusher:checked ~ .sect-com .detail-bonecrusher,
+#ab-copperhook:checked ~ .sect-com .detail-copperhook,
+#ab-spearwall:checked ~ .sect-com .detail-spearwall,
+#ab-hummingstone:checked ~ .sect-com .detail-hummingstone,
+#ab-skypiercer:checked ~ .sect-com .detail-skypiercer,
+#ab-surgery:checked ~ .sect-com .detail-surgery,
+#ab-warning:checked ~ .sect-com .detail-warning,
+#ab-dirtytrick:checked ~ .sect-com .detail-dirtytrick,
+#ab-combattheft:checked ~ .sect-com .detail-combattheft,
+#ab-bounty:checked ~ .sect-com .detail-bounty,
+#ab-harvest:checked ~ .sect-com .detail-harvest,
+#ab-weathered:checked ~ .sect-com .detail-weathered,
+#ab-roots:checked ~ .sect-com .detail-roots,
+  #ab-quickpoison:checked ~ .sect-com .detail-quickpoison {
+    display: block;
+  }
+
+  /* 探索 */
+  #ab-contortion:checked ~ .sect-exp .detail-contortion,
+  #ab-lonewolf:checked ~ .sect-exp .detail-lonewolf,
+  #ab-monster:checked ~ .sect-exp .detail-monster,
+  #ab-path:checked ~ .sect-exp .detail-path,
+  #ab-quarter:checked ~ .sect-exp .detail-quarter,
+  #ab-sea:checked ~ .sect-exp .detail-sea,
+  #ab-treasure:checked ~ .sect-exp .detail-treasure,
+  #ab-gather:checked ~ .sect-exp .detail-gather,
+  #ab-trap:checked ~ .sect-exp .detail-trap,
+  #ab-caravan:checked ~ .sect-exp .detail-caravan,
+#ab-ruinwalker:checked ~ .sect-exp .detail-ruinwalker,
+#ab-poisonsense:checked ~ .sect-exp .detail-poisonsense {
+  display: block;
+}
+
+  /* 社交 */
+  #ab-disguise:checked ~ .sect-soc .detail-disguise,
+  #ab-insight:checked ~ .sect-soc .detail-insight,
+#ab-intimidate:checked ~ .sect-soc .detail-intimidate,
+#ab-orator:checked ~ .sect-soc .detail-orator,
+#ab-proclaim:checked ~ .sect-soc .detail-proclaim,
+#ab-calpulli:checked ~ .sect-soc .detail-calpulli,
+#ab-bloodoath:checked ~ .sect-soc .detail-bloodoath,
+#ab-bribery:checked ~ .sect-soc .detail-bribery,
+#ab-pochteca:checked ~ .sect-soc .detail-pochteca,
+#ab-royalpresence:checked ~ .sect-soc .detail-royalpresence { display: block; }
+
+  @keyframes slideUp { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* 回頂部按鈕 */
+  .back-to-top-btn {
+    position: fixed; bottom: 30px; right: 30px;
+    width: 45px; height: 45px; border-radius: 50%;
+    background: var(--h-gold); color: #000;
+    border: 1px solid #fff;
+    cursor: pointer; font-size: 1.2rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    transition: all 0.3s ease; z-index: 1000;
+    display: flex; align-items: center; justify-content: center; opacity: 0.8;
+  }
+  .back-to-top-btn:hover { transform: translateY(-5px); opacity: 1; box-shadow: 0 0 20px rgba(255,255,255,0.4); }
+</style>
+
+<div class="hero-page-container">
+
+  <input type="radio" name="h-tab" id="tab-gen" checked hidden>
+  <input type="radio" name="h-tab" id="tab-com" hidden>
+  <input type="radio" name="h-tab" id="tab-exp" hidden>
+  <input type="radio" name="h-tab" id="tab-soc" hidden>
+
+  <input type="radio" name="h-gen" id="ab-fasthealer" checked hidden>
+  <input type="radio" name="h-gen" id="ab-fearless" hidden>
+  <input type="radio" name="h-gen" id="ab-focused" hidden>
+  <input type="radio" name="h-gen" id="ab-robust" hidden>
+  <input type="radio" name="h-gen" id="ab-intuition" hidden>
+  <input type="radio" name="h-gen" id="ab-magic" hidden>
+  <input type="radio" name="h-gen" id="ab-smith" hidden>
+  <input type="radio" name="h-gen" id="ab-carpenter" hidden>
+  <input type="radio" name="h-gen" id="ab-tanner" hidden>
+  <input type="radio" name="h-gen" id="ab-pluma" hidden>
+  <input type="radio" name="h-gen" id="ab-chef" hidden>
+  <input type="radio" name="h-gen" id="ab-song" hidden>
+  <input type="radio" name="h-gen" id="ab-hymn" hidden>
+  <input type="radio" name="h-gen" id="ab-teach" hidden>
+  <input type="radio" name="h-gen" id="ab-share" hidden>
+  <input type="radio" name="h-gen" id="ab-cat" hidden>
+  <input type="radio" name="h-gen" id="ab-companion" hidden>
+  <input type="radio" name="h-gen" id="ab-eagle" hidden>
+  <input type="radio" name="h-gen" id="ab-broker" hidden>
+  <input type="radio" name="h-gen" id="ab-chinampa" hidden>
+  <input type="radio" name="h-gen" id="ab-aquatic" hidden>
+<input type="radio" name="h-gen" id="ab-hymnheroes" hidden>
+<input type="radio" name="h-gen" id="ab-polymath" hidden>
+
+
+  <input type="radio" name="h-com" id="ab-veteran" checked hidden>
+  <input type="radio" name="h-com" id="ab-musician" hidden>
+  <input type="radio" name="h-com" id="ab-berserker" hidden>
+  <input type="radio" name="h-com" id="ab-assassin" hidden>
+  <input type="radio" name="h-com" id="ab-backstab" hidden>
+  <input type="radio" name="h-com" id="ab-battlesong" hidden>
+  <input type="radio" name="h-com" id="ab-defensive" hidden>
+  <input type="radio" name="h-com" id="ab-deflect" hidden>
+  <input type="radio" name="h-com" id="ab-double" hidden>
+  <input type="radio" name="h-com" id="ab-dual" hidden>
+  <input type="radio" name="h-com" id="ab-savage" hidden>
+  <input type="radio" name="h-com" id="ab-dragon" hidden>
+  <input type="radio" name="h-com" id="ab-footwork" hidden>
+  <input type="radio" name="h-com" id="ab-guardian" hidden>
+  <input type="radio" name="h-com" id="ab-iron" hidden>
+  <input type="radio" name="h-com" id="ab-lightning" hidden>
+  <input type="radio" name="h-com" id="ab-massive" hidden>
+  <input type="radio" name="h-com" id="ab-shield" hidden>
+  <input type="radio" name="h-com" id="ab-throw" hidden>
+  <input type="radio" name="h-com" id="ab-twin" hidden>
+  <input type="radio" name="h-com" id="ab-weasel" hidden>
+  <input type="radio" name="h-com" id="ab-mastercast" hidden>
+  <input type="radio" name="h-com" id="ab-viper" hidden>
+  <input type="radio" name="h-com" id="ab-hummingbird" hidden>
+  <input type="radio" name="h-com" id="ab-focusedhunt" hidden>
+  <input type="radio" name="h-com" id="ab-quickpoison" hidden>
+<input type="radio" name="h-com" id="ab-obsidian" hidden>
+<input type="radio" name="h-com" id="ab-armorbreak" hidden>
+<input type="radio" name="h-com" id="ab-undying" hidden>
+<input type="radio" name="h-com" id="ab-bonecrusher" hidden>
+<input type="radio" name="h-com" id="ab-copperhook" hidden>
+<input type="radio" name="h-com" id="ab-spearwall" hidden>
+<input type="radio" name="h-com" id="ab-hummingstone" hidden>
+<input type="radio" name="h-com" id="ab-skypiercer" hidden>
+<input type="radio" name="h-com" id="ab-surgery" hidden>
+<input type="radio" name="h-com" id="ab-warning" hidden>
+<input type="radio" name="h-com" id="ab-bounty" hidden>
+<input type="radio" name="h-com" id="ab-dirtytrick" hidden>
+<input type="radio" name="h-com" id="ab-combattheft" hidden>
+<input type="radio" name="h-com" id="ab-harvest" hidden>
+<input type="radio" name="h-com" id="ab-weathered" hidden>
+<input type="radio" name="h-com" id="ab-roots" hidden>
+
+
+  <input type="radio" name="h-exp" id="ab-contortion" checked hidden>
+  <input type="radio" name="h-exp" id="ab-lonewolf" hidden>
+  <input type="radio" name="h-exp" id="ab-monster" hidden>
+  <input type="radio" name="h-exp" id="ab-path" hidden>
+  <input type="radio" name="h-exp" id="ab-quarter" hidden>
+  <input type="radio" name="h-exp" id="ab-sea" hidden>
+  <input type="radio" name="h-exp" id="ab-treasure" hidden>
+  <input type="radio" name="h-exp" id="ab-gather" hidden>
+  <input type="radio" name="h-exp" id="ab-trap" hidden>
+  <input type="radio" name="h-exp" id="ab-caravan" hidden>
+<input type="radio" name="h-exp" id="ab-poisonsense" hidden>
+<input type="radio" name="h-exp" id="ab-ruinwalker" hidden>
+
+  <input type="radio" name="h-soc" id="ab-disguise" checked hidden>
+  <input type="radio" name="h-soc" id="ab-insight" hidden>
+<input type="radio" name="h-soc" id="ab-royalpresence" hidden>
+<input type="radio" name="h-soc" id="ab-intimidate" hidden>
+<input type="radio" name="h-soc" id="ab-orator" hidden>
+<input type="radio" name="h-soc" id="ab-proclaim" hidden>
+<input type="radio" name="h-soc" id="ab-calpulli" hidden>
+<input type="radio" name="h-soc" id="ab-bloodoath" hidden>
+<input type="radio" name="h-soc" id="ab-bribery" hidden>
+<input type="radio" name="h-soc" id="ab-pochteca" hidden>
+
+<input type="radio" name="h-tab" id="tab-ord" hidden>
+
+<input type="radio" name="h-ord" id="ab-raptordive" hidden>
+<input type="radio" name="h-ord" id="ab-sunradiance" hidden>
+<input type="radio" name="h-ord" id="ab-plumashield" hidden>
+<input type="radio" name="h-ord" id="ab-captor" hidden>
+<input type="radio" name="h-ord" id="ab-windchild" hidden>
+<input type="radio" name="h-ord" id="ab-sunpierce" hidden>
+<input type="radio" name="h-ord" id="ab-shornvow" hidden>
+
+<input type="radio" name="h-ord" id="ab-jaguarclaw" hidden>
+<input type="radio" name="h-ord" id="ab-grapple" hidden>
+<input type="radio" name="h-ord" id="ab-execution" hidden>
+<input type="radio" name="h-ord" id="ab-shadowcamo" hidden>
+<input type="radio" name="h-ord" id="ab-bloodscent" hidden>
+<input type="radio" name="h-ord" id="ab-deathscream" hidden>
+<input type="radio" name="h-ord" id="ab-zaltecfeast" hidden>
+
+
+  <div class="hero-main-nav">
+    <label for="tab-gen" class="main-tab-btn">通用</label>
+    <label for="tab-com" class="main-tab-btn">戰鬥</label>
+    <label for="tab-exp" class="main-tab-btn">探索</label>
+    <label for="tab-soc" class="main-tab-btn">社交</label>
+<label for="tab-ord" class="main-tab-btn">騎士團</label>
+  </div>
+
+  <div class="hero-section sect-gen">
+    <div class="ability-grid">
+      <label for="ab-fasthealer" class="ab-btn">快速恢復</label>
+      <label for="ab-fearless" class="ab-btn">無畏</label>
+      <label for="ab-focused" class="ab-btn">專注</label>
+      <label for="ab-robust" class="ab-btn">健壯</label>
+      <label for="ab-intuition" class="ab-btn">直覺思考</label>
+      <label for="ab-magic" class="ab-btn">魔法天賦</label>
+      <label for="ab-smith" class="ab-btn">鍛匠大師</label>
+      <label for="ab-carpenter" class="ab-btn">木匠大師</label>
+      <label for="ab-tanner" class="ab-btn">皮匠大師</label>
+      <label for="ab-pluma" class="ab-btn">羽匠大師</label>
+      <label for="ab-chef" class="ab-btn">大廚</label>
+      <label for="ab-song" class="ab-btn">紓壓曲</label>
+      <label for="ab-hymn" class="ab-btn">頌神曲</label>
+      <label for="ab-teach" class="ab-btn">現場教學</label>
+      <label for="ab-share" class="ab-btn">經驗分享</label>
+      <label for="ab-cat" class="ab-btn">輕身落地</label>
+      <label for="ab-companion" class="ab-btn">動物夥伴</label>
+      <label for="ab-eagle" class="ab-btn">鷹眼</label>
+      <label for="ab-broker" class="ab-btn">情報掮客</label>
+      <label for="ab-chinampa" class="ab-btn">浮田耕藝</label>
+      <label for="ab-aquatic" class="ab-btn">水獵巧技</label>
+<label for="ab-hymnheroes" class="ab-btn">英雄讚歌</label>
+<label for="ab-polymath" class="ab-btn">博學多聞</label>
+    </div>
+
+    <div class="ability-detail-box">
+      <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #555; pointer-events: none; z-index: 0;">
+
+      </div>
+
+      <div class="detail-content detail-fasthealer">
+        <h3 style="color:var(--h-gold)">快速恢復 Fast Healer</h3>
+        <p><strong>先決條件：</strong> -</p>
+        <p><strong>消耗WP：</strong> 2</p>
+        <p>你在短休時可以額外恢復 1D6 HP。</p>
+      </div>
+
+      <div class="detail-content detail-fearless">
+        <h3 style="color:var(--h-gold)">無畏 Fearless</h3>
+        <p><strong>先決條件：</strong> -</p>
+        <p><strong>消耗WP：</strong> 2</p>
+        <p>你在抵抗恐懼的意志檢定獲得 1 個優勢。</p>
+      </div>
+
+      <div class="detail-content detail-focused">
+        <h3 style="color:var(--h-gold)">專注 Focused</h3>
+        <p><strong>先決條件：</strong> -</p>
+        <p><strong>消耗WP：</strong> -</p>
+        <p>你的最大 WP 永久提升 2 點。你可以重複選擇此能力。</p>
+      </div>
+
+      <div class="detail-content detail-robust">
+        <h3 style="color:var(--h-gold)">健壯 Robust</h3>
+        <p><strong>先決條件：</strong> -</p>
+        <p><strong>消耗WP：</strong> -</p>
+        <p>你的最大 HP 永久提升 2 點。你可以重複選擇此能力。</p>
+      </div>
+
+      <div class="detail-content detail-intuition">
+        <h3 style="color:var(--h-gold)">直覺思考 Intuition</h3>
+        <p><strong>先決條件：</strong> 祕聞傳說 12</p>
+        <p><strong>消耗WP：</strong> 3</p>
+        <p>當面臨困難抉擇時，你可以發動此能力，直接詢問 GM 一個問題，並得到一個有用的答案。該答案代表你的廣泛知識，僅有助於你的決策，無法揭示所有需要知道的事情。</p>
+      </div>
+
+      <div class="detail-content detail-magic">
+        <h3 style="color:var(--h-gold)">魔法天賦 Magic Talent</h3>
+        <p><strong>先決條件：</strong> -</p>
+        <p><strong>消耗WP：</strong> -</p>
+        <p>你有魔法的天賦，可以學習新的魔法流派（法術仍然要分開學習）。學習法術的方式請參考「魔法與法術」章節的學習魔法。你可以重複選擇此能力，每次選擇你想學習的新流派。</p>
+      </div>
+
+      <div class="detail-content detail-smith">
+        <h3 style="color:var(--h-gold)">鍛匠大師 Master Blacksmith <span class="maz-badge">房規調整</span> </h3>
+        <p><strong>先決條件：</strong> 工藝 12</p>
+        <p><strong>消耗WP：</strong> 見描述</p>
+        <p>此能力需要鍛匠工具。你可以利用鍛匠工具做以下的事情：</p>
+        <ul>
+            <li>在一刻時間內，你可以消耗 3 WP，銳化一把帶有黑曜石刀刃或尖端的武器。當使用銳化武器進行攻擊時，目標的護甲值會視為降低 2 點。一旦在戰鬥中使用銳化武器進行過攻擊或格擋，銳化效果會在該戰鬥結束後終止。</li>
+            <li>在一班時間內，你可以嘗試從裝備列表中打造一把黑曜石武器。這個過程需要重量為 1 的黑曜石。消耗的 WP 等於物品的金幣價格（向上取整）。若你沒有足夠的 WP，你可以將工作分成好幾班的時間來處理。</li>
+            <li>或者，你可以使用蒐集到的材料試圖強化裝備（詳見「鍛造與強化」章節）。</li>
+        </ul>
+      </div>
+
+      <div class="detail-content detail-carpenter">
+        <h3 style="color:var(--h-gold)">木匠大師 Master Carpenter <span class="maz-badge">房規調整</span> </h3>
+        <p><strong>先決條件：</strong> 工藝 12</p>
+        <p><strong>消耗WP：</strong> 見描述</p>
+        <p>此能力需要木匠工具。你可以利用木匠工具做以下的事情：</p>
+        <ul>
+            <li>以一個動作，你可以消耗 1 WP 對門、牆壁或其他無生命物體造成 1d12 傷害（無視護甲值）。</li>
+            <li>在一班時間內，你可以嘗試從裝備列表中打造一個木製物品，例如棍棒、長棍。這個過程需要重量為 1 的木頭。消耗的 WP 等於物品的金幣價格（向上取整）。</li>
+            <li>或者，你可以使用蒐集到的材料試圖強化裝備（詳見「鍛造與強化」章節）。</li>
+        </ul>
+      </div>
+
+      <div class="detail-content detail-tanner">
+        <h3 style="color:var(--h-gold)">皮匠大師 Master Tanner <span class="maz-badge">房規調整</span> </h3>
+        <p><strong>先決條件：</strong> 工藝 12</p>
+        <p><strong>消耗WP：</strong> 見描述</p>
+        <p>此能力需要皮匠工具。你可以利用皮匠工具做以下的事情：</p>
+        <ul>
+            <li>在一刻時間內，你可以消耗 2 WP，臨時加固一件皮甲的防護效果。該皮甲的護甲值暫時 + 1。一旦在戰鬥中承受過傷害，該強化效果會在該戰鬥結束後終止。</li>
+            <li>你可以嘗試從將一隻動物或怪物的皮做成一套獸皮甲。該皮甲的護甲值等於野獸護甲值的一半（向上取整），至少為 1。這個過程耗時一班時間，消耗的 WP 等於物品的護甲值。</li>
+            <li>或者，你可以使用蒐集到的材料試圖強化裝備（詳見「鍛造與強化」章節）。</li>
+        </ul>
+      </div>
+
+      <div class="detail-content detail-pluma">
+        <h3 style="color:var(--h-gold)">織匠大師 Master Pluma <span class="maz-badge">房規調整</span> </h3>
+        <p><strong>先決條件：</strong> 工藝 12</p>
+        <p><strong>消耗WP：</strong> 見描述</p>
+        <p>此能力需要織布工具。你可以利用織布工具做以下的事情：</p>
+        <ul>
+            <li>在一刻時間內，你可以消耗 2 WP，臨時加固一件棉甲的防護效果。該棉甲的護甲值暫時 + 1。一旦在戰鬥中承受過傷害，該強化效果會在該戰鬥結束後終止。</li>
+            <li>在一班時間內，你可以嘗試從裝備列表中打造一套服裝。這個過程需要重量為 1 的植物纖維或羽毛。消耗的 WP 等於物品的金幣價格（向上取整）。若你沒有足夠的 WP，你可以將工作分成好幾班的時間來處理。</li>
+            <li>或者，你可以使用蒐集到的材料試圖強化裝備（詳見「鍛造與強化」章節）。</li>
+        </ul>
+      </div>
+
+      <div class="detail-content detail-chef">
+        <h3 style="color:var(--h-gold)">大廚 Master Chef <span class="maz-badge">房規調整</span> </h3>
+        <p><strong>先決條件：</strong> -</p>
+        <p><strong>消耗WP：</strong> 不定</p>
+          <p>你獲得（創角時受訓）「廚藝」（智力）次要技能。你可以為隊伍製作美味好吃的菜餚而非單純飽腹的糧食。</p>
+          <p>現在你烹飪時改為進行「廚藝」檢定。每道菜譜有各自所需的時間、WP和食材，成功烹調將製作出有額外增益的食物。</p>
+          <p>你一開始可以學會 2 道一星和 1 道二星料理。詳見「農業與烹飪」章節。</p>
+      </div>
+
+      <div class="detail-content detail-song">
+        <h3 style="color:var(--h-gold)">紓壓曲 Song of Rest <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> 表演 12</p>
+        <p><strong>消耗WP：</strong> -</p>
+        <p>當你進行短休時，你可以使用樂器同時演奏紓壓的音樂來減緩同伴的壓力。你可以讓和你一同短休的其他盟友額外回復 1d6 WP。</p>
+      </div>
+
+      <div class="detail-content detail-hymn">
+        <h3 style="color:var(--h-gold)">頌神曲 Hymn to God <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> 表演 12 + 祕聞傳說 12</p>
+        <p><strong>消耗WP：</strong> -</p>
+        <p>你精通讚揚神祇的祭文禱詞。</p>
+        <p>每日一次，在適當的地方耗時一刻時間向當日侍神誠心唸頌禱詞，進行表演檢定。若成功，則侍神將會聽到你的祈禱，並降下神賜給整個隊伍。</p>
+        <p>降下何種神賜取決於當日的守護侍神。（詳見曆法章節）</p>
+      </div>
+
+      <div class="detail-content detail-teach">
+        <h3 style="color:var(--h-gold)">現場教學 Field Teaching <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> -</p>
+        <p><strong>消耗WP：</strong> 3</p>
+        <p>你可以快速講述知識來幫助所有人。當你在協助他人時，你可以協助複數盟友進行同一項檢定。但你協助的對象有人檢定失敗的話你陷入憤怒狀態（若你還未憤怒）。</p>
+      </div>
+
+      <div class="detail-content detail-share">
+        <h3 style="color:var(--h-gold)">經驗分享 Experience Sharing <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> -</p>
+        <p><strong>消耗WP：</strong> -</p>
+        <p>在技能成長階段開始前，你可以放棄一項技能成長機會，將自身經驗傳授給其他夥伴，讓最多兩位盟友額外獲得該項技能成長機會，之後正常進行技能成長流程。你不能選擇已經標記該技能的盟友。</p>
+      </div>
+
+      <div class="detail-content detail-cat">
+        <h3 style="color:var(--h-gold)">輕身落地 Catlike</h3>
+        <p><strong>先決條件：</strong> 體操 12</p>
+        <p><strong>消耗WP：</strong> 不定</p>
+        <p>你每花費 1 點 WP，計算墜落傷害的 D6 數量就減一顆。你可以先進行一次減輕墜落傷害的體操檢定，然後再發動此能力。</p>
+      </div>
+
+      <div class="detail-content detail-companion">
+        <h3 style="color:var(--h-gold)">動物夥伴 Companion</h3>
+        <p><strong>先決條件：</strong> 狩獵 12</p>
+        <p><strong>消耗WP：</strong> 3</p>
+        <p>你可以發動此能力，將一隻動物馴服為你的夥伴。此過程需耗時一刻時間，且你同時只能擁有一隻動物夥伴。</p>
+        <p>只要你待在該動物的自然棲息地，牠就會一直跟著你。牠可以為你偵察附近環境，而不需要消耗額外的 WP。在戰鬥中，你可以額外消耗 3 WP，命令夥伴攻擊一名敵人（不需要花費你的動作）。</p>
+      </div>
+
+      <div class="detail-content detail-eagle">
+        <h3 style="color:var(--h-gold)">鷹眼 Eagle Eye</h3>
+        <p><strong>先決條件：</strong> 察覺 12</p>
+        <p><strong>消耗WP：</strong> 2</p>
+        <p>你可以看到最遠 200 米外的人或物體，就像在你面前一樣清楚。效果持續一刻時間。你可以在戰鬥中發動此能力，對超出武器有效射程的目標進行攻擊不會獲得 1 個劣勢。</p>
+      </div>
+
+      <div class="detail-content detail-broker">
+        <h3 style="color:var(--h-gold)">情報掮客 Information Broker <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> 調查 12 + 遊說 12</p>
+        <p><strong>消耗WP：</strong> 3</p>
+        <p>在重要城邦、市集或貿易路口停留至少一天時間後，你可以發動此能力向 GM 提出一個針對當地的問題，獲得可靠訊息。這些訊息可能包括附近部族的動向、危險怪物出沒、政治陰謀或市場需求，實際能獲得什麼資訊由GM決定。</p>
+      </div>
+
+      <div class="detail-content detail-chinampa">
+        <h3 style="color:var(--h-gold)">浮田耕藝 Chinampa Craft <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> 求生 12 + 游泳 12</p>
+        <p><strong>消耗WP：</strong> 不定</p>
+          <p>你獲得（創角時受訓）「浮田術」（智力）次要技能。</p>
+          <p>耗費一班時間，你可以在濕地或河湖上建造「簡易小型浮田」，能夠讓你種植少量的作物並收成，提供隊伍所需的糧食。</p>
+          <p>實際種植所需消耗的WP和收成時間詳見「農業與烹飪」章節。</p>
+      </div>
+
+      <div class="detail-content detail-aquatic">
+        <h3 style="color:var(--h-gold)">水獵巧技 Aquatic Prowess <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> 狩獵 12 + 游泳 12</p>
+        <p><strong>消耗WP：</strong> 2</p>
+        <p>你擅長在水域裡捕獵，能在水中迅速應對情況。</p>
+        <ul>
+          <li>當你嘗試釣魚時，你可以發動此能力來讓狩獵檢定獲得優勢。</li>
+          <li>當你在水中進行近戰攻擊時，你可以發動此能力來避免該次攻擊獲得劣勢。</li>
+          <li>你在水中受到攻擊時，你可以發動此能力使用游泳來取代閃避檢定。</li>
+        </ul>
+      </div>
+<div class="detail-content detail-hymnheroes">
+  <h3 style="color:var(--h-gold)">英雄讚歌 Hymn of Heroes <span class="maz-badge">馬茲提卡</span> </h3>
+  <p><strong>先決條件：</strong> 祕聞傳說 12 + 表演 12</p>
+  <p><strong>消耗WP：</strong> 2</p>
+  <p>你熟記歷史上所有偉大英雄的事蹟，並能在關鍵時刻透過詩歌喚醒他人的勇氣。當你目睹一名盟友進行檢定失敗時，你可以發動此能力(無須動作)。</p>
+  <p>你吟誦一段相關的英雄史詩，激發該盟友內在的潛能。該盟友可以立即重骰該次檢定，並必須接受重骰的結果。</p>
+</div>
+<div class="detail-content detail-polymath">
+        <h3 style="color:var(--h-gold)">博學多聞 Polymath <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> 祕聞傳說 12</p>
+        <p><strong>消耗WP：</strong> 2</p>
+        <p>你在城邦學校受過廣泛的教育，閱讀過無數卷軸與碑文。當你必須進行一項你並不擅長（數值低於 10）的智力相關技能檢定時，你可以發動此能力。</p>
+        <p>你回想起某本古籍中的相關記載，該次檢定獲得 1 個優勢。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-section sect-com">
+    <div class="ability-grid">
+      <label for="ab-veteran" class="ab-btn">老兵</label>
+      <label for="ab-musician" class="ab-btn">音樂家</label>
+      <label for="ab-berserker" class="ab-btn">狂暴</label>
+      <label for="ab-assassin" class="ab-btn">刺殺</label>
+      <label for="ab-backstab" class="ab-btn">背刺</label>
+      <label for="ab-battlesong" class="ab-btn">戰歌</label>
+      <label for="ab-defensive" class="ab-btn">堅強防禦</label>
+      <label for="ab-deflect" class="ab-btn">撥擋箭矢</label>
+      <label for="ab-double" class="ab-btn">雙重斬擊</label>
+      <label for="ab-dual" class="ab-btn">雙持戰鬥</label>
+      <label for="ab-savage" class="ab-btn">野性亂舞</label>
+      <label for="ab-dragon" class="ab-btn">屠龍者</label>
+      <label for="ab-footwork" class="ab-btn">迅捷步法</label>
+      <label for="ab-guardian" class="ab-btn">守護者</label>
+      <label for="ab-iron" class="ab-btn">鐵拳重擊</label>
+      <label for="ab-lightning" class="ab-btn">閃電速度</label>
+      <label for="ab-massive" class="ab-btn">強力一擊</label>
+      <label for="ab-shield" class="ab-btn">舉盾格擋</label>
+      <label for="ab-throw" class="ab-btn">強力投擲</label>
+      <label for="ab-twin" class="ab-btn">雙重射擊</label>
+      <label for="ab-weasel" class="ab-btn">龜縮</label>
+      <label for="ab-mastercast" class="ab-btn">施法大師</label>
+      <label for="ab-viper" class="ab-btn">蝮蛇瞬咬</label>
+      <label for="ab-hummingbird" class="ab-btn">蜂鳥迴身</label>
+      <label for="ab-focusedhunt" class="ab-btn">專注追獵</label>
+      <label for="ab-quickpoison" class="ab-btn">快速塗毒</label>
+<label for="ab-obsidian" class="ab-btn">鋸裂處刑</label>
+<label for="ab-armorbreak" class="ab-btn">破甲強襲</label>
+<label for="ab-undying" class="ab-btn">不屈意志</label>
+<label for="ab-bonecrusher" class="ab-btn">碎骨重擊</label>
+<label for="ab-copperhook" class="ab-btn">銅斧鉤殺</label>
+<label for="ab-spearwall" class="ab-btn">守衛矛陣</label>
+<label for="ab-hummingstone" class="ab-btn">蜂鳴飛石</label>
+<label for="ab-skypiercer" class="ab-btn">穿雲長擲</label>
+<label for="ab-surgery" class="ab-btn">戰地手術</label>
+<label for="ab-warning" class="ab-btn">預判警示</label>
+<label for="ab-bounty" class="ab-btn">散財誘敵</label>
+<label for="ab-dirtytrick" class="ab-btn">卑鄙手段</label>
+<label for="ab-combattheft" class="ab-btn">妙手空空</label>
+<label for="ab-harvest" class="ab-btn">收割橫掃</label>
+<label for="ab-weathered" class="ab-btn">忍耐之軀</label>
+<label for="ab-roots" class="ab-btn">下盤穩固</label>
+    </div>
+
+    <div class="ability-detail-box">
+      <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #555; pointer-events: none; z-index: 0;">
+
+      </div>
+
+      <div class="detail-content detail-veteran">
+        <h3 style="color:var(--h-red)">老兵 Veteran <span class="maz-badge">房規調整</span> </h3>
+        <p><strong>先決條件：</strong> 任一武器技能 12</p>
+        <p><strong>消耗WP：</strong> 1</p>
+          <p>多年來的實戰經驗，讓你能在戰場上持續把握主動權，不被局勢的混亂所動搖。</p>
+          <p>(創角時)你從武器技能裡選擇一項，該武器的技能數值成長1點。</p>
+          <p>此外，在每一輪開始時，你可以發動此能力來保留你上一輪的先攻卡，而不抽取新的先攻卡。</p>
+      </div>
+
+      <div class="detail-content detail-berserker">
+        <h3 style="color:var(--h-red)">狂暴 Berserker <span class="maz-badge">房規調整</span> </h3>
+        <p><strong>先決條件：</strong> 任一近戰武器技能 12</p>
+        <p><strong>消耗WP：</strong> 3</p>
+        <p>你立即獲得「憤怒」狀態，並立即對最近的敵人進行一次近戰攻擊。狂暴持續到戰場上沒有敵人，或你 HP 歸零為止。</p>
+        <p>狂暴期間：</p>
+        <ul>
+          <li>你的近戰攻擊獲得一個優勢。</li>
+          <li>若你攻擊前額外消耗 1 WP ，該次命中額外造成 +1D4 傷害。</li>
+          <li>擊殺一個敵人後，你可以立刻移動2米。</li>
+          <li>你不能格擋或閃避。</li>
+        </ul>
+        <p>戰鬥結束之後，你會陷入力竭狀態。</p>
+      </div>
+
+      <div class="detail-content detail-assassin">
+        <h3 style="color:var(--h-red)">刺殺 Assassin</h3>
+        <p><strong>先決條件：</strong> 小刀 12</p>
+        <p><strong>消耗WP：</strong> 3</p>
+        <p>你的偷襲會額外造成 1D8 傷害。此能力可以與「背刺」能力結合。你必須在攻擊檢定後、計算傷害前宣告發動此能力。</p>
+      </div>
+
+      <div class="detail-content detail-backstab">
+        <h3 style="color:var(--h-red)">背刺 Backstabbing</h3>
+        <p><strong>先決條件：</strong> 小刀 12</p>
+        <p><strong>消耗WP：</strong> 3</p>
+        <p>當你對一名敵人進行近戰攻擊時，若該敵人和你的另一個盟友相距 2 米內，你可以發動此能力。你的攻擊會視為偷襲，代表敵人無法閃避或格擋、你的攻擊檢定獲得 1 個優勢、傷害骰數增加一顆（例如 1D8 變成 2D8）。只有靈巧武器才能發動此能力。</p>
+      </div>
+
+      <div class="detail-content detail-battlesong">
+        <h3 style="color:var(--h-red)">戰歌 Battle Song <span class="maz-badge">房規調整</span> </h3>
+        <p><strong>先決條件：</strong> 表演 12</p>
+        <p><strong>消耗WP：</strong> 3</p>
+          <p>你精通鼓舞士氣和振奮人心的激昂戰歌。</p>
+          <p>你可以耗時一刻時間鼓舞隊友，消除其他人的 畏縮 和 沮喪 狀態，每個消除的狀態可回復該隊友 2 WP。</p>
+          <p>此外，在戰鬥時，你也可以用一個動作吼出激勵的戰鬥誓言，聽得見你的所有其他同伴立刻自選 1 個狀態消除。</p>
+      </div>
+
+      <div class="detail-content detail-defensive">
+        <h3 style="color:var(--h-red)">堅強防禦 Defensive</h3>
+        <p><strong>先決條件：</strong> 任一近戰武器技能 12</p>
+        <p><strong>消耗WP：</strong> 3</p>
+        <p>你可以在不消耗該輪動作的情況下嘗試格擋一次攻擊。你只能對同一次攻擊嘗試格擋一次，且你無法再對該次攻擊進行閃避或格擋。只要你有足夠的 WP，你在同一輪中可以多次發動此能力。</p>
+      </div>
+
+      <div class="detail-content detail-deflect">
+        <h3 style="color:var(--h-red)">撥擋箭矢 Deflect Arrow</h3>
+        <p><strong>先決條件：</strong> 任一近戰武器技能 12</p>
+        <p><strong>消耗WP：</strong> 3</p>
+        <p>你可以使用近戰武器格擋遠程攻擊。</p>
+      </div>
+
+      <div class="detail-content detail-double">
+        <h3 style="color:var(--h-red)">雙重斬擊 Double Slash</h3>
+        <p><strong>先決條件：</strong> 斧或劍 12</p>
+        <p><strong>消耗WP：</strong> 3</p>
+        <p>當你持握揮砍武器時，你可以同時對兩個相距 2 米內的敵人進行一次攻擊。你只進行一次攻擊檢定，若成功則同時命中兩個敵人。敵人可以分別進行格擋或閃避。傷害骰也分開計算。此能力可以與「雙持戰鬥」能力結合。</p>
+      </div>
+
+      <div class="detail-content detail-dual">
+        <h3 style="color:var(--h-red)">雙持戰鬥 Dual Wield</h3>
+        <p><strong>先決條件：</strong> 任一近戰武器技能 12</p>
+        <p><strong>消耗WP：</strong> 3</p>
+        <p>此能力只有當你雙手各持握一把單手武器時才能發動。你可以在你的戰鬥回合中發動此能力，然後使用你的副手武器進行一次帶有 1 個劣勢的額外攻擊。你可以自行決定主手和副手的攻擊順序，但依序處理檢定和傷害。此能力可以與「雙重斬擊」能力結合。</p>
+      </div>
+
+      <div class="detail-content detail-savage">
+        <h3 style="color:var(--h-red)">野性亂舞 Savage Flurry <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> 徒手 12</p>
+        <p><strong>消耗WP：</strong> 3</p>
+        <p>當你<strong>空手</strong>或雙手裝備<strong>徒手武器</strong>（如指虎、獸爪）時，你的動作快如閃電，可以同時對一個敵人進行兩次攻擊。你只進行一次攻擊檢定，若成功則同時命中。敵人可以分別進行格擋或閃避。傷害骰也分開計算。</p>
+      </div>
+
+      <div class="detail-content detail-dragon">
+        <h3 style="color:var(--h-red)">屠龍者 Dragonslayer</h3>
+        <p><strong>先決條件：</strong> 任一武器技能 12</p>
+        <p><strong>消耗WP：</strong> 3</p>
+        <p>對怪物進行的攻擊會額外造成 1D8 傷害。你必須在攻擊檢定後、計算傷害前宣告發動此能力。</p>
+      </div>
+
+      <div class="detail-content detail-footwork">
+        <h3 style="color:var(--h-red)">迅捷步法 Fast Footwork</h3>
+        <p><strong>先決條件：</strong> 閃避 12</p>
+        <p><strong>消耗WP：</strong> 3</p>
+        <p>你可以在不消耗該輪動作的情況下嘗試閃避一次攻擊。你只能對同一次攻擊嘗試閃避一次，且你無法再對該次攻擊進行閃避或格擋。只要你有足夠的 WP，你在同一輪中可以多次使用此能力。</p>
+      </div>
+
+      <div class="detail-content detail-guardian">
+        <h3 style="color:var(--h-red)">守護者 Guardian</h3>
+        <p><strong>先決條件：</strong> 斧、棍棒，或劍 12</p>
+        <p><strong>消耗WP：</strong> 2</p>
+        <p>你願意毫不猶豫地為盟友擋下攻擊。若你和另一名盟友都與同一名敵人相距 2 米內，當該敵人嘗試攻擊你的盟友時，你可以發動此能力，強迫敵人改為攻擊你。此能力可以在你的回合外使用，且不需要花費動作。</p>
+      </div>
+
+      <div class="detail-content detail-iron">
+        <h3 style="color:var(--h-red)">鐵拳重擊 Iron Fist <span class="maz-badge">房規調整</span> </h3>
+        <p><strong>先決條件：</strong> 徒手 12</p>
+        <p><strong>消耗WP：</strong> 1</p>
+        <p>你徒手攻擊的傷害增加 1D6。你必須在攻擊檢定後、計算傷害前宣告發動此能力。</p>
+      </div>
+
+      <div class="detail-content detail-lightning">
+        <h3 style="color:var(--h-red)">閃電速度 Lightning Fast</h3>
+        <p><strong>先決條件：</strong> 閃避 12</p>
+        <p><strong>消耗WP：</strong> 2</p>
+        <p>當戰鬥開始抽先攻卡時，你可以抽兩張卡，並選擇想要的其中一張。</p>
+      </div>
+
+      <div class="detail-content detail-massive">
+        <h3 style="color:var(--h-red)">強力一擊 Massive Blow</h3>
+        <p><strong>先決條件：</strong> 任一基於力量的武器技能 12</p>
+        <p><strong>消耗WP：</strong> 3</p>
+        <p>當你使用雙手近戰武器進行攻擊且命中敵人時，你會額外造成 1D8 傷害，但你在該輪無法進行移動。你不能在進行攻擊檢定後才發動此能力，也不能在移動後發動。</p>
+      </div>
+
+      <div class="detail-content detail-shield">
+        <h3 style="color:var(--h-red)">舉盾格擋 Shield Block <span class="maz-badge">房規調整</span> </h3>
+        <p><strong>先決條件：</strong> 任一基於力量的武器技能 12</p>
+        <p><strong>消耗WP：</strong> 2</p>
+        <p>當你使用盾牌進行格擋時，你可以發動此能力讓該次格擋檢定獲得 1 個優勢。另外，你也可以使用此能力用盾牌格擋通常無法被格擋的怪物物理攻擊（AOE 由GM判斷）。此能力可以和「堅強防禦」能力結合。</p>
+      </div>
+
+      <div class="detail-content detail-throw">
+        <h3 style="color:var(--h-red)">強力投擲 Throwing Arm</h3>
+        <p><strong>先決條件：</strong> 任一近戰武器技能 12</p>
+        <p><strong>消耗WP：</strong> 2</p>
+        <p>你可以用驚人的力量將一把近戰武器向一個敵人投擲出去，該敵人與你的距離不能超過你的力量（米）。該武器必須是一把單手武器。你正常進行攻擊檢定。敵人可以正常格擋或閃避。無論命中與否，武器都會落在敵人的腳邊。</p>
+      </div>
+
+      <div class="detail-content detail-twin">
+        <h3 style="color:var(--h-red)">雙重射擊 Twin Shot <span class="maz-badge">房規調整</span> </h3>
+        <p><strong>先決條件：</strong> 弓 12 或 吹箭筒 12</p>
+        <p><strong>消耗WP：</strong> 3</p>
+        <p>當你使用 弓 或 吹箭筒 進行攻擊時，你可以發動此能力來射出兩支箭矢/吹箭。你可以指定同一個目標、或兩個不同的目標。無論如何，都只進行一次帶有 1 個劣勢的攻擊檢定。傷害分開計算。</p>
+      </div>
+
+      <div class="detail-content detail-weasel">
+        <h3 style="color:var(--h-red)">龜縮 Weasel <span class="maz-badge">房規調整</span> </h3>
+        <p><strong>先決條件：</strong> 閃避 12</p>
+        <p><strong>消耗WP：</strong> 2</p>
+        <p>當你被攻擊時，若有另一名 PC 在你 2 米內，你可以發動此能力，讓該 PC 代替你被攻擊。此能力對 AOE 攻擊無效，且你必須在嘗試任何閃避或格擋前發動此能力。代替你被攻擊的新目標可以正常嘗試閃避或格擋。</p>
+      </div>
+
+      <div class="detail-content detail-musician">
+        <h3 style="color:var(--h-red)">音樂家 Musician</h3>
+        <p><strong>先決條件：</strong> 表演 12</p>
+        <p><strong>消耗WP：</strong> 3</p>
+        <p>你動人的聲音可以鼓舞你的盟友或挫敗你的敵人。發動此能力（一個動作）可以讓 10 米內所有盟友的所有檢定獲得 1 個優勢，或讓相同範圍內的所有敵人獲得 1 個劣勢（選擇其中一種）。效果持續到你下一個回合開始。你可以使用樂器來增加此能力的範圍，或減少 WP 的消耗量（參考裝備的樂器說明）。</p>
+      </div>
+
+      <div class="detail-content detail-mastercast">
+        <h3 style="color:var(--h-red)">施法大師 Master Spellcaster</h3>
+        <p><strong>先決條件：</strong> 任一魔法流派 12</p>
+        <p><strong>消耗WP：</strong> 3</p>
+        <p>若你在你的回合中發動此能力，你可以用一個動作施放兩個不同的法術。你可以在施放第一個法術後再發動此能力。</p>
+      </div>
+
+      <div class="detail-content detail-viper">
+        <h3 style="color:var(--h-red)">蝮蛇瞬咬 Viper's Snap <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> 弓 12 或 吹箭筒 12</p>
+        <p><strong>消耗WP：</strong> 2</p>
+          <p>發動此能力後，持續一刻時間（或直到一場戰鬥結束）。</p>
+          <p>如同潛伏在樹葉下的毒蛇，你不需要拉開距離就能發動致命一擊。</p>
+          <p>在此期間，當你的攻擊目標位於你 2 米內時，你的 弓 或 吹箭筒 攻擊不會因此獲得劣勢。</p>
+      </div>
+
+      <div class="detail-content detail-hummingbird">
+        <h3 style="color:var(--h-red)">蜂鳥迴身 Hummingbird's Retreat <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> 閃避 12 + 任一遠程武器技能 12</p>
+        <p><strong>消耗WP：</strong> 3</p>
+          <p>模仿蜂鳥在空中的靈動姿態，將防禦與反擊合而為一。</p>
+          <p>當敵人移動結束後，你處於敵人 2 米範圍內時，你可以發動此能力。</p>
+          <p>用一個反應動作（若你這回合還未行動），你立即向後方或側向移動最多等同於你移動力一半的距離（此移動不會引發藉機攻擊），並隨即對該敵人進行一次遠程攻擊。</p>
+      </div>
+
+      <div class="detail-content detail-focusedhunt">
+        <h3 style="color:var(--h-red)">專注追獵 Focused Stalking <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> 狩獵 12</p>
+        <p><strong>消耗WP：</strong> 3</p>
+        <p>你將感知聚焦於視線內的一名敵人，將其鎖定為獵物，屏除戰場上其他干擾。透過觀察目標的呼吸節奏與重心變化，你能在對方行動前一瞬看穿其意圖。</p>
+        <p>持續到戰鬥結束、目標死亡或你對其他目標造成傷害。你獲得以下效果：</p>
+        <ul>
+            <li>你在追蹤該目標的檢定自動成功，因為你已記住了牠獨特的氣味與步態。</li>
+            <li>在戰鬥中，你對該目標的攻擊傷害額外增加 1D4。這代表你總能精準命中目標防禦的縫隙或舊傷。</li>
+        </ul>
+      </div>
+
+      <div class="detail-content detail-quickpoison">
+        <h3 style="color:var(--h-red)">快速塗毒 Quick Poison <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> 吹箭筒 12 或 弓 12 + 求生 12</p>
+        <p><strong>消耗WP：</strong> 2</p>
+        <p>你熟知如何安全且迅速地處理致命毒素。當你宣告攻擊時，你可以發動此能力。</p>
+        <p>你可以用一個流暢的動作將塗毒與攻擊結合（不需額外花費動作塗毒）。</p>
+      </div>
+
+<div class="detail-content detail-obsidian">
+        <h3 style="color:var(--h-red)">鋸裂處刑 Obsidian Laceration <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> 斧、矛、或劍 12 </p>
+        <p><strong>消耗WP：</strong> 2</p>
+        <p>此能力需使用黑曜石武器。你熟知如何利用黑曜石鋸齒狀的邊緣造成最可怕的傷口。當你使用黑曜石武器造成揮砍傷害時，你可以發動此能力。</p>
+        <p>除了正常的武器傷害外，目標獲得「流血」狀態。在目標的每一輪開始時，受到 1D4 傷害（無視護甲）。此效果持續直到目標接受治療（醫療檢定或魔法）或戰鬥結束。此能力只對活體生物有效。</p>
+      </div>
+
+      <div class="detail-content detail-armorbreak">
+        <h3 style="color:var(--h-red)">破甲強襲 Armor Breaker <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> 力量 12 + 任一近戰武器 12</p>
+        <p><strong>消耗WP：</strong> 3</p>
+        <p>你懂得利用蠻力與技巧，針對敵人盔甲的接縫或盾牌的弱點進行打擊。當你對一名敵人進行近戰攻擊且造成鈍擊傷害時，你可以發動此能力。</p>
+        <p>若該次攻擊被格檔或被裝備的防具減傷，用來格擋或減傷的裝備會直接損壞；若為天生護甲，護甲值-1(可疊加)。</p>
+      </div>
+
+      <div class="detail-content detail-undying">
+        <h3 style="color:var(--h-red)">不屈意志 Undying Will <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> 意志 12 + 體質 12</p>
+        <p><strong>消耗WP：</strong> 2</p>
+        <p>馬茲提卡的戰士視榮耀重於生命。當你的 HP 歸零時，你可以發動此能力。</p>
+        <p>進行一次體質檢定，若成功你不會立刻昏迷，視為鼓舞檢定成功，可繼續戰鬥。</p>
+      </div>
+
+<div class="detail-content detail-bonecrusher">
+        <h3 style="color:var(--h-red)">碎骨重擊 Bone Crusher <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> 棍棒 12</p>
+        <p><strong>消耗WP：</strong> 3</p>
+        <p>你揮舞沉重的碎骨棒或刃棒，目標不是敵人的血肉，而是底下的骨骼。當你命中敵人時，你可以發動此能力。</p>
+        <p>除了造成正常傷害外，目標必須進行體質檢定。若失敗，目標獲得「蜷縮」狀態（下回合無法採取攻擊動作），因為強烈劇痛奪走了他的行動力。</p>
+      </div>
+
+      <div class="detail-content detail-copperhook">
+        <h3 style="color:var(--h-red)">銅斧鉤殺 Copper Hook <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> 斧 12</p>
+        <p><strong>消耗WP：</strong> 3</p>
+          <p>你利用銅斧獨特的弧形構造來破壞平衡。當敵人 格擋 你的攻擊，或你攻擊持有 盾牌 的敵人時，可以發動此能力。</p>
+          <p>攻擊命中時，可不對其造成傷害而改成用斧刃鉤住 盾牌（或用來格擋的武器）邊緣並猛力拉扯。敵人的盾牌（或用來格擋的武器）立即脫手飛出 2 米遠(被繳械)。</p>
+          <p>若你另一手正持握另一把武器，你可以用另一把武器立即對該目標進行一次帶劣勢的追加攻擊。</p>
+      </div>
+
+      <div class="detail-content detail-spearwall">
+        <h3 style="color:var(--h-red)">守衛矛陣 Obsidian Phalanx <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> 矛 12</p>
+        <p><strong>消耗WP：</strong> 3 </p>
+          <p>你將木矛架起，黑曜石刃片對準前方，形成絕對的防禦圈。</p>
+          <p>發動此能力後，你進入「防衛」姿態，任何敵人試圖進入你近戰範圍（2米）內時，你都可以立即使用反應動作（若你回合還未結束）對其進行一次攻擊。</p>
+          <p>若該次攻擊命中，除了造成傷害外，敵人的移動立即結束（被木矛架住或逼退），無法再靠近你。</p>
+          <p>此姿態直到你移動或你主動進行攻擊而解除。</p>
+      </div>
+
+      <div class="detail-content detail-hummingstone">
+        <h3 style="color:var(--h-red)">蜂鳴飛石 Humming Stone <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> 投石繩 12</p>
+        <p><strong>消耗WP：</strong> 2</p>
+        <p>你快速旋轉投石繩，讓石彈劃破空氣發出令人不安的嗡嗡聲。這是一次精準的遠程攻擊。</p>
+        <p>你可以宣告瞄準頭部，用投石繩進行一次帶有劣勢的攻擊。命中額外造成 1D6 鈍擊傷害。若未命中，那可怕的破空聲會迫使目標心驚而進行意志檢定，失敗則因恐懼而獲得「畏縮」狀態。</p>
+      </div>
+
+      <div class="detail-content detail-skypiercer">
+        <h3 style="color:var(--h-red)">穿雲長擲 Sky Piercer <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> 投槍器 12</p>
+        <p><strong>消耗WP：</strong> 3</p>
+          <p>你利用投槍器的槓桿原理，投擲出動能驚人的一擊。此攻擊的有效射程加倍且具有優勢。</p>
+          <p>若目標位於直線上，你的投射標槍具有「貫穿」效果。對第一個目標結算攻擊後，若傷害殺死目標，標槍會穿透並繼續攻擊（正常檢定）後方直線射程範圍內的下一個目標。</p>
+      </div>
+
+<div class="detail-content detail-surgery">
+        <h3 style="color:var(--h-red)">戰地手術 Field Surgery <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> 野獸知識 12 + 醫療 12</p>
+        <p><strong>消耗WP：</strong> 3</p>
+        <p>你精通人體與生物的解剖結構，能進行比一般包紮更精密的手術。</p>
+        <p>你在進行急救動作時可以發動此能力，該次醫療檢定獲得優勢。若你擁有手術工具，無須檢定直接成功。</p>
+      </div>
+
+<div class="detail-content detail-warning">
+        <h3 style="color:var(--h-red)">預判警示 Predictive Warning <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> 調查 12 + 野獸知識 12 </p>
+        <p><strong>消耗WP：</strong> 2</p>
+        <p>透過觀察肌肉的收縮與重心的偏移，你能預測敵人下一秒的攻擊軌跡。當一名位於你視線內的盟友（或你自己）即將被攻擊命中時，你可以大喊一聲干擾敵人。（無須動作，但同一個攻擊只能一次）</p>
+        <p>該次攻擊必須重新進行檢定，且帶有 1 個劣勢（因為你提前洩漏了攻擊路徑）。你必須在傷害結算前發動此能力。</p>
+      </div>
+
+<div class="detail-content detail-bounty">
+        <h3 style="color:var(--h-red)">散財誘敵 Golden Distraction <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> 交易 12</p>
+        <p><strong>消耗WP：</strong> 2</p>
+        <p>你深知貪婪是智慧生物最大的弱點。在戰鬥中，你可以花費一個動作，向一群敵人（半徑 6 米內）撒出一把珍貴的可可豆、玉珠或金飾，具體花費多少由你自行決定。</p>
+        <p>範圍內的敵人必須進行意志檢定（難度根據你所丟出的錢財決定）。若失敗，他們會因貪婪本能而影響他們的行動（試圖撿拾或盯著財物），持續到你的下一回合開始。此能力對無智力生物或構裝體無效。</p>
+      </div>
+
+<div class="detail-content detail-dirtytrick">
+        <h3 style="color:var(--h-red)">卑鄙手段 Dirty Fighting <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> 體操 12 或 欺瞞 12</p>
+        <p><strong>消耗WP：</strong> 2</p>
+          <p>榮譽不能當飯吃，生存才是真理。</p>
+          <p>你可以對一個 2 米內的目標使用。用一個自由動作，利用隨手抓起的沙土來撒向敵人。</p>
+          <p>目標必須進行閃避檢定（無須動作）。若失敗，目標獲得「目盲」狀態直到你的下一回合開始。此能力對無視覺生物無效。</p>
+      </div>
+
+      <div class="detail-content detail-combattheft">
+        <h3 style="color:var(--h-red)">妙手空空 Combat Theft <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> 巧手 12</p>
+        <p><strong>消耗WP：</strong> 3</p>
+          <p>你的手指靈活得令人恐懼，甚至能在刀光劍影中竊取物品。</p>
+          <p>你可以用動作對一個 2 米內的目標進行一次 巧手 檢定（對抗敵人的 察覺 檢定）。</p>
+          <p>若成功，你可以從敵人身上竊取一件未被緊握的物品（如腰帶上的藥水、錢袋、飾品等）。</p>
+          <p>若大成功，你甚至可以解下敵人的副手武器或盾牌，使其落入你手中或掉在地上。</p>
+      </div>
+
+<div class="detail-content detail-harvest">
+        <h3 style="color:var(--h-red)">收割橫掃 Harvest Sweep <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> 徒手 12 + 求生 12</p>
+        <p><strong>消耗WP：</strong> 3</p>
+        <p>你將戰場視為待收割的田野。你可以用一個動作拿著手上的物品對周圍 2 米內的所有敵人進行一次強力掃擊。</p>
+        <p>你只需進行一次攻擊檢定。被命中的敵人只會受到正常傷害的一半，但必須進行力量檢定。失敗者將被擊倒<strong>伏地</strong>。這模擬了你收割農作物的熟練動作。</p>
+      </div>
+
+      <div class="detail-content detail-weathered">
+        <h3 style="color:var(--h-red)">忍耐之軀 Weathered Body <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> 體質 14 或 求生 12</p>
+        <p><strong>消耗WP：</strong> 3</p>
+        <p>日復一日的耕作與風吹日曬，賦予了你如皮革般堅韌的皮膚與驚人的痛覺耐受力。你對自然的嚴酷（如蚊蟲、荊棘、極端氣溫）習以為常。遇到部分旅行意外（由 GM 判斷）你可以發動此能力來直接抵銷旅行意外的影響。</p>
+        <p>在戰鬥中，當你受到物理傷害時，你可以消耗 2 WP 來「硬扛」這一次攻擊。該次傷害減少 1D6 點。這代表你懂得如何繃緊肌肉，用滿是老繭的部位承受衝擊，將致命傷化為皮肉痛。</p>
+      </div>
+
+      <div class="detail-content detail-roots">
+        <h3 style="color:var(--h-red)">下盤穩固 Deep Roots <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> 體操 12 或 求生 12</p>
+        <p><strong>消耗WP：</strong> 2</p>
+          <p>你習慣在濕滑的浮田與泥濘中工作，下盤穩固如大樹紮根。你在通過部分困難地形（如泥沼、淺水等）時不會減慢移動速度。</p>
+          <p>此外，當有敵人試圖將你推開或擊倒時，你可以發動此能力讓該次對抗檢定獲得 1 個優勢。</p>
+          <p>若敵人體型比你小，你可以獲得 2 個優勢。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-section sect-exp">
+    <div class="ability-grid">
+      <label for="ab-contortion" class="ab-btn">軟骨功</label>
+      <label for="ab-lonewolf" class="ab-btn">孤狼</label>
+      <label for="ab-monster" class="ab-btn">怪物獵人</label>
+      <label for="ab-path" class="ab-btn">尋路者</label>
+      <label for="ab-quarter" class="ab-btn">軍需官</label>
+      <label for="ab-sea" class="ab-btn">親水泳將</label>
+      <label for="ab-treasure" class="ab-btn">尋寶獵人</label>
+      <label for="ab-gather" class="ab-btn">採集大師</label>
+      <label for="ab-trap" class="ab-btn">陷阱大師</label>
+      <label for="ab-caravan" class="ab-btn">商隊領袖</label>
+<label for="ab-poisonsense" class="ab-btn">熟悉毒物</label>
+<label for="ab-ruinwalker" class="ab-btn">飛簷走壁</label>
+    </div>
+
+    <div class="ability-detail-box">
+      <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%; -50%); color: #555; pointer-events: none; z-index: 0;">
+        
+      </div>
+
+      <div class="detail-content detail-contortion">
+        <h3 style="color:var(--h-green)">軟骨功 Contortionist</h3>
+        <p><strong>先決條件：</strong> 體操 12</p>
+        <p><strong>消耗WP：</strong> 1</p>
+        <p>當你嘗試掙脫枷鎖或擠過一個狹窄的空間時，你可以發動此能力讓體操檢定會獲得 1 個優勢。</p>
+      </div>
+
+      <div class="detail-content detail-lonewolf">
+        <h3 style="color:var(--h-green)">孤狼 Lone Wolf</h3>
+        <p><strong>先決條件：</strong> 求生 12</p>
+        <p><strong>消耗WP：</strong> -</p>
+        <p>當你在野外進行長休時，你紮營的求生檢定獲得 1 個優勢。此效果只對你有效。</p>
+      </div>
+
+      <div class="detail-content detail-monster">
+        <h3 style="color:var(--h-green)">怪物獵人 Monster Hunter</h3>
+        <p><strong>先決條件：</strong> 野獸知識 12</p>
+        <p><strong>消耗WP：</strong> 2</p>
+        <p>若遇到岔路，你可以發動此能力，知曉哪個方向有危險的敵人。</p>
+      </div>
+
+      <div class="detail-content detail-path">
+        <h3 style="color:var(--h-green)">尋路者 Pathfinder</h3>
+        <p><strong>先決條件：</strong> 求生 12</p>
+        <p><strong>消耗WP：</strong> 1</p>
+        <p>當你試圖在荒野中尋找正確的方向時，你的求生檢定獲得 1 個優勢。</p>
+      </div>
+
+      <div class="detail-content detail-quarter">
+        <h3 style="color:var(--h-green)">軍需官 Quartermaster</h3>
+        <p><strong>先決條件：</strong> 求生 12</p>
+        <p><strong>消耗WP：</strong> 1</p>
+        <p>你很擅長尋找適合的紮營地點。當你在旅行中嘗試紮營時，你的求生檢定會獲得 1 個優勢。</p>
+      </div>
+
+      <div class="detail-content detail-sea">
+        <h3 style="color:var(--h-green)">親水泳將 Sea Legs</h3>
+        <p><strong>先決條件：</strong> 游泳 12</p>
+        <p><strong>消耗WP：</strong> 1</p>
+        <p>當你處於至少及腰的水中時，你可以發動此能力讓你的游泳檢定獲得 1 個優勢。</p>
+      </div>
+
+      <div class="detail-content detail-treasure">
+        <h3 style="color:var(--h-green)">尋寶獵人 Treasure Hunter</h3>
+        <p><strong>先決條件：</strong> 交易 12</p>
+        <p><strong>消耗WP：</strong> 3</p>
+        <p>若遇到岔路，你可以發動此能力，知曉哪個方向藏有巨大財寶。</p>
+      </div>
+
+      <div class="detail-content detail-gather">
+        <h3 style="color:var(--h-green)">採集大師 Master Gatherer <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> 求生 12</p>
+        <p><strong>消耗WP：</strong> 2</p>
+        <p>你對於如何採集植物可食用的部分瞭如指掌。當你在旅行中嘗試採集食物成功時，你可以發動此能力額外獲得1D4份生食(需要煮熟的植物根莖等)。</p>
+      </div>
+
+      <div class="detail-content detail-trap">
+        <h3 style="color:var(--h-green)">陷阱大師 Master Trap <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> 求生 12 + 狩獵 12</p>
+        <p><strong>消耗WP：</strong> 見描述</p>
+          <p>當你在森林中時，你可以耗時一刻時間蒐集材料，並在你指定的地點設置陷阱。花費的WP和陷阱作用詳見如下：</p>
+          <ul style="margin-left:20px; line-height:1.6;">
+            <li>圈套陷阱<span class="wp">（WP: 2）</span></li>
+            <ul class="sub-list">
+            <li>你用纖維繩（龍舌蘭纖維、藤蔓）做成繩圈，固定在樹根或木樁上，連接觸發機關。每當有生物觸發陷阱時，需進行 閃避 檢定，失敗視為被 擒抱 。繩子可以被割斷。</li>
+          </ul>
+            <li>囚籠陷阱<span class="wp">（WP: 2）</span></li>
+            <ul class="sub-list">
+            <li>用藤蔓或木條製成簡易籠子，內部放置誘餌。一旦觸動機關，籠子扣下並鎖住獵物，使目標「被困」在籠內，行動受限，只能嘗試破壞或推翻籠子。</li>
+          </ul>
+            <li>陷坑陷阱<span class="wp">（WP: 3）</span></li>
+            <ul class="sub-list">
+            <li>挖一個偽裝的深坑，底部插入削尖的木樁，再用樹葉或泥土覆蓋。每當有生物觸發陷阱時，需進行閃避檢定，失敗將跌入 3 米陷坑，並受到 2D4 穿刺傷害。</li>
+          </ul>
+            <li>落石陷阱<span class="wp">（WP: 3）</span></li>
+            <ul class="sub-list">
+            <li>用繩索懸掛一塊巨石，設計觸發點讓石頭砸落。每當有生物觸發陷阱時，需進行閃避檢定，失敗被擊倒伏地，並受到 2D6 鈍擊傷害。</li>
+          </ul>
+            <li>藤鞭陷阱<span class="wp">（WP: 3）</span></li>
+            <ul class="sub-list">
+            <li>將彈力強的細樹枝或藤條拉緊，綁上尖刺或石頭，觸發後迅速彈出。每當有生物觸發陷阱時，需進行閃避檢定，失敗被擊飛 2D6 米，並受到等量揮砍傷害。</li>
+          </ul>
+          </ul>
+        </div>
+
+      <div class="detail-content detail-caravan">
+        <h3 style="color:var(--h-green)">商隊領袖 Caravan Master <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> 求生 12 + 遊說 12</p>
+        <p><strong>消耗WP：</strong> 3</p>
+        <p>你熟悉商路捷徑，能縮短長途旅行所需時間，並在遭遇危險時能迅速指揮眾人應對。當隊伍在荒野上長途旅行（兩天以上的路程）時，你可以發動此能力來縮短1d4班的路程。此外，若旅行過程中的探路檢定失敗而遇到危險時，你可以發動此能力來讓所有人面對危險的檢定獲得一個優勢。</p>
+      </div>
+
+<div class="detail-content detail-poisonsense">
+        <h3 style="color:var(--h-green)">熟悉毒物 Venom Sense <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> 求生 12</p>
+        <p><strong>消耗WP：</strong> 2</p>
+        <p>你對致命植物的氣味與外觀有著異常敏銳的直覺，能在雜亂的叢林中一眼辨識出危險的葉片。</p>
+        <p>當你在森林或沼澤環境尋找有毒植物（作為毒藥原料或陷阱素材）時，你可以發動此能力。你尋找毒藥的求生檢定獲得 1 個優勢。若檢定大成功，你將發現品質極高或份量加倍的毒素原料。</p>
+      </div>
+
+<div class="detail-content detail-ruinwalker">
+        <h3 style="color:var(--h-green)">飛簷走壁 Wall Runner <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> 體操 12 </p>
+        <p><strong>消耗WP：</strong> 3 </p>
+        <p>垂直的牆面對你而言就如同平地。你獲得驚人的攀爬能力，在牆面或天花板攀爬時你可以消耗 2 WP 讓檢定具有優勢，且移動速度不減（除非是完全光滑的表面）。</p>
+        <p>此外，當你在攀爬狀態或位於高處觸發陷阱需進行檢定時，你可以消耗 2 WP 讓該次檢定獲得 1 個優勢。這代表你能利用地形優勢做出常人無法辦到的迴避動作。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-section sect-soc">
+    <div class="ability-grid">
+      <label for="ab-disguise" class="ab-btn">易容</label>
+      <label for="ab-insight" class="ab-btn">察言觀色</label>
+<label for="ab-royalpresence" class="ab-btn">王權威儀</label>
+<label for="ab-intimidate" class="ab-btn">威嚇</label>
+<label for="ab-orator" class="ab-btn">操弄人心</label>
+<label for="ab-proclaim" class="ab-btn">天命宣示</label>
+<label for="ab-calpulli" class="ab-btn">氏族羈絆</label>
+<label for="ab-bloodoath" class="ab-btn">血誓</label>
+<label for="ab-bribery" class="ab-btn">金錢賄賂</label>
+<label for="ab-pochteca" class="ab-btn">旅商行令</label>
+    </div>
+
+    <div class="ability-detail-box">
+      <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #555; pointer-events: none; z-index: 0;">
+        
+      </div>
+
+      <div class="detail-content detail-disguise">
+        <h3 style="color:var(--h-blue)">易容 Disguise</h3>
+        <p><strong>先決條件：</strong> 欺瞞 12</p>
+        <p><strong>消耗WP：</strong> 2</p>
+        <p>你精通偽裝的技術，可以輕易地假扮成別人的外觀。在經過一刻時間的喬裝後，你可以假扮另一個人的外觀、聲音和行為。你的族裔必須與偽裝目標相同。若偽裝目標的熟人在 10 米內看到你，他可以進行一次察覺檢定來試圖拆穿你。</p>
+      </div>
+
+      <div class="detail-content detail-insight">
+        <h3 style="color:var(--h-blue)">察言觀色 Insight <span class="maz-badge">房規調整</span> </h3>
+        <p><strong>先決條件：</strong> 遊說 12 + 察覺 12</p>
+        <p><strong>消耗WP：</strong> 2</p>
+        <p>你對人心的觀察遠超常人。在你與另一個人的談話中，你可以發動此能力進行察覺檢定。依照檢定結果，你可獲得下列一項或多項資訊（大成功則全部獲得）：</p>
+        <ul>
+          <li>失敗/成功：對方目前的情緒。</li>
+          <li>成功：對方是否在說謊。</li>
+          <li>成功：對方對你／某人／某事的真實態度。</li>
+          <li>大成功：你能判斷對方潛在的動機或弱點。</li>
+        </ul>
+      </div>
+
+<div class="detail-content detail-royalpresence">
+  <h3 style="color:var(--h-blue)">王權威儀 Royal Presence <span class="maz-badge">馬茲提卡</span> </h3>
+  <p><strong>先決條件：</strong> 遊說 12 + 祕聞傳說 12</p>
+  <p><strong>消耗WP：</strong> 3</p>
+  <p>你身上流露出一種如同古代君王般的自然威嚴。在非戰鬥狀態下，面對守衛、官員或敵對部落領袖時，你可以發動此能力。</p>
+  <p>這讓你擁有「外交豁免」般的特權，你有權要求一次「和平談話」的機會，或者進入通常禁止外人進入的區域（如貴族庭院、祭司神殿）。對方必須進行意志檢定來拒絕你的要求。若你隨後做出敵對行為，此效果立即失效。</p>
+</div>
+
+<div class="detail-content detail-intimidate">
+        <h3 style="color:var(--h-blue)">威嚇 Intimidation <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> 遊說 12 </p>
+        <p><strong>消耗WP：</strong> 2</p>
+        <p>你懂得如何利用暴力的暗示或冰冷的凝視讓人心生恐懼。在社交互動中，你可以發動此能力來強迫一名 NPC 服從你的命令、透露情報或讓路。</p>
+        <p>對方需進行意志檢定對抗。若對方失敗，他會因恐懼而暫時服從你（只要不危及他的性命）。若成功，他可能會因此對你產生敵意或呼叫衛兵。</p>
+      </div>
+
+      <div class="detail-content detail-orator">
+        <h3 style="color:var(--h-blue)">操弄人心 Orator <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> 表演 12 或 遊說 12</p>
+        <p><strong>消耗WP：</strong> 3</p>
+        <p>你擅長煽動或安撫群眾的情緒。當你面對一群人（3人以上）時，你可以發表一段演說。</p>
+        <p>你可以選擇讓群眾的態度轉變為「友善」或「激憤」。這可以用來平息暴動、煽動村民對抗暴政，或是讓商隊給予你們免費的食宿招待。效果持續一班時間。</p>
+      </div>
+<div class="detail-content detail-proclaim">
+        <h3 style="color:var(--h-blue)">天命宣示 Proclaim Destiny <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> 祕聞傳說 14 </p>
+        <p><strong>消耗WP：</strong> 2</p>
+        <p>馬茲提卡人深信命運受星辰與曆法（Tonalpohualli）支配。你懂得如何解讀（或編造）吉凶預兆來操縱人心。</p>
+        <p>在社交互動中，你可以用「這是神諭」或「今日不宜」為理由來說服迷信的 NPC。這允許你使用「祕聞傳說」技能來代替「遊說」或「欺瞞」進行檢定。若對象是虔誠的信徒或平民，該次檢定獲得 1 個優勢。</p>
+      </div>
+
+      <div class="detail-content detail-calpulli">
+        <h3 style="color:var(--h-blue)">氏族羈絆 Calpulli Bond <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> 祕聞傳說 12 + 遊說 12</p>
+        <p><strong>消耗WP：</strong> 2</p>
+        <p>你深諳馬茲提卡氏族（Calpulli）之間的互助傳統與禮節。當你到達一個新的城鎮或村落時，你可以發動此能力。</p>
+        <p>你能迅速找到當地的遠親、友好的氏族成員或曾受過你恩惠的人。這能讓整個隊伍獲得免費且安全的食宿（生活品質為普通），並能打聽到只有當地人才知道的八卦傳聞。</p>
+      </div>
+
+      <div class="detail-content detail-bloodoath">
+        <h3 style="color:var(--h-blue)">血誓 Blood Oath <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> 祕聞傳說 14 + 遊說 14</p>
+        <p><strong>消耗WP：</strong> 3</p>
+          <p>在重視鮮血與榮譽的馬茲提卡，沒有什麼比以血為證的誓言更神聖。你可以在與 NPC 達成協議時，要求進行血誓儀式（需割破手指或手掌）。</p>
+          <p>若 NPC 同意並完成儀式，這份契約將受到社會規範與潛在神力的保護。若對方試圖違背誓言，他將受到強烈的良心譴責或詛咒暗示（所有檢定具有 劣勢 ），且任何知情者都會視其為背叛者。</p>
+          <p>這是一個確保盟友忠誠或強迫敵人守信的終極手段。</p>
+      </div>
+
+<div class="detail-content detail-bribery">
+        <h3 style="color:var(--h-blue)">金錢賄賂 Cocoa Bribery <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> 交易 12</p>
+        <p><strong>消耗WP：</strong> 2 (及少量財物)</p>
+        <p>你深信沒有什麼問題是一袋可可豆解決不了的，如果有，那就兩袋。當你在社交檢定（如遊說、欺瞞）中失敗時，你可以發動此能力。</p>
+        <p>你向對方暗示或直接提供一筆賄賂（具體金額由 GM 裁定，通常是少量貨物或可可豆）。你可以重新擲骰該次檢定，並獲得 1 個優勢。此能力對榮譽極高或無法溝通的對象無效。</p>
+      </div>
+
+      <div class="detail-content detail-pochteca">
+        <h3 style="color:var(--h-blue)">旅商行令 Pochteca Mandate <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> 交易 12 + 祕聞傳說 12</p>
+        <p><strong>消耗WP：</strong> 3</p>
+        <p>你手持象徵旅商身分的黑色木杖與羽扇，這在馬茲提卡意味著通行無阻的特權，甚至被視為潛在的皇室使節。</p>
+        <p>在任何城邦（甚至是敵對勢力），你可以出示信物來啟動「外交保護」。這讓你和你的隊伍能安全通過關卡、免除入城稅，甚至有權要求面見當地的統治者或祭司長。此外，當地公會成員有義務向你提供最新的政治情報，且不敢欺騙你。</p>
+      </div>
+    </div>
+  </div>
+
+<div class="hero-section sect-ord">
+    
+    <h3 class="order-header" style="color: #c9a35a; border-bottom: 2px solid #c9a35a;">
+      🦅 鷹騎士 Eagle Knights  <span class="maz-badge">馬茲提卡</span> 
+    </h3>
+    <div class="ability-grid">
+      <label for="ab-raptordive" class="ab-btn">猛禽俯衝</label>
+      <label for="ab-sunradiance" class="ab-btn">耀光戰姿</label>
+      <label for="ab-plumashield" class="ab-btn">飛羽偏轉</label>
+      <label for="ab-captor" class="ab-btn">生擒者</label>
+<label for="ab-windchild" class="ab-btn">獵鷹之姿</label>
+<label for="ab-sunpierce" class="ab-btn">雷霆釘刺</label>
+<label for="ab-shornvow" class="ab-btn">剃髮者之誓</label>
+    </div>
+
+    <h3 class="order-header" style="color: #a85754; border-bottom: 2px solid #a85754;">
+      🐆 豹騎士 Jaguar Knights  <span class="maz-badge">馬茲提卡</span> 
+    </h3>
+    <div class="ability-grid">
+<label for="ab-jaguarclaw" class="ab-btn">獵豹突襲</label>
+<label for="ab-grapple" class="ab-btn">處決準備</label>
+<label for="ab-execution" class="ab-btn">弱點打擊</label>
+<label for="ab-shadowcamo" class="ab-btn">密林潛獵</label>
+<label for="ab-bloodscent" class="ab-btn">鮮血嗅覺</label>
+<label for="ab-deathscream" class="ab-btn">死亡尖嘯</label>
+<label for="ab-zaltecfeast" class="ab-btn">戰神的盛宴</label>
+      </div>
+
+    <div class="ability-detail-box">
+      <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #555; pointer-events: none; z-index: 0;">
+      </div>
+
+      <div class="detail-content detail-raptordive">
+        <h3 style="color:var(--h-gold)">猛禽俯衝 Raptor's Dive</h3>
+        <p><strong>先決條件：</strong> 體操 12 </p>
+        <p><strong>消耗WP：</strong> 3</p>
+        <p>模仿巨鷹的狩獵姿態，你從高處（至少 4 米，或從坐騎上）躍下對敵人發動致命一擊。你必須在攻擊前移動並跳躍。</p>
+        <p>該次近戰攻擊獲得 1 個優勢，且武器傷害骰增加 1 顆。若攻擊命中，你熟練的卸力與翻滾技巧使你不會受到該次跳躍的墜落傷害。這招通常用於金字塔階梯戰或從樹冠突襲。</p>
+      </div>
+
+<div class="detail-content detail-sunradiance">
+        <h3 style="color:var(--h-gold)">耀光戰姿 Radiant Stance</h3>
+        <p><strong>先決條件：</strong> 表演 12</p>
+        <p><strong>消耗WP：</strong> 3</p>
+        <p>你懂得調整角度，利用武器或盔甲上的金屬與黑曜石反射陽光（或火光），瞬間干擾敵人的視線，同時發出振奮人心的戰吼。你可以花費一個動作，強迫周圍 10 米內的所有敵人進行<strong>意志</strong>檢定。</p>
+        <p>失敗者因視線受阻與氣勢被壓制，陷入 暈眩 與 畏縮 </strong>狀態。此外，你展現出的無畏姿態能安撫盟友，移除範圍內盟友的 畏縮 狀態。</p>
+      </div>
+
+<div class="detail-content detail-plumashield">
+        <h3 style="color:var(--h-gold)">飛羽偏轉 Feathered Deflection</h3>
+        <p><strong>先決條件：</strong> 體操 12</p>
+        <p><strong>消耗WP：</strong> 2</p>
+        <p>你身上的鷹羽戰甲經過特殊編織，厚實的棉絮能緩衝衝擊，飄動的羽毛披風則能混淆敵人的瞄準點。當你被遠程武器攻擊時，你可以消耗 2 WP 進行戰術規避。</p>
+        <p>你揮舞披風干擾視線，使該次遠程攻擊獲得 1 個劣勢。若攻擊仍然命中，你利用護甲的卸力技巧，使受到的傷害減半。</p>
+      </div>
+
+      <div class="detail-content detail-captor">
+        <h3 style="color:var(--h-gold)">生擒者 The Captor</h3>
+        <p><strong>先決條件：</strong> 徒手 12</p>
+        <p><strong>消耗WP：</strong> 2</p>
+        <p>鷹騎士的教義中，生擒敵人比殺死他們更具榮耀。當你試圖在戰鬥中進行 擒抱 檢定時，你可以消耗 2 WP 讓該次檢定獲得 1 個優勢。</p>
+        <p>此外，當你將敵人的 HP 降至 0 時，你可以無須檢定直接宣稱將其「生擒」而非殺死。敵人會立即穩定傷勢但陷入昏迷狀態。這是晉升鷹騎士階級的關鍵能力。</p>
+      </div>
+
+<div class="detail-content detail-windchild">
+        <h3 style="color:var(--h-gold)">獵鷹之姿 Windstride</h3>
+        <p><strong>先決條件：</strong> 體操 12</p>
+        <p><strong>消耗WP：</strong> 3</p>
+        <p>你經過嚴酷的訓練，能在戰場上展現出如同獵鷹般的靈活性。你可以用一個自由動作發動此能力。</p>
+        <p>你該回合的移動速度變成兩倍，且你的移動不會引發敵人的藉機攻擊。你利用滑步、翻滾與蹬牆跳躍穿梭於敵陣之間，直取高價值目標。</p>
+      </div>
+
+<div class="detail-content detail-sunpierce">
+        <h3 style="color:var(--h-gold)">雷霆釘刺 Thunderous Pin</h3>
+        <p><strong>先決條件：</strong> 投槍器 12</p>
+        <p><strong>消耗WP：</strong> 3</p>
+        <p>你將投槍器的槓桿力學發揮到極致，你的投射標槍帶有轟鳴破空聲。這純粹是物理動能的毀滅性應用。</p>
+        <p>由於巨大的衝擊力，此攻擊<strong>無視目標的物理護甲值</strong>。若攻擊命中，標槍會深深釘入目標的鎧甲縫隙、肌肉或將其衣物釘在地面上，使其獲得<strong> 禁錮 </strong>狀態（無法移動），直到目標花費一個動作強行拔出標槍。這對阻止對手逃跑極為有效。</p>
+      </div>
+
+<div class="detail-content detail-shornvow">
+        <h3 style="color:var(--h-gold)">剃髮者之誓 Vow of the Shorn One</h3>
+        <p><strong>先決條件：</strong> 意志 14 (僅限高階鷹騎士)</p>
+        <p><strong>消耗WP：</strong> 3 </p>
+        <p>你效法傳奇的「剃髮者」部隊，擁有鋼鐵般的心理素質。當你因受傷、心靈恐懼或物理推擠而被迫移動或動搖時，你可以發動此能力。</p>
+        <p>靠著狂熱的戰鬥意志，你完全免疫該次位移效果或恐懼攻擊，並激發腎上腺素讓自己暫時忘卻疼痛（立即回復 1D6 HP）。你的雙腳如同生根於大地，展現出令敵人膽寒的死戰決心。</p>
+      </div>
+
+<div class="detail-content detail-jaguarclaw">
+        <h3 style="color:var(--h-red)">獵豹突襲 Jaguar's Pounce</h3>
+        <p><strong>先決條件：</strong> 體操 12 </p>
+        <p><strong>消耗WP：</strong> 2</p>
+        <p>這不只是突襲，而是壓倒性的動能釋放。當你位於敵人 6 米外（需要助跑或跳躍空間）時，你可以宣告發動此能力。</p>
+        <p>你進行一次爆發性的跳躍移動接近敵人（此移動無視困難地形），並在接觸瞬間進行一次近戰攻擊。若攻擊命中，除造成正常傷害外，目標必須進行力量檢定。若失敗，目標被你巨大的衝擊力撞擊至 伏地 。</p>
+      </div>
+
+      <div class="detail-content detail-grapple">
+        <h3 style="color:var(--h-red)">處決準備 Sacrificial Grapple</h3>
+        <p><strong>先決條件：</strong> 格鬥 12</p>
+        <p><strong>消耗WP：</strong> 2</p>
+        <p>為了滿足儀式需求，你練就了在混戰中精準制服敵人的關節技。當你在近戰攻擊中成功命中敵人時，你可以選擇不造成傷害，而是利用關節技立即將敵人 擒抱 。</p>
+        <p>被擒抱的敵人無法移動或攻擊，每回合需進行力量對抗才能掙脫。當你維持擒抱時，你對該目標的下一次徒手或小刀攻擊自動命中（視為以匕首抵喉或勒頸的處決準備）。</p>
+      </div>
+
+<div class="detail-content detail-execution">
+        <h3 style="color:var(--h-red)">弱點打擊 Seek Weakness</h3>
+        <p><strong>先決條件：</strong> 狩獵 12</p>
+        <p><strong>消耗WP：</strong> 3</p>
+        <p>這不是依賴蠻力，而是像掠食者一樣尋找獵物最柔軟的腹部或關節。你可以使用任何近戰武器（不限穿刺）使用 尋找弱點 攻擊。</p>
+        <p>若你使用的是穿刺武器，則你的 尋找弱點 攻擊不具劣勢。</p>
+      </div>
+
+<div class="detail-content detail-shadowcamo">
+        <h3 style="color:var(--h-red)">密林潛獵 Shadow Prowl</h3>
+        <p><strong>先決條件：</strong> 隱匿 12</p>
+        <p><strong>消耗WP：</strong> 3 </p>
+        <p>你接受過在如庫塔卡深林中像野獸般長時間潛伏的嚴酷訓練。你懂得利用泥土掩蓋氣味，並本能地在光影死角中移動，如同狩豹般接近獵物。</p>
+        <p>你在森林、廢墟或微光環境下的 隱匿 檢定獲得 1 個優勢。此外，你在隱匿狀態下的移動完全無聲，獵物無法通過聽覺察覺你的逼近，直到獠牙刺入的那一刻。</p>
+      </div>
+
+      <div class="detail-content detail-bloodscent">
+        <h3 style="color:var(--h-red)">鮮血嗅覺 Scent of Blood</h3>
+        <p><strong>先決條件：</strong> 狩獵 12</p>
+        <p><strong>消耗WP：</strong> 3 </p>
+        <p>長期的殺戮訓練讓你對血腥味與敵人的痛苦姿態異常敏感。這是一種戰鬥本能。</p>
+        <p>當你對一名已經受傷（HP 未滿）的敵人進行近戰攻擊時，你可以發動此能力讓攻擊檢定獲得 1 個優勢。這代表你總能本能地攻擊敵人的傷口或防禦死角。</p>
+      </div>
+
+      <div class="detail-content detail-deathscream">
+        <h3 style="color:var(--h-red)">死亡尖嘯 Death Scream</h3>
+        <p><strong>先決條件：</strong> 表演 12</p>
+        <p><strong>消耗WP：</strong> 3</p>
+        <p>你不需要傳說中的死亡哨，你的喉嚨就是最恐怖的樂器。透過長期的訓練，你能模仿出如千人慘叫般的高頻尖嘯，或是利用簡單的獸骨碎片吹出令人毛骨悚然的風聲。</p>
+        <p>花費一個動作發出尖嘯，周圍 20 米內的所有非怪物敵人必須進行 意志 檢定。失敗者將陷入 畏縮 狀態，且對你的攻擊檢定具有劣勢。這展示了你作為恐懼化身的本質。</p>
+      </div>
+
+      <div class="detail-content detail-zaltecfeast">
+        <h3 style="color:var(--h-red)">戰神的盛宴 Feast of Zaltec</h3>
+        <p><strong>先決條件：</strong> 意志 14 (僅限高階豹騎士)</p>
+        <p><strong>消耗WP：</strong> 3 </p>
+        <p>這是豹騎士戰技的巔峰，象徵著「餵養大地」的神聖職責。你將殺戮視為祭儀，從死亡中汲取力量。當你受到 恐懼攻擊 或 面對恐懼的意志檢定時你可以發動此能力自動成功。</p>
+        <p>或者，當你將一名敵人的 HP 降至 0（無論擊殺或生擒）時，你將敵人的鮮血塗抹在自己身上，藉由鮮血來刺激自己的殺戮本能，你立即回復 1D6 HP。同時，你發出勝利咆哮迫使周圍 10 米內所有目擊的敵人進行意志檢定，失敗者將立即陷入 畏縮 狀態。這讓你在戰場上越戰越勇，如入無人之境。</p>
+      </div>
+
+    </div>
+  </div>
+
+  <button class="back-to-top-btn" onclick="document.getElementById('hero-top').scrollIntoView({behavior:'smooth'})">▲</button>
+</div>

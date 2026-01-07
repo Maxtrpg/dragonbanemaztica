@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>戰鬥規則 - 馬茲提卡</title>
+</head>
+<body>
+
+<style>
+  /* === 頁面專屬變數 === */
+  .combat-page-container {
+    --combat-red: #c0392b;
+    width: 100%;
+    padding-bottom: 60px;
+  }
+
+/* === 1. 主分頁導覽 (Level 1: 頂層導航) - 統一寬度版 === */
+  .combat-main-nav {
+    display: flex; 
+    justify-content: center; 
+    gap: 10px; 
+    margin: 20px 0 25px;
+    flex-wrap: wrap; 
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15); 
+    padding-bottom: 15px;
+  }
+
+  .main-tab-btn {
+    /* ★ 核心：固定寬度 (約 6 個中文字) + 絕對置中 */
+    flex: 0 0 auto;           /* 禁止自動伸縮 */
+    min-width: 7.5em;         /* 設定固定寬度 */
+    display: flex;            /* 開啟 Flexbox */
+    align-items: center;      /* 垂直置中 */
+    justify-content: center;  /* 水平置中 */
+
+    /* 視覺樣式 (保持原本的黑底膠囊風格) */
+    padding: 10px 5px;        /* 減少左右內距，因為有固定寬度了 */
+    background: rgba(0, 0, 0, 0.6); 
+    border: 1px solid #555;
+    color: #ccc; 
+    cursor: pointer; 
+    border-radius: 30px;      /* 大圓角膠囊 */
+    transition: all 0.2s; 
+    font-size: 1rem;
+    letter-spacing: 1px;
+  }
+
+  .main-tab-btn:hover { 
+    border-color: var(--gold); 
+    color: #fff; 
+    transform: translateY(-2px); 
+  }
+
+  .main-tab-btn.active-tab {
+    background: var(--gold); 
+    color: #111; 
+    border-color: var(--gold);
+    font-weight: bold; 
+    box-shadow: 0 0 15px rgba(201, 163, 90, 0.4);
+  }
+
+  /* === 2. 子分頁導覽 (Level 2) === */
+  .combat-sub-nav {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-bottom: 20px;
+    padding: 5px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+
+  /* 排除第三層，只針對第二層按鈕 */
+  .combat-sub-nav:not(.sub-nav-level-3) .sub-tab-btn {
+    flex: 1 1 auto;
+    min-width: 80px;
+    max-width: 150px;
+    text-align: center;
+    padding: 10px 5px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-bottom: 3px solid transparent;
+    color: #aaa;
+    border-radius: 4px;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .combat-sub-nav:not(.sub-nav-level-3) .sub-tab-btn:hover {
+    background: rgba(255,255,255,0.05);
+    color: #fff;
+  }
+
+  .combat-sub-nav:not(.sub-nav-level-3) .sub-tab-btn.active-sub-tab {
+    background: linear-gradient(to bottom, rgba(192, 57, 43, 0.2), rgba(192, 57, 43, 0.4));
+    color: #fff;
+    border-color: rgba(192, 57, 43, 0.5);
+    border-bottom-color: #e74c3c;
+    font-weight: bold;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+  }
+
+  /* === 3. 小標籤 (Level 3) === */
+  .combat-sub-nav.sub-nav-level-3 {
+    border-bottom: none;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 10px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 25px;
+    border-top: 1px dashed rgba(255,255,255,0.15);
+    margin-top: -10px;
+    padding-top: 15px;
+  }
+
+  /* 針對 Level 3 按鈕特化 */
+  .sub-nav-level-3 .sub-tab-btn {
+    flex: 0 0 auto;
+    min-width: 6em;           
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-size: 0.85rem;
+    color: #aaa;
+    transition: all 0.2s;
+  }
+
+  .sub-nav-level-3 .sub-tab-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border-color: #bbb;
+  }
+
+  .sub-nav-level-3 .sub-tab-btn.active-sub-tab {
+    background: transparent;
+    color: var(--gold);
+    border-color: var(--gold);
+    font-weight: bold;
+    box-shadow: 0 0 8px rgba(201, 163, 90, 0.2);
+  }
+
+  /* 內容區塊顯示控制 */
+  .main-section { display: none; animation: fadeIn 0.3s ease; }
+  .main-section.active { display: block; }
+  .combat-sub-content { display: none; animation: slideUp 0.3s ease; }
+  
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* 內容區塊通用樣式 */
+  .combat-content-box {
+    background: rgba(20, 10, 10, 0.6);
+    border: 1px solid rgba(192, 57, 43, 0.3);
+    padding: 25px; border-radius: 8px; min-height: 300px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
+  .text-block h2 {
+    color: var(--combat-red); font-size: 1.6rem; margin-bottom: 15px;
+    border-left: 4px solid var(--combat-red); padding-left: 12px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .text-block h3 { color: var(--gold); margin: 20px 0 10px; font-size: 1.2rem; }
+  .text-block p, .text-block li { line-height: 1.7; color: #ddd; }
+  .text-block strong { color: #fff; }
+  .rules-table { width: 100%; border-collapse: collapse; margin: 15px 0; background: rgba(0,0,0,0.3); }
+  .rules-table th, .rules-table td { padding: 8px 12px; border: 1px solid rgba(255,255,255,0.1); color: #ddd; }
+  .rules-table th { background: rgba(192, 57, 43, 0.2); color: var(--gold); text-align: left; }
+  .tag-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; vertical-align: middle; border: 1px solid; letter-spacing: 1px; text-transform: uppercase; }
+  .tag-badge.house { color: #ff9f43; border-color: #ff9f43; background: rgba(255, 159, 67, 0.15); box-shadow: 0 0 5px rgba(255, 159, 67, 0.2); }
+</style>
+
+<div class="combat-page-container">
+
+  <div id="combat-top" class="rule-card highlight" style="border-left-color: #c0392b; margin-bottom:20px; background:rgba(30,10,10,0.8); padding:20px; border-radius:8px;">
+    <h3 style="color:#c0392b; margin-top:0;">⚔️ 戰鬥與傷害</h3>
+    <p style="color:#ddd;">作為一名冒險者，生活是艱難的，而且常常是暴力的。在馬茲提卡，你可能會遇到野獸、惡意攻擊者和怪物。戰鬥可能對你的玩家角色來說很艱難，有時甚至是致命的。在進入戰鬥之前，你應該經常問自己：值得嗎？</p>
+    <ul style="color:#aaa;">
+      <li>戰鬥以「戰鬥輪」的形式進行，每輪大約 10 秒鐘。</li>
+      <li>每一輪開始時，第一個步驟是決定每個戰鬥人員在一輪中的行動順序，也就是先攻順序。</li>
+    </ul>
+  </div>
+
+  <div class="combat-main-nav">
+    <button class="main-tab-btn active-tab" data-target="sect-init">戰鬥輪與先攻</button>
+    <button class="main-tab-btn" data-target="sect-act">動作和移動</button>
+    <button class="main-tab-btn" data-target="sect-attack">攻擊</button>
+    <button class="main-tab-btn" data-target="sect-dmg">傷害</button>
+    <button class="main-tab-btn" data-target="sect-rest">治療與休息</button>
+    <button class="main-tab-btn" data-target="sect-hz">其他危害</button>
+  </div>
+
+  <div id="sect-init" class="main-section active combat-content-box">
+    <div class="combat-sub-nav">
+      <button class="sub-tab-btn" data-target="init-draw">抽先攻卡</button>
+      <button class="sub-tab-btn" data-target="init-surprise">奇襲與偷襲</button>
+      <button class="sub-tab-btn" data-target="init-wait">等待</button>
+    </div>
+
+    <div id="init-draw" class="combat-sub-content text-block">
+      <h2>抽先攻卡 Drawing The Initiative</h2>
+      <ul>
+        <li>先攻卡共有十張，每一張標記數字 1~10。</li>
+        <li>在每一輪開始時，每個戰鬥人員都要隨機抽一張先攻卡，GM 也為 NPC 抽卡。</li>
+        <li>先攻卡上的數字代表你在該輪的行動順序，數字 1 最先行動，再來數字 2，以此類推，直到每個人都行動完畢。</li>
+        <li>在一輪中輪到你行動的時候稱為你的「回合」。</li>
+        <li>將先攻卡放在你的角卡旁，讓每個人都可以看到彼此的行動順序，GM 也是。</li>
+        <li>當每個戰鬥人員都完成自己的回合後，該輪結束，然後展開新的一輪並重新抽先攻卡。</li>
+      </ul>
+    </div>
+
+    <div id="init-surprise" class="combat-sub-content text-block">
+      <h2>奇襲和偷襲 Surprise & Sneak Attack</h2>
+      <p>贏得衝突的關鍵往往是在敵人最意想不到的時候發動攻擊。</p>
+      <ul>
+        <li>若要奇襲敵人，首先進行一次<strong>隱匿</strong>檢定。若你要靠近敵人進行近戰攻擊，則<strong>隱匿</strong>檢定有劣勢。若<strong>隱匿</strong>檢定失敗，敵人會發現你，正常抽先攻卡。</li>
+        <li>若<strong>隱匿</strong>檢定成功，你可以在第一輪戰鬥中選擇你想要的先攻卡。如果有多個角色參與奇襲，你們可以都選一張牌。其他戰鬥者從剩餘的牌中獲取先攻卡。第二輪開始後，則正常抽先攻卡。</li>
+        <li>在發動奇襲的第一輪中，你的攻擊視為「偷襲」，你可以用遠程或近戰武器發動偷襲。攻擊檢定具有優勢，且敵人無法閃避或格擋。若你使用具有<strong>靈巧</strong>特性的武器進行偷襲，則武器傷害骰會增加一顆。</li>
+        <li>第二輪開始後，所有人正常抽先攻卡。之後，你無法在戰鬥中發動偷襲。</li>
+      </ul>
+    </div>
+
+    <div id="init-wait" class="combat-sub-content text-block">
+      <h2>等待 Waiting</h2>
+      <ul>
+        <li>在你的回合時，你可以選擇<strong>「等待」</strong>。這代表你可以和回合在你後面的 PC 交換先攻卡。</li>
+        <li>你也可以和其他 NPC 交換先攻卡，且他們無法拒絕（但通常同一類型的一群 NPC 會在同一個先攻順序一起行動）。</li>
+        <li>你不能和已經完成回合或已經宣告等待的角色交換先攻卡。</li>
+        <li><strong>怪物</strong>通常在一輪中擁有多張先攻卡（代表他們可以一輪中執行多個回合）。若你要和怪物交換先攻卡，你必須決定想交換哪一張。</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="sect-act" class="main-section combat-content-box">
+    <div class="combat-sub-nav">
+      <button class="sub-tab-btn" data-target="act-actions">標準動作</button>
+      <button class="sub-tab-btn" data-target="act-free">自由動作</button>
+      <button class="sub-tab-btn" data-target="act-reaction">反應</button>
+      <button class="sub-tab-btn" data-target="act-move">移動</button>
+      <button class="sub-tab-btn" data-target="act-terrain">地形與光照</button>
+    </div>
+
+    <div id="act-actions" class="combat-sub-content text-block">
+      <h2>動作 Action</h2>
+      <p>在你的回合中，你可以執行<strong>一個移動</strong>和<strong>一個動作</strong>。</p>
+      <p>你可以在執行動作之前或之後進行移動，甚至可以先移動、執行動作，然後再移動（只要移動力足夠）。</p>
+      <p>你必須在你的回合進行移動和動作，不能保留到之後使用，一旦你的回合結束後，你該輪就無法再進行移動和動作。</p>
+      <p>一旦你執行過動作或回合結束後，將先攻卡翻到背面，讓大家知道你已經結束回合。</p>
+      <p>有很多事情都可以被視為「一個動作」，但以下是一些常見的動作：</p>
+      <ul>
+        <li><strong>疾走</strong>：你該回合的移動力加倍。</li>
+        <li><strong>近戰攻擊</strong>：攻擊 2 米內的敵人（長柄武器為 4 米）。</li>
+        <li><strong>遠程攻擊</strong>：攻擊射程內的敵人。</li>
+        <li><strong>格擋</strong>：格擋敵人的近戰或遠程攻擊，但後者需要使用盾牌。此為反應。</li>
+        <li><strong>閃避</strong>：閃避敵人的近戰或遠程攻擊。此為反應。</li>
+        <li><strong>拿起物品</strong>：從 2 米內的地上或你的物品欄中拿起物品。</li>
+        <li><strong>穿戴／卸下護甲或頭盔：</strong>護甲和頭盔可以保護你免受傷害，但會限制你的靈活度。</li>
+        <li><strong>急救</strong>：用<strong>醫療</strong>技能拯救 HP 歸零且瀕死的人。</li>
+        <li><strong>鼓舞</strong>：用<strong>遊說</strong>技能鼓舞 HP 歸零的人繼續戰鬥。</li>
+        <li><strong>破門</strong>：門受到一定傷害即可被打破。</li>
+        <li><strong>開鎖</strong>：用<strong>巧手</strong>技能進行開鎖。沒有開鎖器會有劣勢。</li>
+        <li><strong>使用物品</strong>：使用藥水或 2 米內的其他物品。</li>
+        <li><strong>啟動能力</strong>：使用天生或英雄能力。</li>
+        <li><strong>施法</strong>：施法通常需要一個動作。包括戲法。有些為反應，有些則花更多時間。</li>
+        <li><strong>協助</strong>：協助其他人的檢定獲得優勢。</li>
+        <li><strong>喘息</strong>：回復 1D6 WP。在<strong>一班時間</strong>內只能使用一次。</li>
+      </ul>
+    </div>
+
+    <div id="act-free" class="combat-sub-content text-block">
+      <h2>自由動作 Free Actions</h2>
+      <ul>
+        <li>像是抽出武器、趴下、大喊一句話這類較微小的動作，被稱為「自由動作」。</li>
+        <li>自由動作不需花費你該輪的動作，但「每種類型」的自由動作在一輪中只能執行一次。</li>
+      </ul>
+      <ul>
+        <li><strong>準備武器</strong>：拔出、更換或收起武器。</li>
+        <li><strong>改變姿態</strong>：趴下或起身。</li>
+        <li><strong>放下物品</strong>：將一個物品放在地上。</li>
+        <li><strong>大聲呼喊</strong>：說出或大喊幾個字。</li>
+      </ul>
+    </div>
+
+    <div id="act-reaction" class="combat-sub-content text-block">
+      <h2>反應 Reaction</h2>
+      <ul>
+        <li>有些動作不在你的回合中執行，而是在其他人的回合中。這些動作被稱為「反應」，例如格擋或閃避。</li>
+        <li>執行反應會用掉你該輪的回合，也就是說，如果你在該輪的回合已經結束，你在該輪的剩餘時間內就不能再執行反應。</li>
+        <li>一旦你執行過反應後，將先攻卡翻到背面，讓大家知道你已經結束回合。</li>
+        <li>一旦你執行過反應後，你會失去該輪的移動力。有些反應能提供你一些額外的移動力，例如格擋或閃避。</li>
+      </ul>
+    </div>
+
+    <div id="act-move" class="combat-sub-content text-block">
+      <h2>移動 Movement</h2>
+      <p>在正常情況下，你在一輪中可以移動的距離（米） = 你的移動力。但以下是一些需要另外考慮的特殊情況：</p>
+      <ul>
+        <li><strong>疾走：</strong>若你用動作來執行<strong>疾走</strong>，你在該輪的移動力會加倍。</li>
+        <li><strong>起身/趴下：</strong>你可以在移動過程中趴下或起身。這些屬於自由動作，不會影響你的移動。</li>
+        <li><strong>跳躍：</strong>作為移動的一部份，你可以透過<strong>體操</strong>檢定來進行水平跳躍，跳躍距離 = 移動力一半。若你想跳躍的距離 ≦ 移動力的 1/4，則不需要檢定。</li>
+        <li><strong>開門：</strong>穿越關著但未上鎖的門需要消耗<strong>一半移動力</strong>。</li>
+        <li><strong>敵人：</strong>你無法穿越敵人。若想試圖穿越，你必須將敵人<strong>擊倒伏地</strong>。穿越友善生物則沒有任何問題。</li>
+        <li><strong>藉機攻擊：</strong>若你想離開距離你 2 米內的敵人，你必須進行<strong>閃避</strong>檢定。此檢定不花費動作，但若失敗，敵人可以馬上對你進行一次<strong>無法被閃避或格擋</strong>的藉機攻擊。</li>
+      </ul>
+    </div>
+
+    <div id="act-terrain" class="combat-sub-content text-block">
+      <h2>地形與光照</h2>
+      <ul>
+        <li><strong>狹窄：</strong>空間很小或天花板很矮。除了<strong>穿刺</strong>武器和<strong>靈巧</strong>武器以外，所有近戰武器攻擊都有一個劣勢。</li>
+        <li><strong>崎嶇：</strong>每當你在<strong>崎嶇</strong>地形上移動時，必須進行一次<strong>體操</strong>檢定（不花費動作）。若失敗，你會跌倒伏地並失去該輪剩餘的移動力。</li>
+        <li><strong>昏暗：</strong>所有遠程攻擊都有一個劣勢。</li>
+        <li><strong>黑暗：</strong>你在完全黑暗中無法<strong>疾走</strong>，也無法對敵人進行遠程攻擊。若要對敵人進行近戰攻擊，你必須先進行一次<strong>察覺</strong>檢定（不花費動作）。</li>
+      </ul>
+      <h3>火炬 &amp; 提燈</h3>
+      <p>一把火炬或一盞提燈可以照亮 10 米（五格）半徑。點燃火炬或提燈需要一個動作。</p>
+      <p>你需要用一隻手來持握火炬或提燈，代表你無法使用雙手武器或副手武器。火炬可以當作武器使用，視為可以造成火焰傷害的「小型木棒」。每當你用火炬命中敵人時，你必須馬上擲骰判斷火焰是否會熄滅。</p>
+    </div>
+  </div>
+
+  <div id="sect-attack" class="main-section combat-content-box">
+    <div class="combat-sub-nav">
+      <button class="sub-tab-btn" data-target="atk-melee">近戰攻擊</button>
+      <button class="sub-tab-btn" data-target="atk-ranged">遠程攻擊</button>
+      <button class="sub-tab-btn" data-target="atk-mounted">騎乘戰鬥</button>
+    </div>
+
+<div id="atk-melee" class="combat-sub-content">
+      <div class="combat-sub-nav sub-nav-level-3" style="margin-top:-10px;">
+        <button class="sub-tab-btn" data-target="melee-basic">基礎</button>
+        <button class="sub-tab-btn" data-target="melee-types">傷害類型</button>
+        <button class="sub-tab-btn" data-target="melee-parry">格擋</button>
+        <button class="sub-tab-btn" data-target="melee-dodge">閃避</button>
+        <button class="sub-tab-btn" data-target="melee-special">特殊攻擊</button>
+        <button class="sub-tab-btn" data-target="melee-crit">暴擊</button>
+        <button class="sub-tab-btn" data-target="melee-fumble">大失敗</button>
+      </div>
+
+      <div id="melee-basic" class="combat-sub-content text-block">
+        <h2>近戰攻擊 Melee Combat</h2>
+        <ul>
+          <li>若要以近戰攻擊敵人，你通常必須位於目標的 2 米內（相鄰於目標一格），然後進行相應武器的技能檢定。</li>
+          <li><strong>傷害：</strong>若攻擊檢定命中，你使用的武器會決定你對敵人造成多少傷害。傷害會因為你的傷害加值或骰到大成功而提升，而被敵人的護甲降低。</li>
+          <li><strong>傷害加值：</strong>你的傷害加值由你的<strong>力量</strong>或<strong>敏捷</strong>屬性決定。使用力量類武器就用力量傷害加值，使用敏捷類武器就用敏捷傷害加值。</li>
+          <li><strong>武器：</strong>你可以隨時準備最多三把武器，寫在角卡的武器欄位上，且不算進負重，這些是你的「備戰武器」。若要使用武器進行攻擊，你必須先拔出武器。拔出備戰武器或交換另一把備戰武器是一個自由動作。撿起地上的武器或拿出你物品欄裡的武器則需要一個動作。</li>
+          <li><strong>力量需求：</strong>若你的<strong>力量</strong>低於武器的需求，你使用該武器進行的所有攻擊和格擋都有劣勢。若你的力量＜武器需求的一半，則你完全無法使用該武器。</li>
+          <li><strong>持握：</strong>武器要麼需要一手或兩手才能使用。若你雙手各持一把單手武器，這兩把單手武器的力量需求會 -3。</li>
+          <li><strong>長柄武器：</strong>你可以使用具有<strong>長柄</strong>特性的武器攻擊最多 4 米遠（兩格）的敵人。</li>
+          <li><strong>伏地目標：</strong>若你站著攻擊伏地的敵人，你的攻擊具有優勢，且會額外造成 1D6 傷害。</li>
+        </ul>
+      </div>
+
+      <div id="melee-types" class="combat-sub-content text-block">
+        <h2>傷害類型 Damage Types</h2>
+        <ul>
+          <li>傷害類型共有三種：揮砍、穿刺、鈍擊。每種武器可以造成的傷害類型都不一樣。</li>
+          <li>有些武器可以造成兩種傷害類型，你必須在進行攻擊檢定前宣告你要使用哪一種。</li>
+          <li>傷害或武器類型<span class="tag-badge house">房規調整</span>會影響攻擊對抗護甲的效果：
+            <ul>
+              <li>皮甲在抵抗<strong>鈍擊</strong>傷害時，護甲值會 +2。</li>
+              <li>棉甲在抵抗<strong>黑曜石武器</strong>傷害時，護甲值會 +2。<span class="tag-badge house">房規</span></li>
+              <li>皮革戰甲/騎士團戰甲在抵抗<strong>黑曜石武器</strong> 傷害 和 <strong>鈍擊</strong>傷害時，護甲值會 +2。</li>
+              <li>鎖子甲在抵抗<strong>揮砍</strong>傷害時，護甲值會 +2。</li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+
+      <div id="melee-parry" class="combat-sub-content text-block">
+       <h2>格擋 Parrying</h2>
+        <ul>
+          <li>當你被近戰攻擊命中時，你可以使用持握的武器或盾牌進行格擋。注意，你不能拔出武器來格擋，因為自由動作只能在自己回合中執行。</li>
+          <li>若要進行格擋，與攻擊一樣，進行對應的武器技能檢定。</li>
+          <li>你無法用徒手進行格擋。</li>
+          <li>你無法對同一次攻擊同時進行格擋和閃避。</li>
+          <li><strong>反應：</strong>格擋是一個反應，會用掉你在該輪的回合，這代表如果你已經結束該輪的回合，你就無法進行格擋（除非你擁有英雄能力「堅強防禦」）。</li>
+          <li><strong>耐久：</strong>若你格擋成功，敵人的攻擊會命中你的武器或盾牌，而你自己不會受到任何傷害。但是，若攻擊傷害＞你武器的耐久度，武器就會受損，直到你使用 工藝 檢定修復之前無法再被使用。</li>
+          <li><strong>盾牌：</strong>若你持握著盾牌，你可以用盾牌進行格擋。盾牌沒有獨立的技能，所以你可以使用任何基於力量的近戰武器技能來進行盾牌格擋。</li>
+          <li><strong>穿刺：</strong>穿刺傷害永遠無法對格擋的武器或盾牌造成傷害。</li>
+          <li><strong>怪物：</strong>除非另有說明，怪物攻擊<strong>無法被格擋</strong>。</li>
+          <li><strong>格擋移位：</strong>當你成功格擋攻擊時，你可以讓自己和敵人往任意方向移動 2 米（一格）。此移動不會消耗該輪的移動力，也不會觸發任何人的藉機攻擊。</li>
+          <li><strong>格擋大成功：</strong>若你在格擋時骰出大成功，你可以馬上對攻擊你的敵人進行一次反擊。此反擊會自動命中，且無法被閃避或格擋。此規則不適用於敵人對你造成暴擊的時候，若敵人對你造成暴擊，你也必須骰出大成功才能格擋成功。</li>
+        </ul>
+      </div>
+
+      <div id="melee-dodge" class="combat-sub-content text-block">
+        <h2>閃避 Dodging</h2>
+        <ul>
+          <li>若要進行閃避，進行<strong> 閃避 </strong>檢定。若成功，你閃開攻擊且沒有受到傷害。若失敗，你被攻擊命中。</li>
+          <li>你無法對同一次攻擊同時進行格擋和閃避。</li>
+          <li><strong>反應：</strong>閃避是一個反應，會用掉你在該輪的回合，這代表如果你已經結束該輪的回合，你就無法進行閃避（除非你擁有英雄能力「迅捷步法」）。</li>
+          <li><strong>怪物：</strong>除非另有說明，否則怪物攻擊<strong>可以被閃避</strong>。</li>
+          <li><strong>閃避移位：</strong>當你成功閃避攻擊時，你可以往任意方向移動 2 米（一格）。此移動不會消耗該輪的移動力，也不會觸發任何人的藉機攻擊。</li>
+        </ul>
+      </div>
+
+      <div id="melee-special" class="combat-sub-content text-block">
+        <h2>特殊攻擊 Special Attacks</h2>
+        <p>除了單純攻擊敵人外，你也可以在近身戰鬥中嘗試一些特殊攻擊。你必須在進行攻擊檢定前宣告你要執行特殊攻擊。</p>
+        <ul>
+          <li><strong>推撞 (Shove)：</strong>若你用近戰攻擊命中敵人，且你的力量傷害加值 ≧ 敵人的力量傷害加值，除了造成傷害外，你也可以將敵人往任意方向推離 2 米（一格）。<br>此移動不會消耗敵人該輪的移動力，也不會觸發任何人的藉機攻擊。<br>怪物無法單純進行推撞，但你可以用一個劣勢來推撞怪物。（房規）</li>
+          <li><strong>絆摔 (Topple)：</strong>你不造成傷害，而是嘗試將敵人絆倒伏地。<br>進行武器技能檢定。若你的武器具有絆摔特性，則檢定獲得 1 個優勢。若敵人體型比你大一級，你的檢定獲得 1 個劣勢。你無法絆摔體型比你大兩級的敵人。<br>敵人可以閃避，但無法格擋。<br>若你檢定成功，敵人會跌倒伏地。</li>
+          <li><strong>擒抱 (Grapple)：</strong>你不造成傷害，而是嘗試擒抱一名人形敵人。<br>進行 徒手 技能檢定。若敵人體型比你大一級，你的檢定獲得 1 個劣勢。你無法擒抱體型比你大兩級的敵人。<br>敵人可以閃避，但無法格擋。<br>若你檢定失敗，你會跌倒伏地。<br>若你檢定成功，你和敵人都會伏地，而敵人會被你緊緊纏住。只要你維持擒抱，敵人就無法移動，也無法進行需要身體活動的任何動作，但可以用自由動作嘗試「掙脫」：當敵人宣告嘗試掙脫時，你再進行一次 徒手 技能檢定（不需要動作），若成功，敵人掙脫失敗。若失敗，敵人掙脫成功。 vs 你的徒手技能。<br>當你維持擒抱時，你無法移動，也無法進行需要身體活動的任何動作，但可以嘗試進行「關節技」，此視為一個帶有 1 個優勢且無法被閃避和格擋的徒手攻擊。鬆開敵人是一個自由動作。</li>
+          <li><strong>尋找弱點 (Find Weak Spot)：</strong>若你的武器可以造成穿刺傷害，你可以嘗試尋找敵人護甲或天生護甲的間隙。<br>你的攻擊檢定獲得 1 個劣勢，但如果命中，敵人的護甲無法抵抗該次攻擊。</li>
+          <li><strong>繳械 (Disarm)：</strong>你不造成傷害，而是嘗試將繳械敵人的武器。你無法繳械敵人的盾牌或天生武器。<br>進行武器技能檢定。若敵人用雙手持握該武器，你的檢定獲得 1 個劣勢。<br>敵人可以閃避，但無法格擋。<br>若你檢定成功，敵人手中的武器會往你選擇的方向拋離 1D6 米遠。<br>撿起地上的武器需要一個動作。</li>
+        </ul>
+      </div>
+
+      <div id="melee-crit" class="combat-sub-content text-block">
+        <h2>暴擊 (攻擊大成功) Critical Hit</h2>
+        <ul>
+          <li>若攻擊檢定骰到大成功，你會造成<strong>「暴擊」</strong>。對方也要骰到大成功才能閃避或格擋你的暴擊。</li>
+          <li>若造成暴擊，你可以選擇以下其中一種效果：
+            <ul>
+              <li>武器傷害骰加倍（傷害加值或其他加值不會加倍）。例如，你用馬夸維爾特（2D6 傷害）造成暴擊，且你的傷害加值為 1D4，則你的暴擊傷害為 4D6+1D4。</li>
+              <li>你可以馬上對另一個敵人進行另一次攻擊，而不用花費動作，且該次攻擊無法被閃避或格擋。</li>
+              <li>你找到護甲的間隙或弱點，敵人的護甲對該次攻擊無效。只有當你的武器會造成穿刺傷害時才能選擇此選項。</li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+
+      <div id="melee-fumble" class="combat-sub-content text-block">
+        <h2>近戰大失敗 (1D20) <span class="tag-badge">房規調整</span></h2>
+        <p>當攻擊檢定擲出 <strong>1 (大失敗)</strong> 時，擲 1D20 查看發生了什麼悲劇：</p>
+        <table class="rules-table">
+          <thead><tr><th style="width:60px;">D20</th><th>災難描述</th></tr></thead>
+          <tbody>
+            <tr><td>1-6</td><td><strong>手滑脫手：</strong>汗水或鮮血讓武器滑落到腳邊。撿起武器需要花費一個動作。</td></tr>
+            <tr><td>7-8</td><td><strong>重心不穩：</strong>你用力過猛踩進泥濘或樹根。你陷入 <strong>伏地 (Prone)</strong> 狀態，並且這回合無法再移動且不能用自由動作爬起來。</td></tr>
+            <tr><td>9-10</td><td><strong>門戶大開：</strong>你的揮擊破綻百出。敵人可立即對你進行一次藉機攻擊，且你無法格擋或閃避。</td></tr>
+            <tr><td>11-12</td><td><strong>武器卡死：</strong>武器卡在敵人的盔甲、骨頭或旁邊的樹幹裡。需花費一個動作並通過 <strong>力量</strong> 檢定才能拔出。</td></tr>
+            <tr><td>13-14</td><td><strong>黑曜石崩解：</strong>若你使用的是黑曜石武器，刃片因撞擊硬物而嚴重碎裂，傷害永久降一級（直到修復）。若為金屬/木製武器，則視為脫手飛出 1D3+3 米。</td></tr>
+            <tr><td>15-16</td><td><strong>誤傷隊友：</strong>你的攻擊軌跡完全偏離，擊中距離你最近的一名盟友。進行正常的傷害擲骰。</td></tr>
+            <tr><td>17-18</td><td><strong>肌肉拉傷：</strong>你扭傷了手腕或腳踝。你的敏捷或力量檢定（由GM決定）獲得 1 個劣勢，持續到戰鬥結束。</td></tr>
+            <tr><td>19</td><td><strong>痛擊自己：</strong>武器反彈或你絆倒撞上刀刃。你對自己造成正常的武器傷害（不加屬性加值）。</td></tr>
+            <tr><td>20</td><td><strong>諸神的嘲笑：</strong>災難性的失誤。你的武器直接斷裂毀壞（若是魔法武器則改為噴飛 10 米），且你因用力過猛而 <strong>力竭</strong>。</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+<div id="atk-ranged" class="combat-sub-content">
+      <div class="combat-sub-nav sub-nav-level-3" style="margin-top:-10px;">
+        <button class="sub-tab-btn" data-target="range-basic">基礎</button>
+        <button class="sub-tab-btn" data-target="range-def">防禦</button>
+        <button class="sub-tab-btn" data-target="range-crit">暴擊</button>
+        <button class="sub-tab-btn" data-target="range-fumble">大失敗</button>
+      </div>
+
+      <div id="range-basic" class="combat-sub-content text-block">
+        <h2>遠程攻擊 Ranged Combat</h2>
+        <ul>
+          <li>若要遠程攻擊敵人，你通常必須位於目標的 2 米以外（不能相鄰於目標一格），然後進行相應武器的技能檢定。若你位於目標的 2 米內，你的遠程攻擊檢定會有 劣勢 。</li>
+          <li><strong>傷害：</strong>若攻擊檢定命中，你使用的武器會決定你對敵人造成多少傷害。傷害會因為你的傷害加值或骰到大成功而提升，而被敵人的護甲降低。</li>
+          <li><strong>傷害加值：</strong>遠程攻擊和近戰攻擊一樣，也會獲得傷害加值。</li>
+          <li><strong>射程：</strong>每遠程武器會列出「射程」，這是該武器可以有效使用的最大射程。你最遠可以攻擊到兩倍射程的敵人，但攻擊檢定有劣勢。</li>
+          <li><strong>遮蔽：</strong>若你和目標之間有夠大的物體或人（無論是敵是友）會遮蔽你的視線，你的遠程攻擊檢定會獲得劣勢。<br>若目標完全在你的視線之外（可能躲在牆後），你無法對他進行攻擊。</li>
+        </ul>
+      </div>
+
+      <div id="range-def" class="combat-sub-content text-block">
+        <h2>格擋和閃避</h2>
+        <ul>
+          <li>你需要持握 <strong>盾牌</strong> 才能格擋遠程攻擊。</li>
+          <li>其他規則和格擋/閃避近戰攻擊一樣，除了格擋骰到大成功不會讓你獲得反擊機會。</li>
+        </ul>
+      </div>
+
+      <div id="range-crit" class="combat-sub-content text-block">
+        <h2>暴擊 (攻擊大成功)</h2>
+        <ul>
+          <li>若攻擊檢定大成功，你造成<strong>暴擊</strong>；對方也要骰到大成功才能閃避或用盾牌格擋你的暴擊。</li>
+          <li>若造成暴擊，你可以選擇以下其中一種效果：
+            <ul>
+              <li>武器傷害骰加倍（傷害加值或其他加值不會加倍）。例如，戰弓造成暴擊可以造成 2D12 傷害。</li>
+              <li>你可以馬上對另一個敵人進行另一次攻擊，而不用花費動作，且該次攻擊無法被閃避或格擋。</li>
+              <li>你找到護甲的間隙或弱點，敵人的護甲對該次攻擊無效。只有當你的武器會造成穿刺傷害時才能選擇此選項。</li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+
+      <div id="range-fumble" class="combat-sub-content text-block">
+        <h2>遠程大失敗 (1D20) <span class="tag-badge">房規調整</span></h2>
+        <p>當射擊檢定擲出 <strong>1 (大失敗)</strong> 時，擲 1D20 查看發生了什麼意外：</p>
+        <table class="rules-table">
+          <thead><tr><th style="width:60px;">D20</th><th>災難描述</th></tr></thead>
+          <tbody>
+            <tr><td>1-6</td><td><strong>彈藥耗盡：</strong>你伸手去拿箭矢或彈丸時發現袋子破了/空了。你必須花費一輪時間尋找或撿拾彈藥才能再次攻擊。</td></tr>
+            <tr><td>7-8</td><td><strong>手指受傷：</strong>弓弦回彈打到手臂，或投石索勒到手指。下一輪你的攻擊檢定具有 1 個劣勢。</td></tr>
+            <tr><td>9-10</td><td><strong>手滑掉落：</strong>武器從手中滑落。如果是裝填好的投石繩或弓，彈藥同時報廢。撿起武器需花費一個動作。</td></tr>
+            <tr><td>11-12</td><td><strong>誤擊環境：</strong>你射中了附近的蜂窩、聖像或支撐結構。由 GM 決定引發什麼環境麻煩（如蜜蜂攻擊、甚至坍塌）。</td></tr>
+            <tr><td>13-14</td><td><strong>機件卡住：</strong>投槍器的鉤環卡住、弓弦糾結或吹箭堵塞。你必須花費一個動作來排除故障才能再次使用此武器。</td></tr>
+            <tr><td>15-16</td><td><strong>誤傷盟友：</strong>彈道嚴重偏離，射中了與目標交戰的盟友。進行正常的傷害擲骰。</td></tr>
+            <tr><td>17-18</td><td><strong>暴露位置：</strong>你因為失誤發出了巨大的聲響或摔出掩體。所有敵人對你的察覺自動成功，且下一次對你的攻擊有優勢。</td></tr>
+            <tr><td>19</td><td><strong>武器損壞：</strong>弓臂斷裂、投槍器折斷或投石繩斷裂。該武器無法使用，直到修復或更換。</td></tr>
+            <tr><td>20</td><td><strong>業力反噬：</strong>如果是吹箭，你誤吸入了毒藥；如果是弓箭或投石，彈藥反彈擊中你的臉。受到正常傷害並附加可能的毒素效果。</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="atk-mounted" class="combat-sub-content">
+      <div class="text-block" id="mounted">
+        <h2>騎乘戰鬥 Mounted Combat</h2>
+        <p>在馬茲提卡，並沒有原生馬匹，因此沒有騎兵的概念。一直到黃金軍團入侵馬茲提卡，馬茲提卡才從此有了馬和騎兵的存在。儘管現在騎兵的概念在馬茲提卡仍舊少見，但仍有人試著馴服馬匹或大型的野獸來並肩作戰。</p>
+        <p>一匹衷心的駿馬或其他坐騎對任何冒險者來說都是非常寶貴的資產。</p>
+        
+        <p><strong>戰鬥規則：</strong></p>
+        <ul>
+          <li>若要進行騎乘戰鬥，你的坐騎必須受過戰鬥訓練（例如戰馬）。你可以使用坐騎的移動力來進行移動。</li>
+          <li>當你在坐騎上進行攻擊或格擋時，你必須在 <strong>騎術</strong> 技能和 <strong>武器</strong> 技能之間使用<strong>較低</strong>的那個技能。</li>
+          <li>若坐騎沒有裝備鞍座，你在坐騎上的所有檢定都有 <strong>劣勢</strong>。</li>
+          <li>敵人必須選擇要攻擊你或你的坐騎。若徒步的敵人對坐騎上的你進行近戰攻擊，他的檢定有 <strong>劣勢</strong>。</li>
+          <li>若敵人攻擊你的坐騎，你可以用動作進行 <strong>騎術</strong> 檢定來嘗試操控馬匹閃避攻擊。若你沒有動作或選擇不這麼做，馬匹會用自己的 <strong>閃避</strong> 技能進行閃避檢定。</li>
+        </ul>
+
+        <p><strong>傷害處理：</strong></p>
+        <ul>
+          <li>坐騎的 HP 處理方式跟 PC 一樣，但當坐騎的 HP 歸零時，牠不會進行死亡檢定，而是<strong>直接死亡</strong>。</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div id="sect-dmg" class="main-section combat-content-box">
+<p>冒險者的生活充滿困難和危險。冒險的獎勵也許很豐厚，但你一路上肯定會受到各式各樣的傷害。當你受到傷害時，你的 生命值（HP）就會減少。</p>
+    <div class="combat-sub-nav">
+      <button class="sub-tab-btn" data-target="dmg-armor">護甲</button>
+      <button class="sub-tab-btn" data-target="dmg-death">死亡與瀕死</button>
+      <button class="sub-tab-btn" data-target="dmg-severe">重傷表</button>
+      <button class="sub-tab-btn" data-target="dmg-conditions">狀態</button>
+    </div>
+
+    <div id="dmg-armor" class="combat-sub-content text-block">
+      <h2>護甲 Armor</h2>
+      <ul>
+        <li>穿戴護甲可以保護你的身體不受傷害。將你穿戴的護甲寫在角卡的護甲欄位，且不算進負重。</li>
+        <li>穿上或卸下護甲在戰鬥中需要一個動作。</li>
+        <li>你同時只能穿戴一套護甲。你同時只能穿戴一套護甲。</li>
+        <li>有些護甲會讓你的特定技能檢定獲得劣勢。</li>
+        <li><strong>護甲值（AR）：</strong>每當你受到物理攻擊的傷害時，將受到的傷害減去護甲值。若傷害完全被護甲抵消，則敵人的武器反而會受到自己的攻擊傷害，有可能會因此受損。</li>
+        <li><strong>頭盔：</strong>你可以同時穿戴一套護甲和一個頭盔，進一步提升你的護甲值。</li>
+      </ul>
+    </div>
+
+    <div id="dmg-death" class="combat-sub-content text-block">
+      <h2>死亡 Death</h2>
+      <ul>
+        <li>若你的 HP 歸零，你會跌倒伏地並陷入瀕死。你無法移動，也無法執行任何動作，除了<strong>鼓舞</strong>自己。</li>
+        <li><strong>死亡檢定：</strong>當你 HP 為 0 時，你在你每回合開始時必須進行一次<strong>體質</strong>檢定。你不能強推此檢定。在你的角卡上記錄檢定結果。
+          <ul>
+            <li>在第三次成功之後，你可以恢復 1D6 HP，且不用再進行死亡檢定。</li>
+            <li>在第三次失敗之後，你就會死亡。</li>
+            <li>大成功：視為兩次成功。</li>
+            <li>大失敗：視為兩次失敗。</li>
+            <li>受傷：若你在 HP 0 時受傷，自動視為一次失敗。</li>
+            <li>在戰鬥結束後，繼續追蹤戰鬥輪，直到處理完所有死亡檢定。若你成功活了下來，所有成功和失敗次數都會重置。</li>
+          </ul>
+        </li>
+        <li><strong>過量擊殺：</strong>HP 沒有負數，但如果單次攻擊造成的傷害 ≧ 你現有 HP + 最大 HP，你會當場死亡。光榮紀念這名殞落的冒險者，然後創一個新的吧！</li>
+        <li><strong>鼓舞：</strong>若有盟友在 10 米內，且你能聽見該盟友，他可以對你進行<strong> 遊說 </strong>檢定，嘗試鼓舞你在 HP 為零的情況下繼續戰鬥。這是一個動作。
+          <ul>
+            <li>若你被成功鼓舞，你可以繼續正常行動，但你在每回合開始時一樣要進行 <strong>死亡</strong> 檢定。</li>
+            <li>你也可以嘗試鼓舞自己，但不是進行 <strong>遊說</strong> 檢定，而是進行帶有一個 <strong>劣勢</strong> 的 <strong>意志</strong> 檢定。</li>
+          </ul>
+        <li><strong>急救：</strong>若你的 HP 為 0，相鄰於你的另一個人可以進行 <strong>醫療</strong> 檢定來嘗試對你急救。若沒有繃帶，此檢定有 <strong>劣勢</strong>。此檢定可以重複嘗試。
+          <ul>
+            <li>若檢定成功，你不用再進行死亡檢定，且恢復 1D6 HP。</li>
+            <li>即使你被成功鼓舞而可以正常行動，你也不能用此方式急救自己。</li>
+            <li>此急救方式只對 HP 為零的人有效。</li>
+          </ul>
+      </ul>
+    </div>
+
+    <div id="dmg-severe" class="combat-sub-content text-block">
+      <h2>重傷 Severe Injuries</h2>
+          <ul>
+            <li>若你 HP 歸零但沒有當場被殺死，你可能會受到很難痊癒甚至永久影響的重傷。進行一次 <strong>體質</strong> 檢定，若失敗，骰 1D20 看看你受到什麼重傷。</li>
+            <li>若你每天至少好好休息一班時間，且有人每天進行 <strong>醫療</strong> 檢定來照顧你，則重傷的「痊癒時間」會減半。</li>
+            <li>因永久性重傷而降低的技能等級可以透過正常方式重新提升回去</li>
+          </ul>
+      <table class="rules-table">
+        <thead>
+          <tr><th style="width:50px">D20</th><th>重傷</th><th>效果</th><th style="width:80px">痊癒</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1-3</td><td>鼻子骨折</td><td>所有<strong>察覺</strong>檢定獲得 1 個劣勢。</td><td>1D6 天</td></tr>
+          <tr><td>3-4</td><td>臉部留疤</td><td>所有<strong>表演</strong>和<strong>遊說</strong>檢定獲得 1 個劣勢。</td><td>2D6 天</td></tr>
+          <tr><td>5-6</td><td>牙齒斷裂</td><td><strong>表演</strong>和<strong>遊說</strong>技能數值永久 -2。</td><td>-</td></tr>
+          <tr><td>7-8</td><td>肋骨骨折</td><td>基於<strong>力量</strong>和<strong>敏捷</strong>的所有檢定獲得 1 個劣勢。</td><td>1D6 天</td></tr>
+          <tr><td>9~10</td><td>腦震盪</td><td>基於<strong>智力</strong>的所有檢定獲得 1 個劣勢。</td><td>1D6 天</td></tr>
+          <tr><td>11-12</td><td>深沉傷口</td><td>基於力量和敏捷的所有檢定獲得 1 個劣勢，且每當你進行這類檢定時會受到 1D6 傷害。</td><td>2D6 天</td></tr>
+          <tr><td>13</td><td>腿骨折</td><td>移動力減半。</td><td>3D6 天</td></tr>
+          <tr><td>14</td><td>手臂骨折</td><td>無法使用雙手武器，也無法雙持武器，且需要用到雙手的動作都獲得 1 個劣勢。</td><td>3D6 天</td></tr>
+          <tr><td>15</td><td>腳趾斷裂</td><td>移動力永久 -2（最低至 4）</td><td>-</td></tr>
+          <tr><td>16</td><td>手指斷裂</td><td>所有武器的技能數值永久 -1（最低至 3）</td><td>-</td></tr>
+          <tr><td>17</td><td>失去眼睛</td><td><strong>調查</strong>技能數值永久 -2（最低至 3）</td><td>-</td></tr>
+          <tr><td>18</td><td>惡夢</td><td>你每睡一班時間，就要進行一次抵抗恐懼的意志檢定。若失敗，你沒有睡飽那班時間。</td><td>2D6 天</td></tr>
+          <tr><td>19</td><td>人格變化</td><td>隨機產生一個新弱點。</td><td>-</td></tr>
+          <tr><td>20</td><td>失憶</td><td>你無法想起你自己和其他 PC 是誰。此效果必須扮演出來。</td><td>1D6 天</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div id="dmg-conditions" class="combat-sub-content text-block">
+      <h2>狀態 Conditions</h2>
+      <ul>
+        <li>在此遊戲中，你可能會承受六種不同的狀態。每個狀態都會讓你的特定屬性和基於該屬性的所有技能獲得劣勢。六個狀態如下：
+          <ul>
+            <li><strong>力竭</strong> - 力量</li>
+            <li><strong>虛弱</strong> - 體質</li>
+            <li><strong>暈眩</strong> - 敏捷</li>
+            <li><strong>憤怒</strong> - 智力</li>
+            <li><strong>畏縮</strong> - 意志</li>
+            <li><strong>沮喪</strong> - 魅力</li>
+          </ul>
+        </li>
+        <li><strong>承受狀態：</strong>承受狀態最常見的原因是「強推檢定」。在你強推檢定後，你必須選擇一個狀態，並描述你是如何承受該狀態的。你也可能會因為其他原因而承受狀態，例如怪物的攻擊或法術。</li>
+        <li><strong>複數狀態：</strong>若你即將承受的狀態是你已經擁有的狀態，則你必須選擇另一個狀態。若你在擁有全部六種狀態的情況下又即將承受狀態，你會改為失去 1D6 WP。若你沒有 WP 可以扣，則改為失去 1D6 HP。</li>
+        <li><strong>恢復狀態：</strong>你可以在短休後自選恢復一個狀態。長休可以恢復所有狀態。</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="sect-rest" class="main-section combat-content-box">
+    <div class="text-block" style="display:block;">
+      <h2>治療和休息</h2>
+      <p>失去的 HP 和 WP 可以透過休息來恢復。休息共有三種類型：喘息、短休、長休。當你在休息時，你無法執行任何需要檢定或 WP 的動作。</p>
+      <ul>
+        <li><strong>喘息：</strong>只持續一輪時間的快速調息。喘息只能讓你恢復 1D6 WP。你每一班時間只能進行<strong>一次</strong>喘息。</li>
+        <li><strong>短休：</strong>短休會持續一刻時間。</li>
+          <ul>
+             <li>短休能讓你恢復 1D6 HP。</li>
+             <li>若有其他人進行 <strong>醫療</strong> 檢定來照顧你，你可以額外恢復 1D6 HP。但照顧者無法獲得短休的好處，且一次只能照顧一個人。</li>
+             <li>短休也能讓你恢復 1D6 WP 和自選恢復一個狀態。</li>
+             <li>若有嚴重的事情干擾你的短休，則你無法獲得短休的好處。</li>
+             <li>你每一班時間只能進行<strong>一次</strong>短休。</li>
+      </ul>
+        <li><strong>長休：</strong>長休會持續一班時間，且只能在附近沒有敵人的安全地點進行。長休能讓你恢復所有失去的 HP 和 WP，並恢復所有狀態。若有嚴重的事情干擾你的長休，則你無法獲得長休的好處。</li>
+       <li><strong>魔法：</strong>治療類的法術可以讓你更快恢復 HP。</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="sect-hz" class="main-section combat-content-box">
+    <div class="combat-sub-nav">
+      <button class="sub-tab-btn" data-target="hz-fear">恐懼</button>
+      <button class="sub-tab-btn" data-target="hz-poison">毒素</button>
+      <button class="sub-tab-btn" data-target="hz-disease">疾病</button>
+      <button class="sub-tab-btn" data-target="hz-fall">墜落</button>
+      <button class="sub-tab-btn" data-target="hz-swim">游泳/溺水</button>
+      <button class="sub-tab-btn" data-target="hz-hunger">飢餓</button>
+      <button class="sub-tab-btn" data-target="hz-cord">寒冷</button>
+      <button class="sub-tab-btn" data-target="hz-sleep">睡眠不足</button>
+      <button class="sub-tab-btn" data-target="hz-heat">酷熱</button>
+    </div>
+
+    <div id="hz-fear" class="combat-sub-content text-block">
+      <h2>恐懼 Fear</h2>
+          <ul>
+             <li>在遺跡和森林中蟄伏著許多可怕的怪物，有些怪物可以進行所謂的<strong>「恐懼攻擊」</strong>。有些魔法或可怕的經歷也會觸發恐懼攻擊。</li>
+             <li>當你受到恐懼攻擊時，你必須馬上進行一次 <strong>意志</strong> 檢定。此檢定可以被強推，且不算是動作。有些特別可怕的恐懼攻擊會讓你的檢定獲得劣勢。</li>
+             <li>若 <strong>意志</strong> 檢定失敗，你必須骰「恐懼表」。</li>
+          </ul>
+      <table class="rules-table">
+        <thead><tr><th style="width:50px;">D8</th><th>恐懼效果</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><strong>腿軟：</strong>恐懼重挫了你的精神和決心。你失去 1D6 WP，並陷入<strong>「沮喪」</strong>。</td></tr>
+          <tr><td>2</td><td><strong>動搖：</strong>恐懼的壓力讓你陷入<strong>「畏縮」</strong>。</td></tr>
+          <tr><td>3</td><td><strong>氣喘：</strong>恐懼讓你上氣不接下氣，陷入<strong>「力竭」</strong>。</td></tr>
+          <tr><td>4</td><td><strong>蒼白：</strong>你的臉一片死白，膝蓋發軟，讓你陷入<strong>「暈眩」</strong>。</td></tr>
+          <tr><td>5</td><td><strong>尖叫：</strong>你放聲尖叫，腸胃劇烈絞痛，讓你陷入<strong>「虛弱」</strong>。</td></tr>
+          <tr><td>6</td><td><strong>發怒：</strong>恐懼讓你變得<strong>「憤怒」</strong>，你下回合必須<strong>攻擊恐懼來源</strong>（近戰優先）。</td></tr>
+          <tr><td>7</td><td><strong>癱瘓：</strong>恐懼使你的身體動彈不得。你下回合<strong>無法移動</strong>和<strong>採取任何動作</strong>。</td></tr>
+          <tr><td>8</td><td><strong>恐慌：</strong>你在一陣恐慌之下盡力逃離現場。你下回合必須<strong>疾走</strong>遠離恐懼來源。</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+<div id="hz-poison" class="combat-sub-content text-block">
+      <h2>毒素 Poison</h2>
+      <ul>
+        <li>毒素的強度分為三種「效力」：弱效、中效、強效。</li>
+        <li>每當你攝入毒素（受傷、吸入或吞嚥）時，根據效力進行 <strong>體質</strong> 檢定：弱效（一個優勢）、中效（無優劣勢）、強效（一個劣勢）。</li>
+        <li><strong>失敗：</strong>受到完整效果。 <strong>成功：</strong>受到有限效果。</li>
+        <li>毒素對怪物通常無效。</li>
+      </ul>
+
+      <hr style="border:0; border-top:1px dashed #666; margin:15px 0;">
+
+      <h3>☠️ 致命毒藥 (Lethal Poison)</h3>
+      <p><em>常見來源：黃金箭毒蛙、珊瑚蛇、烏頭草、致命生物毒液。</em></p>
+      <ul>
+        <li><strong>完整效果：</strong>你在你每回合開始時受到 <strong>1D6</strong> 毒素傷害，直到你 HP 歸零或喝下解毒劑。</li>
+        <li><strong>有限效果：</strong>你在下回合開始時受到 <strong>1D6</strong> 毒素傷害。</li>
+      </ul>
+
+      <h3>💤 催眠毒藥 (Sleeping Poison)</h3>
+      <p><em>常見來源：吹箭藤、某些夜行性蕈類。</em></p>
+      <ul>
+        <li><strong>完整效果：</strong>你陷入 <strong>暈眩</strong> 狀態，且必須在你每回合開始時進行一次體質檢定（不花費動作）。若檢定失敗，你會陷入 <strong>沉睡</strong> 且持續一班時間。喝下解毒劑或受到傷害能讓你醒來。</li>
+        <li><strong>有限效果：</strong>你陷入 <strong>暈眩</strong> 狀態。</li>
+      </ul>
+
+      <h3>⚡ 麻痺毒藥 (Paralyzing Poison)</h3>
+      <p><em>常見來源：庫拉里 (Kurari) 藤蔓、藍紋章魚。</em></p>
+      <ul>
+        <li><strong>完整效果：</strong>你陷入 <strong>力竭</strong> 狀態，且必須在你每回合開始時進行一次體質檢定（不花費動作）。若檢定失敗，你在該輪無法移動，也無法執行任何動作（包括自由動作）。效果持續一刻時間或直到解毒。</li>
+        <li><strong>有限效果：</strong>你陷入 <strong>力竭</strong> 狀態。</li>
+      </ul>
+
+      <h3>🌀 迷幻毒藥 (Hallucinogenic Poison) <span class="tag-badge house">馬茲提卡</span></h3>
+      <p><em>常見來源：神聖曼陀羅 (Toloache)、內茲卡裸蓋菇 (Nezca)。</em></p>
+      <ul>
+        <li><strong>完整效果：</strong>產生強烈幻覺。你陷入 <strong>狂亂</strong> 狀態，視界充滿幻覺。在戰鬥中，你每回合必須進行 <strong>意志</strong> 檢定，失敗則隨機攻擊一名附近的生物（不分敵我）。持續一刻時間。</li>
+        <li><strong>有限效果：</strong>視野模糊，<strong>遠程攻擊</strong> 與 <strong>察覺</strong> 劣勢。</li>
+      </ul>
+
+      <h3>🔥 劇痛毒藥 (Agony Poison) <span class="tag-badge house">馬茲提卡</span></h3>
+      <p><em>常見來源：子彈蟻、黑曜石胡蜂、蠍子、火辣椒 (Fire Peppers)。</em></p>
+      <ul>
+        <li><strong>完整效果：</strong>劇烈的疼痛讓你無法集中。你陷入 <strong>暈眩</strong> 狀態，且你要進行任何 動作 前要通過 <strong>意志</strong> 檢定，否則你會痛到無法行動。持續一刻時間。</li>
+        <li><strong>有限效果：</strong>你受到 <strong>1</strong> 點傷害（無視護甲）。</li>
+      </ul>
+      
+      <h3>🤮 噁心毒藥 (Nauseating Poison) <span class="tag-badge house">馬茲提卡</span></h3>
+      <p><em>常見來源：血鹽 (Blood Salt)、腐屍水。</em></p>
+      <ul>
+        <li><strong>完整效果：</strong>強烈的反胃感讓你無法出力。你陷入 <strong>虛弱</strong> 狀態，且在進行任何消耗動作的檢定時，會受到 <strong>1</strong> 點傷害。持續一班時間。</li>
+        <li><strong>有限效果：</strong>你陷入 <strong>虛弱</strong> 狀態。</li>
+      </ul>
+    </div>
+
+    <div id="hz-disease" class="combat-sub-content text-block">
+      <h2>疾病 Disease</h2>
+          <ul>
+        <li>疾病的強度分為三種「效力」：弱效、中效、強效。</li>
+        <li>當你暴露於危險的疾病時，根據疾病效力進行體質檢定：弱效（一個優勢）、中效（無優劣勢）、強效（一個劣勢）。</li>
+        <li>若你獲勝，你成功抵抗疾病，沒事發生。若疾病獲勝，你會在一天後生病，你會陷入虛弱狀態且失去 1D6 HP。當你生病時，你無法恢復 HP、WP 和狀態。</li>
+        <li>每天進行一次同樣的體質檢定，每次失敗都會再失去 1D6 HP。</li>
+        <li>若你在生病期間 HP 歸零，你會在一天後死亡。</li>
+        <li>一旦你體質檢定獲勝，你就會完全痊癒，可以正常恢復 HP、WP 和狀態。</li>
+        <li>醫護：在你生病期間，若有人用醫療檢定照顧你，照顧者可以代替你進行檢定：根據疾病效力進行醫療檢定。「藥草汁」可以讓此檢定獲得 1 個優勢。</li>
+      </ul>
+
+      <hr style="border:0; border-top:1px dashed #666; margin:20px 0;">
+      
+      <h3 style="color:#ff9f43;">馬茲提卡常見疫病</h3>
+<br>
+      <h3>🩸 血泣熱 (Cocoliztli) <span class="tag-badge house">馬茲提卡</span></h3>
+      <p><em>致死率極高的瘟疫。高燒、黑舌、口鼻出血。</em></p>
+      <ul>
+        <li><strong>效力：</strong>強效。</li>
+        <li><strong>特殊：</strong>發病極快 (1D6 小時)。每天傷害提升為 <strong>2D6 HP</strong>。屍體具高度傳染性。</li>
+      </ul>
+
+      <h3>🦴 斷骨熱 (Bone-Break Fever) <span class="tag-badge house">馬茲提卡</span></h3>
+      <p><em>透過蚊蟲傳播的登革熱。關節劇痛如斷裂。</em></p>
+      <ul>
+        <li><strong>效力：</strong>中效。</li>
+        <li><strong>特殊：</strong>生病期間移動力減半，且所有 <strong>敏捷</strong> 檢定具有劣勢。</li>
+      </ul>
+
+      <h3>🌿 叢林腐爛病 (Jungle Rot) <span class="tag-badge house">馬茲提卡</span></h3>
+      <p><em>傷口感染導致的壞疽，散發甜膩的腐臭味。</em></p>
+      <ul>
+        <li><strong>效力：</strong>弱效。</li>
+        <li><strong>特殊：</strong>每天 <strong>魅力</strong> -1（痊癒後才會恢復）。</li>
+      </ul>
+
+      <h3>💧 阿祖爾之怒 (Azul's Wrath) <span class="tag-badge house">馬茲提卡</span></h3>
+      <p><em>因飲用不潔水源導致的嚴重痢疾。</em></p>
+      <ul>
+        <li><strong>效力：</strong>中效。</li>
+        <li><strong>特殊：</strong>生病期間進食困難，進食後須通過體質檢定，否則會上吐下瀉，視為未進食而陷入 飢餓 狀態。</li>
+      </ul>
+
+     <h3>🍄 孢子咳 (Spore Cough) <span class="tag-badge house">馬茲提卡</span></h3>
+      <p><em>吸入了古老遺跡中的黴菌或叢林深處的黃色花粉。劇烈的咳嗽讓人無法隱藏與集中精神。</em></p>
+      <ul>
+        <li><strong>效力：</strong>弱效。</li>
+        <li><strong>特殊：</strong>生病期間，你所有的 <strong>隱匿 (Stealth)</strong> 檢定自動失敗（因為無法控制咳嗽）。此外，施法時必須通過 意志 檢定，否則因咳嗽打斷而施法失敗（但不消耗 WP）。</li>
+      </ul>
+
+      <h3>🪱 血吸蟲病 (Blood Worms) <span class="tag-badge house">馬茲提卡</span></h3>
+      <p><em>涉水經過沼澤時被微小的寄生蟲鑽入皮膚。它們會在血管中遊走，讓人感到皮下有東西在蠕動。</em></p>
+      <ul>
+        <li><strong>效力：</strong>中效。</li>
+        <li><strong>特殊：</strong>這是一種持續消耗性的疾病。你每天的 <strong>最大 HP 上限</strong> 減少 1（無法恢復）。若最大 HP 降至 0，則因器官衰竭死亡。痊癒後上限恢復。</li>
+      </ul>
+
+      <h3>🗿 黑曜石硬化症 (Obsidian Veins) <span class="tag-badge house">馬茲提卡</span></h3>
+      <p><em>接觸了受詛咒的祭壇或被魔法生物抓傷。患者的血管會變黑，皮膚逐漸硬化如石頭。</em></p>
+      <ul>
+        <li><strong>效力：</strong>強效。</li>
+        <li><strong>特殊：</strong>這是一種魔法疾病。每天你的 <strong>敏捷</strong> 屬性 -1，但你的 <strong>天生護甲</strong> +1。若敏捷歸零，你將永久變成一尊黑曜石雕像（視為死亡）。</li>
+      </ul>
+
+      <h3>🐆 豹斑熱 (Jaguar Fever) <span class="tag-badge house">馬茲提卡</span></h3>
+      <p><em>一種由吸血蝙蝠傳播的病毒。患者皮膚會出現如同美洲豹花紋般的紫紅色斑點，伴隨極度高燒與幻覺。</em></p>
+      <ul>
+        <li><strong>效力：</strong>中效。</li>
+        <li><strong>特殊：</strong>高燒讓你的感官錯亂。所有 <strong>智力</strong>檢定獲得一個劣勢。在戰鬥時，每一輪你必須通過 意志 檢定，否則會分不清敵我而攻擊最近的生物。</li>
+      </ul>
+    </div>
+
+    <div id="hz-fall" class="combat-sub-content text-block">
+      <h2>墜落 Falling</h2>
+      <ul>
+        <li>墜落在堅硬的表面上會讓你受到墜落傷害。墜落傷害 = 墜落高度（米）一半數量的 D6 骰，向下取整，傷害類型為 <strong>鈍擊</strong> 。</li>
+        <li>墜落高度小於 2 米不會造成墜落傷害。</li>
+        <li>墜落者可以進行 <strong>體操</strong> 檢定嘗試讓墜落傷害的 D6 數量減少一半（向上取整）。</li>
+        <li>護甲無法抵抗墜落傷害。</li>
+      </ul>
+    </div>
+
+    <div id="hz-swim" class="combat-sub-content text-block">
+      <h2>游泳 & 溺水 Swimming & Drowning</h2>
+      <ul>
+        <li>所有冒險者都會游泳。但你在水中的移動力是正常的一半。</li>
+        <li>你在水中的所有<strong> 攻擊 </strong>檢定都有 <strong>劣勢</strong> 。</li>
+        <li>更困難的水中運動需要進行 <strong>游泳</strong> 檢定。若你穿戴 <strong>金屬護甲</strong> ，檢定有 <strong>劣勢</strong> 。</li>
+        <li>你待在水中每經過一刻時間，就必須進行一次 <strong>游泳</strong> 檢定來保持漂浮（不花費動作）。若你穿戴 <strong>金屬護甲</strong> ，則是每輪進行一次游泳檢定。</li>
+        <li>若你待在水底，則必須每輪進行一次 <strong>體質</strong> 檢定來維持閉氣（不花費動作）。</li>
+     <ul>
+        <li>若檢定失敗，你會開始 <strong>溺水</strong> ，你在每回合開始時會受到 <strong>1D6</strong> 傷害，直到有人救你為止。</li>
+        <li>若你在溺水時 HP 歸零，你會正常進行 <strong>死亡</strong> 檢定，但只會記錄 <strong>失敗</strong> 的次數。</li>
+      </ul>
+      </ul>
+    </div>
+
+    <div id="hz-hunger" class="combat-sub-content text-block">
+      <h2>飢餓 Hunger</h2>
+      <ul>
+        <li>你每天必須至少吃一份食物。若你一整天沒有進食，你會陷入飢餓，你無法恢復 HP、WP 和狀態（除非使用魔法治療）。</li>
+        <li>若你繼續沒吃東西，每天就會再失去 1 HP。</li>
+        <li>若你在飢餓時 HP 歸零，你會在一天後活活餓死。</li>
+        <li>一旦你吃下至少一份食物，你就不再飢餓，可以正常恢復 HP、WP 和狀態。</li>
+        <li>只要擁有食物，你就視為同時擁有充足的水分，不用額外紀錄攜帶的水。</li>
+      </ul>
+    </div>
+
+    <div id="hz-cord" class="combat-sub-content text-block">
+      <h2>寒冷 Cord</h2>
+      <ul>
+        <li>當天氣非常寒冷，而你無法保持暖和時，你必須經常進行求生檢定。這通常需要每班時間進行一次，但在極度寒冷的情況下，可以需要每段時間甚至每輪進行一次。</li>
+        <li>若你沒有毛毯，你的檢定有劣勢。若你穿著毛皮大衣，你的檢定有優勢。</li>
+        <li>若檢定失敗，你失去 1D6 HP 和 1D6 WP，且無法恢復 HP、WP 和狀態（除非使用魔法治療）。</li>
+        <li>你必須繼續進行求生檢定來抵禦寒冷，失敗會繼續損失 HP 和 WP。</li>
+        <li>若你在寒冷時 HP 歸零，你會在下一次需要擲骰的時後死亡。</li>
+        <li>只有當你變得暖和時（例如待在營火邊），你才會脫離寒冷的威脅，可以正常恢復 HP、WP 和狀態。</li>
+      </ul>
+    </div>
+
+    <div id="hz-sleep" class="combat-sub-content text-block">
+      <h2>睡眠不足 Sleep Deprivation</h2>
+      <ul>
+        <li>你每天至少需要睡眠一班時間且不被打擾。</li>
+        <li>你不能穿著護甲入睡。</li>
+        <li>若你一整天都沒有睡眠，你會陷入睡眠不足，你無法恢復 WP 和狀態，但你可以正常恢復 HP。</li>
+        <li>只要你繼續沒有睡眠，你每班時間會失去 1D6 WP。</li>
+        <li>若你在睡眠不足時 WP 歸零，你會癱倒並沉睡至少一班時間，且無法被喚醒。</li>
+        <li>一旦你睡上至少一班時間，你就不再睡眠不足，可以正常恢復 WP 和狀態。</li>
+      </ul>
+    </div>
+
+<div id="hz-heat" class="combat-sub-content text-block">
+      <h2>酷熱 Scorching Heat <span class="tag-badge house">馬茲提卡</span></h2>
+      <ul>
+        <li>當你在烈日下行軍、穿越沙漠或處於極度高溫的環境時，你必須經常進行<strong>體質</strong>檢定。這通常需要每班時間進行一次。</li>
+        <li>若你穿著<strong>不透氣的衣服</strong>或<strong>重型</strong>護甲（特別是金屬盔甲），你的檢定具有 <strong>劣勢</strong>。若你擁有充足的飲水並定時補充水分，你的檢定有 <strong>優勢</strong>。</li>
+        <li>若檢定失敗，你失去 <strong>1D6 HP</strong> 和 <strong>1D6 WP</strong>，且無法恢復 HP、WP 和狀態（除非使用魔法治療）。</li>
+        <li>你必須繼續進行 體質 檢定來抵禦酷熱，失敗會繼續損失 HP 和 WP。</li>
+        <li>若你在酷熱時 HP 歸零，你會因嚴重脫水與熱衰竭，在下一次需要擲骰的時候死亡。</li>
+        <li>只有當你找到陰涼處休息並補充水分時，你才會脫離酷熱的威脅，可以正常恢復 HP、WP 和狀態。</li>
+      </ul>
+    </div>
+
+  </div>
+
+</div>
+</body>
+</html>

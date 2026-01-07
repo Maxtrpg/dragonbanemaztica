@@ -1,0 +1,448 @@
+<style>
+/* === 族裔頁面專屬 CSS === */
+.race-section { display: none; animation: fadeIn 0.4s ease; }
+.race-section.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.ability-title { color: var(--gold); font-weight: bold; }
+</style>
+
+<header>
+  <h1>族裔介紹</h1>
+  <div class="ornament-divider"></div>
+  <p class="intro-text">
+    <span class="ability-title">族裔能力：</span>每個族裔都至少擁有一個獨特的族裔能力。<br>
+    <span class="ability-title">語言：</span>所有 PC 都會說通用語。<br>
+    <span class="ability-title">體型：</span>中型生物佔據 2×2 米區域。
+  </p>
+</header>
+
+<nav class="page-index">
+  <span class="index-label">族裔資料庫 KIN DATABASE</span>
+  <div class="index-links">
+    <button class="index-btn active-tab" data-target="human">人類</button>
+    <button class="index-btn" data-target="halfling">半身人</button>
+    <button class="index-btn" data-target="elf">精靈</button>
+    <button class="index-btn" data-target="dwarf">矮人</button>
+    <button class="index-btn" data-target="quetzaldaun">鷹人</button>
+    <button class="index-btn" data-target="lizard">蜥蜴人</button>
+    <button class="index-btn" data-target="tabaxi">豹人</button>
+    <button class="index-btn" data-target="frog">蛙人</button>
+  </div>
+</nav>
+
+<main>
+  <section id="human" class="race-section active">
+    <h2>人類 (Humans)</h2>
+    
+    <div class="race-header">
+      <img src="images/race/Humans.webp" class="content-img" alt="Humans">
+      <div class="race-intro-text">
+        <p>在馬茲提卡大陸上，人類是最廣泛分布的族裔，佔了總人口的六至七成。他們的特徵並非強壯的身軀或長壽的血統，而是無與倫比的適應力與堅韌。在荒蕪的高原、潮濕的沼澤、叢林深處或沿海城邦，都能找到人類的身影。他們能與野蠻的野獸搏鬥，也能在嚴苛的環境下建立農田與城邦，靠智慧與團結延續文明。</p>
+        <p>眾多部落和城邦對於人類的起源各有說法，但最廣為流傳的神話源於偉大的太陽神庫庫爾。傳說中，諸神嘗試以泥土、木頭和黃金塑造生命，卻無一能滿足祂們的期望。唯有庫庫爾願以犧牲為代價，揮舞馬夸維爾特割下自己的手指，墜落於大地後化為會行走、能言語的人類。人類因此背負著崇敬與獻祭的使命，被視為最能與神祇相連的族群。</p>
+        <p>然而，人類並非單一面貌。北方的狗民、叢林裡的綠民、科技城邦帕伊特和戰士國度庫塔卡等，不同地方的人種展現出不同的膚色、服飾與文化。對冒險者而言，人類既可能是最可靠的同伴，也可能是最危險的敵人。</p>
+      </div>
+    </div>
+    
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th style="width: 180px;">能力/屬性</th><th>詳細規則</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>基礎移動力</strong></td>
+            <td>10</td>
+          </tr>
+          <tr>
+            <td><strong>通權達變</strong><br><span class="wp">Adaptive</span></td>
+            <td>
+              <span class="wp">WP: 3</span><br>
+              當你進行技能檢定時，你可以選擇使用其他技能進行檢定。你必須合理地描述你是如何使用另一項技能。
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>亞種 <span class="maz-badge">馬茲提卡</span> </h3>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th style="width: 140px;">亞種名稱</th><th style="width: 120px;">屬性加成</th><th>詳細描述與文化</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>馬茲提卡人</strong></td>
+            <td><span class="wp">意志 +1</span></td>
+            <td>典型的馬茲提卡男人或女人有著濃鬱的棕色膚色和烏黑細密的頭髮。<br>最初，這些人來自北部荒野，但被他們的黑暗之神扎爾特克帶到了內克薩爾山谷。從那時起，他們的語言（馬茲提卡語，曾被稱為內克薩爾語）、文化和觀點遍布整個大陸。馬茲提卡語成為通用語言。</td>
+          </tr>
+          <tr>
+            <td><strong>帕伊特人</strong></td>
+            <td><span class="wp">智力 +1</span></td>
+            <td>帕伊特人的膚色和髮色與馬茲提卡人相似，但身體普遍較柔軟。眼睛顏色與膚色相較其他人種為淺。<br>帕伊特人往往身材矮小、肌肉發達，並且擁有深厚的學識、藝術和天文學傳統。他們主要佔領了馬茲提卡東部的帕伊特和遠帕伊特的叢林。</td>
+          </tr>
+          <tr>
+            <td><strong>庫塔卡人</strong></td>
+            <td><span class="wp">力量 +1</span></td>
+            <td>庫塔卡人在外表上與馬茲提克人有許多相似之處，但通常更高、肌肉更發達。他們從出生起就被培養成戰士，世世代代最弱的人都被留在荒野中死去（甚至不適合獻祭）。</td>
+          </tr>
+          <tr>
+            <td><strong>伊察人</strong></td>
+            <td><span class="wp">魅力 +1</span></td>
+            <td>伊察人是一群熱愛玩樂、性格溫和的民族，他們主要生活在遠帕伊特的叢林中。他們又矮又瘦，通常自給自足且謙虛。在叢林中的小村莊之外，伊察人仍然少見。</td>
+          </tr>
+          <tr>
+            <td><strong>狗民</strong></td>
+            <td><span class="wp">體質 +1</span></td>
+            <td>狗民是北方荒野、荒地和沙漠中的野蠻人。他們的頭髮長，身材瘦削，皮膚可以說是銅色而不是棕色。狗民被馬茲提卡人迫害了幾個世紀，他們很少提供任何善意作為回報。<br>狗民對他們共享共同土地的矮人抱持著好奇的迷信，儘管他們不是盟友，但他們傾向於不干涉矮人。然而，衝突和誤解確實會發生。<br>狗民信仰當地的動物和祖先的靈魂。他們不理解神的概念。狗民說自己的語言，偶爾也說瓦克里語。</td>
+          </tr>
+          <tr>
+            <td><strong>綠民</strong></td>
+            <td><span class="wp">敏捷 +1</span></td>
+            <td>綠民生活在馬茲提卡最南方的叢林中，儘管他們的一些身體特徵可以在科蘭的城市找到。他們是叢林中的高個子民族，通常以樸實的色調和油漆裝飾。他們的膚色是棕色的，但不像北方鄰居那麼黑。綠民在進入圖坎這樣的城市的極少數情況下很容易被認出。<br>他們極力保護自己的隱私，是部落社會的熟練弓箭手。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="halfling" class="race-section">
+    <h2>半身人 (Halflings)</h2>
+    
+    <div class="race-header">
+      <img src="images/race/Halfling.webp" class="content-img" alt="Halflings">
+      <div class="race-intro-text">
+        <p>半身人是一支既神秘又難以忽視的族群。傳說他們源於不朽紀元的女神基爾茲，是祂在大地與叢林間留下的孩子。他們個頭嬌小，卻極為靈活，與茂密的叢林環境融為一體，天生擅長隱蔽與迴避，使他們能在巨獸橫行的荒野中安然生存。</p>
+        <p>許多半身人生活於叢林深處的部落中，依舊遵循著古老的習俗。他們精於使用植物與毒藥，最著名的是「庫拉里」，這種能迅速麻痺獵物的毒素常被塗抹在戰弓與吹箭的箭刃上。憑藉這些技巧，他們能夠在以弱勝強的狩獵與戰鬥中立於不敗。這些部落對外來者多抱持戒心，甚至敵意，將叢林視為他們的神聖領土。</p>
+        <p>然而，仍有不少半身人選擇與人類社會融合，在村鎮或城邦中建立新的生活。他們常被視為靈巧的獵人、可靠的嚮導，或是熟稔草藥與工藝的匠人。無論身處叢林或城邦，半身人以樂觀與堅韌聞名，他們在看似脆弱的外表下，蘊藏著無可忽視的力量與智慧。</p>
+      </div>
+    </div>
+    
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th style="width: 180px;">能力/屬性</th><th>詳細規則</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>基礎移動力</strong></td>
+            <td>8</td>
+          </tr>
+          <tr>
+            <td><strong>動如脫兔</strong><br><span class="wp">Hard to Catch</span></td>
+            <td>
+              <span class="wp">WP: 3</span><br>
+              當你閃避攻擊時，你可以發動此能力，讓你的閃避檢定獲得 1 個優勢。
+            </td>
+          </tr>
+          <tr>
+            <td> <span class="maz-badge">馬茲提卡</span><br><strong>毒藥技術：庫拉里</strong><br><span class="wp">Kurari Making</span></td>
+            <td>
+              <span class="wp">WP: 不定</span><br>
+              你懂得怎麼製作麻痺毒藥－庫拉里的方法。你獲得並受訓次要技能<strong>【庫拉里】(智力)</strong>，可花一班時間製作 1-3 劑庫拉里毒藥(每劑 1 重量)：<br>
+              • <span class="wp">2 WP</span>：可製作 1 劑弱效麻痺毒藥。<br>
+              • <span class="wp">4 WP</span>：可製作 1 劑中效麻痺毒藥。<br>
+              • <span class="wp">6 WP</span>：可製作 1 劑強效麻痺毒藥。<br>
+              此外，在戰鬥中，你可用一個 <strong>自由動作</strong> 將毒藥抹在武器上，取代使用動作。
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="elf" class="race-section">
+    <h2>精靈 (Elves)</h2>
+    
+    <div class="race-header">
+      <img src="images/race/Elf.webp" class="content-img" alt="Elves">
+      <div class="race-intro-text">
+        <p>在馬茲提卡的傳說與神話中，精靈是一支古老而神秘的族裔。他們擁有修長的耳朵與異於常人的膚色：有些如泥土般溫潤，有些粗糙似樹皮，還有些閃耀著金屬光澤。這些特徵使許多人推測，精靈或許是諸神在創造人類前的「試驗之作」，那些不完整卻帶有神性印記的存在。</p>
+        <p>精靈自稱已在大陸上隱居數千年，居住於人跡罕至的深林、山谷與荒原之中。他們的社群往往難以被外界發現，卻在自然環境中留下了獨特的印記：藤蔓纏繞的石殿、月光下閃耀的祭壇、以及傳唱古老語言的歌聲。直到近代，隨著諸神傳聞再度歸來，他們才逐漸與其他種族接觸，帶著一種既疏離又令人難以抗拒的優雅。</p>
+        <p>在一般人眼中，精靈既可能是知識與古老智慧的傳遞者，也可能是隱藏目的的觀察者。他們冷靜而優雅，行事深思熟慮，與自然世界有著難以言喻的聯繫。究竟精靈的真正使命是守護大陸，還是為某個古老的契約服務，沒有人能確定。</p>
+      </div>
+    </div>
+    
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th style="width: 180px;">能力/屬性</th><th>詳細規則</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>基礎移動力</strong></td>
+            <td>10</td>
+          </tr>
+          <tr>
+            <td><strong>心如止水</strong><br><span class="wp">Inner Peace</span></td>
+            <td>
+              <span class="wp">WP: -</span><br>
+              你可以在短休時進行深度冥想。你可以額外回復 1D6 HP 和 1D6 WP，並恢復一個狀態。<br>你在冥想期間完全無法回應周遭世界，甚至無法被喚醒。
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>亞種 <span class="maz-badge">馬茲提卡</span> </h3>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th style="width: 120px;">亞種</th><th>皮膚特性 (被動能力)</th><th>副作用</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>土精靈</strong><br>(Mudskin)</td>
+            <td>土精靈膚色和大地的顏色相近，個性溫和沉穩，身體相當柔軟，有一定的可塑性。<br>
+            <strong>能力：</strong>當你受到<strong>鈍擊</strong>傷害且未穿護甲(頭盔除外)時，視為有 2 點護甲。</td>
+            <td>受到<strong>霜凍</strong>傷害時，額外損失 1d3 WP。</td>
+          </tr>
+          <tr>
+            <td><strong>木精靈</strong><br>(Barkskin)</td>
+            <td>木精靈擁有和樹皮一樣的膚質，個性較為木訥老實。<br>
+            <strong>能力：</strong>當你受到<strong>穿刺</strong>傷害且未穿護甲(頭盔除外)時，視為有 2 點護甲。</td>
+            <td>受到<strong>火焰</strong>傷害時，額外損失 1d3 WP。</td>
+          </tr>
+          <tr>
+            <td><strong>金精靈</strong><br>(Metalskin)</td>
+            <td>金精靈膚色呈現金黃色且泛有金屬光澤，個性較自負且勇敢。<br>
+            <strong>能力：</strong>當你受到<strong>穿刺</strong>傷害且未穿護甲(頭盔除外)時，視為有 2 點護甲。</td>
+            <td>受到<strong>火焰</strong>傷害時，額外損失 1d3 WP。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="dwarf" class="race-section">
+    <h2>矮人 (Dwarves)</h2>
+    
+    <div class="race-header">
+      <img src="images/race/Dwarf.webp" class="content-img" alt="Dwarves">
+      <div class="race-intro-text">
+        <p>在馬茲提卡，矮人並沒有建立龐大的王國，但他們的足跡遍布大陸最嚴酷的沙漠地帶。最初，他們出現在伊茲卡拉沙漠的邊陲，憑藉堅毅與適應力迅速融入炙熱荒原的生活，並逐漸散布至所有沙漠地區。如今，人口最集中的地方是泰茲卡之家，當地的矮人社群以「酋長」為領袖，而在荒蕪的峭壁群落中，他們的領袖則被尊稱為「峭壁看守者」。</p>
+        <p>矮人社群規模不大，往往僅有數十至數百人，隱居於洞穴、峭壁或地下廳堂中。他們以石工與冶煉聞名，能從貧瘠的荒原中提煉出珍貴的礦石與金屬，並打造堅固的武器與防具。這些技藝使他們在戰爭或貿易中都佔有一席之地。</p>
+        <p>然而，沙漠矮人性格謹慎而冷漠。他們在遇到外來者前，往往會暗中觀察許久，以判斷對方是否值得信任。與狗民的衝突最為常見，雙方彼此敵視，卻也懂得保持距離，避免引發全面戰爭。矮人偶爾也會與地下的蝎人相爭，但更多時候，他們選擇守護自己的峭壁與部族，遠離塵囂。</p>
+      </div>
+    </div>
+    
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th style="width: 180px;">能力/屬性</th><th>詳細規則</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>基礎移動力</strong></td>
+            <td>8</td>
+          </tr>
+          <tr>
+            <td><strong>刻骨銘心</strong><br><span class="wp">Unforgiving</span></td>
+            <td>
+              <span class="wp">WP: 3</span><br>
+              當你攻擊曾經傷害過你（至少 1 點傷害）的人時，你可以發動此能力，讓該次攻擊檢定獲得 1 個優勢。那個人是什麼時候傷害過你一點都不重要，所以你最好將所有傷害過你的人都記下來，以免忘記。
+            </td>
+          </tr>
+          <tr>
+            <td> <span class="maz-badge">馬茲提卡</span><br><strong>沙漠耐性</strong><br><span class="wp">Desert Stamina</span></td>
+            <td>
+              <span class="wp">WP: 2</span><br>
+              當你因為一整天沒有進食將獲得 <strong>飢餓</strong> 狀態，或一整天沒有睡眠將獲得 <strong>睡眠不足</strong> 時。你可以進行 <strong>體質</strong> 檢定，成功可避免獲得該狀態。每多一天未進食或睡眠，該檢定便多一個 <strong>劣勢</strong> 。
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="quetzaldaun" class="race-section">
+    <h2>鷹人 (Quetzaldaun) <span class="maz-badge">馬茲提卡</span> </h2>
+    
+    <div class="race-header">
+      <img src="images/race/Quetzaldaun.webp" class="content-img" alt="Quetzaldaun">
+      <div class="race-intro-text">
+        <p>在馬茲提卡的險峻高山與絕壁之巔，棲息著一支古老而罕為人知的族裔——鷹人，當地人稱為「奎查達恩（Quetzaldaun）」。他們擁有覆滿羽毛的身軀、鋒銳的爪與能張展的雙翼，看似與傳說中的阿拉科克拉相似，但卻自稱是更為尊貴的後裔。據說在遠古時代，太陽與風暴之神夸爾特曾降下恩賜，使他們由脆弱的鳥類化為今日強健而威嚴的姿態。</p>
+        <p>鷹人一向隱居避世，聚落多在高處岩壁與天險間建立巢居，傳承以風、天空與太陽為核心的文化。他們的歌聲被視為向神祇獻祭的祈禱，羽毛裝飾則象徵榮耀與地位。然而，近年大陸的動盪與戰亂迫使許多鷹人失去了棲所，不得不離開家鄉的懸崖，與其他族裔接觸。</p>
+        <p>雖然高傲且警惕，鷹人逐漸理解人類能成為守護其文化與信仰的盟友。對其他族裔而言，鷹人或許是神秘的同伴，他們能在天空中偵察敵情，或以俯衝之勢在戰場上展現凌厲的威勢。但若未獲得他們的信任，鷹人將依舊如高空的烈陽般，遙不可及。</p>
+      </div>
+    </div>
+    
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th style="width: 180px;">能力/屬性</th><th>詳細規則</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>基礎移動力</strong></td>
+            <td>12</td>
+          </tr>
+          <tr>
+            <td><strong>銳眼</strong><br><span class="wp">Sharp-eyed</span></td>
+            <td>
+              <span class="wp">WP: -</span><br>
+              鷹人可以看到最遠 200 米外的人或物體，就像在眼前一樣清楚。且對超出武器有效射程的目標進行攻擊不會獲得 1 個劣勢。
+            </td>
+          </tr>
+          <tr>
+            <td><strong>飛翼</strong><br><span class="wp">Wings</span></td>
+            <td>
+              <span class="wp">WP: 2</span><br>
+              翅膀可以讓鷹人用移動力在空中自由飛翔。在戰鬥時，你必須控制雙翅來穩定地進行戰鬥，每輪需消耗 2 WP 才能維持飛行。非戰鬥時，每一刻飛行時間消耗 1 WP。
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="lizard" class="race-section">
+    <h2>蜥蜴人 (Lizard People) <span class="maz-badge">馬茲提卡</span> </h2>
+    
+    <div class="race-header">
+      <img src="images/race/LizardPeople.webp" class="content-img" alt="Lizard People">
+      <div class="race-intro-text">
+        <p>在馬茲提卡的沼澤與水域地帶，是蜥蜴人的地盤。關於蜥蜴人的起源沒人知曉，但蜥蜴人普遍信奉著火巨人泰茲卡，並堅信他們是受到了火巨人的祝福而獲得強大的力量。儘管有學者懷疑和噬心者札爾特克的獸術有關，但蜥蜴人堅決否認這種說法。</p>
+        <p>沼澤嚴苛的環境塑造了蜥蜴人冷酷而堅毅的性格。他們是天生的掠食者，擅長以耐心與潛伏等待獵物，屏息潛水的天賦更讓他們在水下出沒如影。他們通常避開容易受潮損壞的皮革與金屬，轉而選擇骨牙、石片、甚至火山玻璃打造武器與護具，這些裝備雖粗獷卻極為實用。蜥蜴人以部落為單位活動，能在危險的沼澤裡自給自足，鮮少依賴外界。</p>
+        <p>然而，大約一世紀前，許多蜥蜴人薩滿同時夢見了神祇的徵兆，聲稱水面之外的土地將與他們的命運交織。自此，部分蜥蜴人開始走出濕地，與人類城邦進行貿易與交流。對其他族裔而言，蜥蜴人既可能是冷酷的沼澤獵手，也可能是堅定的盟友——端看你是否贏得他們的尊重。</p>
+      </div>
+    </div>
+    
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th style="width: 180px;">能力/屬性</th><th>詳細規則</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>基礎移動力</strong></td>
+            <td>10</td>
+          </tr>
+          <tr>
+            <td><strong>屏氣</strong><br><span class="wp">Hold Breath</span></td>
+            <td>
+              <span class="wp">WP: 1</span><br>
+              當你在水底時，你可以消耗 1 點 WP 來自動通過閉氣的 <strong>體質</strong> 檢定。此外，你也可以發動此能力來合理地避開某些危險情況 (由GM判斷)。
+            </td>
+          </tr>
+          <tr>
+            <td><strong>肉食者</strong><br><span class="wp">Meat Eater</span></td>
+            <td>
+              <span class="wp">WP: 3</span><br>
+              蜥蜴人每餐都要吃肉，如果一整天沒有吃肉，蜥蜴人會陷入 <strong>憤怒</strong> 狀態，此情況造成的憤怒狀態只能靠吃肉來消除(短休和長休無法消除)。<br>
+              此外，你可以對有血肉的生物進行特殊的 <strong>徒手</strong> 攻擊。發動此能力並花費 3 WP，攻擊命中時造成揮砍傷害並撕扯下血肉吃掉，恢復你造成傷害一半的 HP。
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="tabaxi" class="race-section">
+    <h2>豹人 (Panther People) <span class="maz-badge">馬茲提卡</span> </h2>
+    
+    <div class="race-header">
+      <img src="images/race/PantherPeople.webp" class="content-img" alt="Tabaxi">
+      <div class="race-intro-text">
+        <p>在馬茲提卡幽深的叢林裡，豹人是最令人畏懼也最神秘的族裔之一。他們長久以來守護著高聳的樹冠領地，過著以狩獵為榮的生活。豹人身形敏捷、肌肉結實，眼神如同叢林中最銳利的掠食者，行動無聲卻致命。對他們而言，狩獵不僅是生存，更是一門藝術與信仰。</p>
+        <p>在過去的世代，豹人薩滿以智慧勸告族人遠離其他文明，保持獨立與純粹的生活方式。然而，當人類逐漸探索並侵入叢林時，這份古老的規訓開始動搖。部分豹人對人類的信仰與城邦文化心生憎惡，另一些則選擇改變，放棄野性而追求「文明」，甚至與外族進行交易與合作。他們以卓越的獵術和珍稀毛皮進行交換，偶爾成為外族的盟友。</p>
+        <p>對其他族裔而言，與豹人的相遇可能意味著交易、試煉，或是一場生死搏殺。</p>
+      </div>
+    </div>
+    
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th style="width: 180px;">能力/屬性</th><th>詳細規則</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>基礎移動力</strong></td>
+            <td>12</td>
+          </tr>
+          <tr>
+            <td><strong>叢林伏擊</strong><br><span class="wp">Jungle Ambush</span></td>
+            <td>
+              <span class="wp">WP: 2</span><br>
+              當你處在茂密的樹林中時，你可以發動此能力在 <strong>隱匿</strong> 檢定中獲得一個 <strong>優勢</strong>。
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>亞種 <span class="maz-badge">馬茲提卡</span> </h3>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th style="width: 120px;">亞種</th><th>專屬能力</th><th>詳細描述與性格</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>狩豹人</strong></td>
+            <td>
+              <strong>【狩獵本能 Hunting Instincts】</strong><br>(<span class="wp">WP: 3</span>)<br>
+              你可以發動此能力來鎖定一個處於你視線範圍內，或你可以聞到氣味的生物，作為你的獵物（在戰鬥中需要一個動作）。你可以追蹤獵物的氣味一整天，且當你攻擊獵物時，你可以消耗 1 WP 讓該次攻擊獲得 1 個 <strong>優勢</strong>。
+            </td>
+            <td>
+              兇猛、野性的亞種。他們生於殘酷的環境，習慣於「不是獵人就是獵物」的法則。狩豹人社群通常由睿智的老薩滿引導，但若落入殘暴的狩豹領主之手，他們的部落則會變得嗜血無情。<br>
+              狩豹人是天生的完美獵手。他們善於合作，也樂於單獨出擊。對狩豹人而言，退縮是最恥辱的行為——哪怕形勢不利，他們也寧可正面迎擊。
+            </td>
+          </tr>
+          <tr>
+            <td><strong>豹貓人</strong></td>
+            <td>
+              <strong>【迅捷攀爬 Quick Climber】</strong><br>(<span class="wp">WP: 2</span>)<br>
+              你在進行攀爬相關活動時，你可以發動此能力在 <strong>體操</strong> 檢定獲得一個 <strong>優勢</strong>。
+            </td>
+            <td>
+              豹人族群中的一個獨特分支，他們的體型相較狩豹人更為嬌小，性格也顯得溫和許多。這使得他們在外族眼中不像戰士般充滿威懾，而更像靈巧而神秘的叢林精靈。<br>
+              豹貓人深愛他們的叢林家園，將濃密的樹冠、靜謐的溪流與盤根錯節的藤蔓視為庇護之所。他們不認為有任何理由要離開叢林，因為在他們的觀念裡，外面的世界充滿著危險與動盪。
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="frog" class="race-section">
+    <h2>蛙人 (Frog People) <span class="maz-badge">馬茲提卡</span> </h2>
+    
+    <div class="race-header">
+      <img src="images/race/FrogPeople.webp" class="content-img" alt="Frog People">
+      <div class="race-intro-text">
+        <p>在馬茲提卡的水域地帶，除了居住著蜥蜴人之外，還有一群神秘的蛙人。關於蛙人的起源眾說紛紜，但學者們普遍認為是薩滿儀式出錯的意外結果。</p>
+        <p>天性善良的蛙人是蜥蜴人食物之一，兩族之間時常有碰撞與衝突。因此許多蛙人部落為求庇護選擇和人類合作，現在在許多城市裡也能見到蛙人的蹤跡。但在蜥蜴人選擇出來和文明社會交流之後，現在兩族的衝突明顯減少，能較和平的共處。</p>
+        <p>蛙人對於寶石有著強烈的愛好，這點在商業生意上得到更好的發揮。他們總是能夠找到珍貴華美的寶石，許多貴族往往願意出高價向其購買。憑藉天生的優勢，有貿易的地方蛙人總能佔有一席之地。</p>
+      </div>
+    </div>
+    
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th style="width: 180px;">能力/屬性</th><th>詳細規則</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>基礎移動力</strong></td>
+            <td>10</td>
+          </tr>
+          <tr>
+            <td><strong>猛力彈跳</strong><br><span class="wp">Leaping</span></td>
+            <td>
+              <span class="wp">WP: 3</span><br>
+              蛙人可以發動此能力來水平跳躍等於移動力的距離，或是垂直跳躍等於移動力一半的距離（都不需要進行體操檢定）。若蛙人在跳躍後進行一次 <strong>近戰</strong> 攻擊，該次攻擊會獲得 1 個 <strong>優勢</strong> 。
+            </td>
+          </tr>
+          <tr>
+            <td><strong>休聲美譽</strong><br><span class="wp">Renowned Reputation</span></td>
+            <td>
+              <span class="wp">WP: 2</span><br>
+              由於蛙人在外的良好名聲，在合理的情況下(由GM判定)，你可以在一次 <strong>交易</strong>、<strong>欺瞞</strong>、<strong>遊說</strong> 或 <strong>表演</strong> 檢定中獲得 <strong>優勢</strong> 。
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>

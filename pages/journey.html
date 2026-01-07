@@ -1,0 +1,687 @@
+<div id="journey-top" class="rule-card highlight" style="border-left-color: #2ecc71;">
+  <h2><span style="color: #2ecc71;"></span>旅行 JOURNEYS</h2>
+  <p>身為馬茲提卡大陸上的冒險者，你們必須經常穿越廣闊的沙漠荒原或高山、茂密危險的叢林或沼澤。旅程不僅僅是一種到達某個地方的方式，它本身也可以是一次小小的冒險。</p>
+</div>
+
+<style>
+  /* === 頁面專屬變數 === */
+  .journey-page-container {
+    --journey-green: #2ecc71;
+    --journey-dark: rgba(10, 40, 20, 0.4);
+    width: 100%;
+    padding-bottom: 60px;
+  }
+
+  /* === 第一層：主分頁導覽 === */
+  .journey-main-nav {
+    display: flex; justify-content: center; gap: 8px; margin: 20px 0 25px;
+    flex-wrap: wrap; border-bottom: 2px solid rgba(255, 255, 255, 0.1); padding-bottom: 15px;
+  }
+  .main-tab-btn {
+    padding: 10px 24px; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(255,255,255,0.2);
+    color: #aaa; cursor: pointer; border-radius: 4px 4px 0 0; transition: all 0.2s; font-size: 1.1rem; font-weight: bold; position: relative; top: 2px;
+  }
+  .main-tab-btn:hover { color: var(--gold); background: rgba(46, 204, 113, 0.1); }
+  .main-tab-btn.active-tab {
+    background: var(--journey-green); color: #000; border-color: var(--journey-green);
+    box-shadow: 0 -5px 15px rgba(46, 204, 113, 0.3);
+  }
+
+  /* === 內容顯示控制 === */
+  .main-section { display: none; animation: fadeIn 0.4s ease; }
+  .main-section.active { display: block; }
+
+  /* === 書籤列與內容樣式 === */
+  .bookmark-nav {
+    display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-bottom: 20px;
+    padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px dashed rgba(255,255,255,0.1);
+  }
+  .sub-tab-btn {
+    flex: 0 0 auto; min-width: 6em; text-align: center; padding: 8px 16px;
+    background: rgba(20, 30, 20, 0.6); border: 1px solid rgba(46, 204, 113, 0.3);
+    color: #aaa; border-radius: 4px; cursor: pointer; transition: all 0.2s; font-size: 0.95rem;
+  }
+  .sub-tab-btn:hover {
+    background: rgba(46, 204, 113, 0.1); color: #fff; border-color: var(--journey-green); transform: translateY(-2px);
+  }
+  .sub-tab-btn.active-sub-tab {
+    background: var(--journey-green); color: #000; border-color: var(--journey-green);
+    font-weight: bold; box-shadow: 0 0 15px rgba(46, 204, 113, 0.4);
+  }
+
+  /* 內容區塊 */
+  .journey-content-box {
+    background: rgba(10, 25, 15, 0.6); border: 1px solid rgba(46, 204, 113, 0.4);
+    padding: 30px; border-radius: 8px; min-height: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+  }
+  .text-block { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px dashed rgba(255,255,255,0.1); }
+  .text-block:last-child { border-bottom: none; }
+  .text-block h2 { color: var(--journey-green); font-size: 1.8rem; margin-bottom: 15px; border-left: 4px solid var(--journey-green); padding-left: 12px; }
+  .text-block h3 { color: var(--gold); margin: 20px 0 10px; font-size: 1.3rem; }
+  .text-block p { line-height: 1.8; color: #ddd; margin-bottom: 10px; }
+  
+  /* 表格與按鈕 */
+  .rules-table { width: 100%; border-collapse: collapse; margin: 15px 0; background: rgba(0,0,0,0.3); border-radius: 6px; overflow: hidden; }
+  .rules-table th, .rules-table td { padding: 10px; border: 1px solid rgba(255,255,255,0.1); text-align: left; color: #ddd; }
+  .rules-table th { background: rgba(46, 204, 113, 0.2); color: var(--gold); }
+  .mini-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--gold); padding: 4px 10px; border-radius: 4px; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; }
+  .mini-btn:hover { background: var(--gold); color: #000; }
+  .tag-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; vertical-align: middle; border: 1px solid; text-transform: uppercase; }
+  .back-to-top-btn { position: fixed; bottom: 30px; right: 30px; width: 45px; height: 45px; border-radius: 50%; background: rgba(46, 204, 113, 0.8); color: #fff; border: 1px solid var(--journey-green); cursor: pointer; font-size: 1.2rem; box-shadow: 0 5px 15px rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center; opacity: 0.8; }
+
+/* === 純 CSS 分頁控制 (新增) === */
+  
+  /* 1. 隱藏控制用的單選按鈕 */
+  .tab-radio { display: none; }
+
+  /* 2. 定義按鈕的外觀 (使用 Label) */
+  .tab-label {
+    padding: 10px 24px; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(255,255,255,0.2);
+    color: #aaa; border-radius: 4px; cursor: pointer; transition: all 0.3s;
+    font-size: 1rem; font-weight: bold; letter-spacing: 1px;
+    display: flex; align-items: center; gap: 8px;
+    user-select: none;
+  }
+  .tab-label:hover {
+    background: rgba(46, 204, 113, 0.1); border-color: var(--journey-green); color: #fff;
+  }
+
+/* === 3. 按鈕被選中時的發光效果 (擴充到 5 個) === */
+  #tab-1:checked ~ .journey-main-nav label[for="tab-1"],
+  #tab-2:checked ~ .journey-main-nav label[for="tab-2"],
+  #tab-3:checked ~ .journey-main-nav label[for="tab-3"],
+  #tab-4:checked ~ .journey-main-nav label[for="tab-4"],
+  #tab-5:checked ~ .journey-main-nav label[for="tab-5"] {
+    background: var(--journey-green); color: #000; border-color: var(--journey-green);
+    box-shadow: 0 0 15px rgba(46, 204, 113, 0.4); transform: translateY(-2px);
+  }
+
+  /* === 4. 內容顯示邏輯 (擴充到 5 個) === */
+  .sub-list-content { display: none; animation: fadeIn 0.4s ease; }
+
+  #tab-1:checked ~ #sect-time   { display: block; }
+  #tab-2:checked ~ #sect-march  { display: block; }
+  #tab-3:checked ~ #sect-nav    { display: block; }
+  #tab-4:checked ~ #sect-camp   { display: block; }
+  #tab-5:checked ~ #sect-forage { display: block; }
+
+/* === 萬用子分頁系統 (Nested Tabs) === */
+  
+  /* 1. 隱藏所有控制用的 Radio */
+  .sub-radio { display: none; }
+
+  /* 2. 子導航列容器 */
+  .bookmark-nav {
+    display: flex; justify-content: center; flex-wrap: wrap; gap: 6px; margin-bottom: 15px;
+  }
+
+  /* 3. 子按鈕樣式 (Label) */
+  .sub-tab-label { 
+    background: rgba(30, 30, 35, 0.8); border: 1px solid rgba(255, 255, 255, 0.2); 
+    color: #aaa; padding: 6px 12px; border-radius: 4px; cursor: pointer; 
+    transition: all 0.2s; font-size: 0.85rem; user-select: none;
+  }
+  .sub-tab-label:hover { border-color: var(--journey-green); color: #fff; }
+
+  /* 4. 子內容區塊預設隱藏 */
+  .nested-content { display: none; animation: fadeIn 0.3s ease; margin-top: 10px; }
+
+  /* === 邏輯對應區 (請將這些 ID 對應到 HTML 中的 input) === */
+  
+  /* Group A: 旅行意外 (Travel Mishaps) */
+  #tm-1:checked ~ .bookmark-nav label[for="tm-1"],
+  #tm-2:checked ~ .bookmark-nav label[for="tm-2"],
+  #tm-3:checked ~ .bookmark-nav label[for="tm-3"],
+  #tm-4:checked ~ .bookmark-nav label[for="tm-4"] {
+    background: var(--journey-green); color: #000; border-color: var(--journey-green); font-weight: bold;
+  }
+  #tm-1:checked ~ #show-tm-1 { display: block; }
+  #tm-2:checked ~ #show-tm-2 { display: block; }
+  #tm-3:checked ~ #show-tm-3 { display: block; }
+  #tm-4:checked ~ #show-tm-4 { display: block; }
+
+  /* Group B: 紮營意外 (Camping Mishaps) */
+  #cm-1:checked ~ .bookmark-nav label[for="cm-1"],
+  #cm-2:checked ~ .bookmark-nav label[for="cm-2"],
+  #cm-3:checked ~ .bookmark-nav label[for="cm-3"],
+  #cm-4:checked ~ .bookmark-nav label[for="cm-4"] {
+    background: #f1c40f; color: #000; border-color: #f1c40f; font-weight: bold;
+  }
+  #cm-1:checked ~ #show-cm-1 { display: block; }
+  #cm-2:checked ~ #show-cm-2 { display: block; }
+  #cm-3:checked ~ #show-cm-3 { display: block; }
+  #cm-4:checked ~ #show-cm-4 { display: block; }
+
+  /* Group C: 覓食方式 (Foraging Mode) */
+  #fm-1:checked ~ .bookmark-nav label[for="fm-1"],
+  #fm-2:checked ~ .bookmark-nav label[for="fm-2"],
+  #fm-3:checked ~ .bookmark-nav label[for="fm-3"],
+  #fm-4:checked ~ .bookmark-nav label[for="fm-4"] {
+    background: #e67e22; color: #000; border-color: #e67e22; font-weight: bold;
+  }
+  #fm-1:checked ~ #show-fm-1 { display: block; }
+  #fm-2:checked ~ #show-fm-2 { display: block; }
+  #fm-3:checked ~ #show-fm-3 { display: block; }
+  #fm-4:checked ~ #show-fm-4 { display: block; }
+
+  /* Group D: 狩獵地形 (Hunting Terrain) */
+  #ht-1:checked ~ .bookmark-nav label[for="ht-1"],
+  #ht-2:checked ~ .bookmark-nav label[for="ht-2"],
+  #ht-3:checked ~ .bookmark-nav label[for="ht-3"],
+  #ht-4:checked ~ .bookmark-nav label[for="ht-4"] {
+    background: #d35400; color: #fff; border-color: #d35400;
+  }
+  #ht-1:checked ~ #show-ht-1 { display: block; }
+  #ht-2:checked ~ #show-ht-2 { display: block; }
+  #ht-3:checked ~ #show-ht-3 { display: block; }
+  #ht-4:checked ~ #show-ht-4 { display: block; }
+</style>
+
+<div class="journey-page-container">
+  <input type="radio" name="j-tabs" id="tab-1" class="tab-radio" checked>
+  <input type="radio" name="j-tabs" id="tab-2" class="tab-radio">
+  <input type="radio" name="j-tabs" id="tab-3" class="tab-radio">
+  <input type="radio" name="j-tabs" id="tab-4" class="tab-radio">
+  <input type="radio" name="j-tabs" id="tab-5" class="tab-radio">
+
+<div class="journey-main-nav">
+    <label class="tab-label" for="tab-1">時間劃分</label>
+    <label class="tab-label" for="tab-2">行軍</label>
+    <label class="tab-label" for="tab-3">探路 & 意外</label>
+    <label class="tab-label" for="tab-4">紮營</label>
+    <label class="tab-label" for="tab-5">覓食</label>
+  </div>
+
+<div id="sect-time" class="main-section journey-content-box">
+    <div class="text-block">
+      <h2>時間劃分</h2>
+      <ul>
+        <li>在旅行期間，時間以「班」為單位，一天共有四班：上午、下午、晚上、深夜。</li>
+        <li>在每班開始時，每個 冒險者 必須選擇一項「活動」。一個人一班只能進行一個活動，除非另有說明。</li>
+        <li>大多數活動都可以由複數 冒險者 參加，但也有一些活動只能有一個 冒險者 參加。</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="sect-march" class="main-section journey-content-box">
+    <div class="text-block">
+      <h2>行軍</h2>
+      <ul>
+        <li>若位於開闊地形，冒險者 每班可以步行 20 公里，騎馬可達  30 公里。若位於困難地形，冒險者 每班可以旅行 10 公里，無論步行或騎馬。</li>
+        <li>冒險者 每天最多可以正常旅行 2 班（每班可包括一次短休）。</li>
+      </ul>
+      <h3>強行軍 Forced March</h3>
+      <p>冒險者 可以在同一天內進行<strong>第三班</strong>的行軍，但必須進行<strong>體質</strong>檢定，失敗會獲得<strong>力竭</strong>狀態。已經<strong>力竭</strong>的 冒險者 無法強行軍。</p>
+      <ul>
+        <li>若真的很需要趕路，冒險者 甚至可以進行第四班的行軍，和第三班一樣要進行體質檢定，但會獲得 1 個劣勢。注意：進行第四班的行軍會讓你「睡眠不足」。</li>
+        <li>若你的隊伍裡有動物或坐騎，牠們也需要進行強行軍的體質檢定，若檢定失敗，牠們會累到無法繼續前進。</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="sect-nav" class="main-section journey-content-box">
+    <div class="text-block">
+      <h2>探路</h2>
+      <p>當穿越沒有道路的地形時，隊伍必須指定一名探路者為隊伍帶路。這個人必須在每一班中進行一次 <strong>求生</strong> 檢定。失敗則遭遇意外。</p>
+    </div>
+
+<div class="rule-card">
+       <h3>旅行意外 (Mishaps)</h3>
+       <p>馬茲提卡的大地充滿敵意。當探路者未能通過<strong>求生</strong>檢定時，請根據當前地形擲骰決定發生了什麼意外。</p>
+
+       <input type="radio" name="tm-tabs" id="tm-1" class="sub-radio" checked>
+       <input type="radio" name="tm-tabs" id="tm-2" class="sub-radio">
+       <input type="radio" name="tm-tabs" id="tm-3" class="sub-radio">
+       <input type="radio" name="tm-tabs" id="tm-4" class="sub-radio">
+
+       <div class="bookmark-nav">
+         <label class="sub-tab-label" for="tm-1">🌲 一般/高地</label>
+         <label class="sub-tab-label" for="tm-2">🌳 叢林</label>
+         <label class="sub-tab-label" for="tm-3">🌵 荒野</label>
+         <label class="sub-tab-label" for="tm-4">🐊 沼澤</label>
+       </div>
+
+        <div id="show-tm-1" class="nested-content">
+          <h4>🌲 一般/高地意外表 (D12) <span class="tag-badge">馬茲提卡/房規調整</span> </h4>
+          <div class="table-scroll">
+            <table class="rules-table">
+              <thead><tr><th style="width:50px">D12</th><th>意外</th><th>效果</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>山嵐濃霧</td><td>突然降下的高山濃霧（Niebla）。視線受阻，此班旅行距離減半。</td></tr>
+                <tr><td>2</td><td>斷橋/路障</td><td>前方的古老吊橋斷裂或道路被倒樹阻擋。需進行<strong>體操</strong>檢定繞過，失敗者此班無進展。</td></tr>
+                <tr><td>3</td><td>龍舌蘭刺</td><td>隨機一名 冒險者 的衣服被銳利的葉片劃破。視為「破布」。可用<strong>工藝</strong>檢定修補。若沒穿衣服則受 1 點傷害。</td></tr>
+                <tr><td>4</td><td>精靈惡作劇</td><td>被阿路什（Alux，類似小精靈）誤導而在原地繞圈。此班行軍無進展。尋路者必須再進行一次<strong>求生</strong>檢定。</td></tr>
+                <tr><td>5</td><td>猴子小偷</td><td>一隻蜘蛛猴從樹上垂下，偷走了隨機一名 PC 的隨機一件物品（通常是食物或閃亮的小東西）。</td></tr>
+                <tr><td>6</td><td>黑蠅群</td><td>團隊被叮咬人的黑蠅包圍。沒穿<strong>斗篷</strong>或塗抹藥膏的 PC 陷入<strong>憤怒</strong>狀態。</td></tr>
+                <tr><td>7</td><td>犰狳洞</td><td>你不小心踩進了隱蔽的獸穴。受到 2D6 傷害。穿靴子可將傷害減半。</td></tr>
+                <tr><td>8</td><td>暴雨</td><td>午後雷陣雨傾盆而下。沒穿斗篷需做<strong>求生</strong>檢定抵抗寒冷（失溫）。團隊必須尋找遮蔽處，此班無進展。</td></tr>
+                <tr><td>9</td><td>殺人蜂</td><td>誤觸蜂窩。所有 冒險者 需進行<strong>閃避</strong>，失敗受 1D6 傷害並獲得<strong>中效劇痛毒素</strong>影響。</td></tr>
+                <tr><td>10</td><td>土石流</td><td>連日降雨導致山坡滑動。所有 冒險者 需進行<strong>閃避</strong>，失敗受 1D10 傷害並被泥石推離 10 米。</td></tr>
+                <tr><td>11</td><td>兇猛野獸</td><td>一群領地意識極強的野獸衝了出來。進行戰鬥。</td></tr>
+                <tr><td>12</td><td>古墓陷阱</td><td>地面塌陷，露出下方的古老墓室。隨機一名 冒險者 需進行<strong>敏捷</strong>檢定，失敗則墜落受到 2D6 傷害，且必須設法爬出。</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="show-tm-2" class="nested-content">
+          <h4>🌳 叢林意外表 (D12) <span class="tag-badge">馬茲提卡/房規調整</span> </h4>
+          <div class="table-scroll">
+            <table class="rules-table">
+              <thead><tr><th style="width:50px">D12</th><th>意外</th><th>效果</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>藤蔓迷宮</td><td>植被太過茂密。除非有人擁有<strong>揮砍</strong>武器開路，否則此班旅行距離減半。</td></tr>
+                <tr><td>2</td><td>吼猴群</td><td>樹冠層的猴群對你們投擲水果和穢物。所有 冒險者 進行<strong>閃避</strong>檢定，失敗者被標記，接下來一班時間內遭遇敵意生物的機率加倍。</td></tr>
+                <tr><td>3</td><td>勾人刺藤</td><td>隨機一名 冒險者 的衣服被勾破。視為「破布」。可用<strong>工藝</strong>檢定修復。</td></tr>
+                <tr><td>4</td><td>綠色地獄</td><td>叢林看起來都長得一樣。此班行軍無進展。探路者必須再進行一次<strong>求生</strong>檢定來重新定位。</td></tr>
+                <tr><td>5</td><td>悶熱溼氣</td><td>極度潮濕。所有 冒險者 需進行<strong>體質</strong>檢定，失敗者因熱衰竭陷入<strong>酷熱</strong>狀態。</td></tr>
+                <tr><td>6</td><td>吸血蝙蝠</td><td>趁著短暫休息時襲擊。隨機一名 PC 失去 1D6 HP，且需進行體質檢定，失敗則感染<strong>豹斑熱</strong>疾病。</td></tr>
+                <tr><td>7</td><td>樹根絆倒</td><td>你不小心被盤根錯節的樹根絆倒。受到 2D6 傷害。穿靴子可將傷害減半。</td></tr>
+                <tr><td>8</td><td>暴雨</td><td>暴雨降臨。視線受阻且地面泥濘。隊伍必須尋找遮蔽處，此班無進展。若強行前進，所有人獲得<strong>力竭</strong>狀態。</td></tr>
+                <tr><td>9</td><td>火蟻窩</td><td>誤踩火蟻窩。所有 冒險者 需進行<strong>閃避</strong>檢定，失敗者受到 1D4 傷害並受到中效<strong>劇痛</strong>毒素影響。</td></tr>
+                <tr><td>10</td><td>落木</td><td>巨大的枯枝或果實落下。隨機一名 冒險者 需進行<strong>閃避</strong>，失敗受 2D6 鈍擊傷害。</td></tr>
+                <tr><td>11</td><td>兇猛野獸</td><td>叢林的掠食者正在狩獵。一隻猛獸發動突襲，直接進入戰鬥。</td></tr>
+                <tr><td>12</td><td>食人花</td><td>探路者誤觸巨大的肉食植物。進行<strong>閃避</strong>檢定，失敗者被吞噬並束縛，每輪受到 1D8 傷害(無視護甲)，直到掙脫或植物被殺死。</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="show-tm-3" class="nested-content">
+          <h4>🌵 荒野/沙漠意外表 (D12) <span class="tag-badge">馬茲提卡/房規調整</span> </h4>
+          <div class="table-scroll">
+            <table class="rules-table">
+              <thead><tr><th style="width:50px">D12</th><th>意外</th><th>效果</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>沙塵暴</td><td>強風捲起沙塵，視線歸零。此班旅行距離減半，且無法進行狩獵或採集。</td></tr>
+                <tr><td>2</td><td>險峻斷崖</td><td>前方道路中斷。每個 冒險者 必須進行<strong>體操</strong>（攀爬）檢定才能繼續。失敗者摔落受到 1D6 傷害，且此班行軍無進展。</td></tr>
+                <tr><td>3</td><td>鞋底融化</td><td>地面滾燙或岩石鋒利。隨機一名 冒險者 的靴子損壞。若沒穿靴子，則腳部受傷，移動力 -2 直到治療。</td></tr>
+                <tr><td>4</td><td>海市蜃樓</td><td>被幻象誤導。此班行軍無進展。且隊伍消耗的水分加倍。</td></tr>
+                <tr><td>5</td><td>飲水打翻</td><td>隨機一名 冒險者 的水袋破裂或打翻。失去一份水資源。若無水，該 冒險者 陷入<strong>脫水</strong>（視為飢餓）。</td></tr>
+                <tr><td>6</td><td>毒蠍子</td><td>一隻蠍子鑽進了某人的鞋子或背包。隨機一名 冒險者 受到 1D6 傷害並須抵抗<strong>強效毒素</strong>。</td></tr>
+                <tr><td>7</td><td>烈日曝曬</td><td>無情的太陽。所有 冒險者 需進行<strong>體質</strong>檢定抵抗<strong>酷熱</strong>。失敗者失去 1D6 HP 和 1D6 WP。穿著重甲者檢定劣勢。</td></tr>
+                <tr><td>8</td><td>山洪爆發</td><td>乾涸的河床突然湧出洪水。所有 冒險者 需進行<strong>求生</strong>或<strong>體操</strong>檢定。失敗者被沖走 2D20 米並受到 1D10 傷害，且隨機遺失一件物品。</td></tr>
+                <tr><td>9</td><td>仙人掌叢</td><td>誤入刺叢。所有 冒險者 需進行<strong>體操</strong>檢定，失敗者受到 1D6 傷害，且在拔除尖刺前，敏捷相關檢定劣勢。</td></tr>
+                <tr><td>10</td><td>落石</td><td>鬆動的岩石滾落。所有 冒險者 需進行<strong>閃避</strong>，失敗受 2D6 傷害。若隊伍有載具或坐騎，隨機一隻坐騎受傷。</td></tr>
+                <tr><td>11</td><td>土狼群</td><td>一群飢餓的土狼或野狗包圍了你們。進行戰鬥。</td></tr>
+                <tr><td>12</td><td>地陷</td><td>地面突然塌陷成滲穴（Cenote）。隨機一名 冒險者 需進行<strong>體操</strong>檢定，失敗則墜落 2D6 米深坑。</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="show-tm-4" class="nested-content">
+          <h4>🐊 沼澤意外表 (D12) <span class="tag-badge">馬茲提卡/房規調整</span> </h4>
+          <div class="table-scroll">
+            <table class="rules-table">
+              <thead><tr><th style="width:50px">D12</th><th>意外</th><th>效果</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>瘴氣濃霧</td><td>有毒的霧氣籠罩。此班旅行距離減半，且所有 冒險者 需進行體質檢定，失敗者受到<strong>中效噁心毒素</strong>影響。</td></tr>
+                <tr><td>2</td><td>深陷泥濘</td><td>道路變成爛泥。每個 冒險者 必須進行<strong>力量</strong>檢定才能拔出雙腳。失敗者獲得<strong>力竭</strong>狀態，且移動速度減半持續一班時間。</td></tr>
+                <tr><td>3</td><td>裝備銹蝕</td><td>酸性泥水或潮濕腐蝕了裝備。隨機一名 冒險者 的金屬武器或護甲<strong>受損</strong>。若無金屬裝備則衣服破損（視為破布）。</td></tr>
+                <tr><td>4</td><td>鬼火迷蹤</td><td>跟隨了錯誤的光亮。此班行軍無進展。所有 PC 失去 1D4 WP。</td></tr>
+                <tr><td>5</td><td>物資發霉</td><td>檢查背包時發現食物受潮。隊伍失去 1D4 份食物。</td></tr>
+                <tr><td>6</td><td>巨型蚊蟲</td><td>無情的叮咬。沒穿<strong>斗篷</strong>或塗抹防蟲膏的 PC 陷入<strong>憤怒</strong>狀態，且需檢定抵抗<strong>斷骨熱</strong>疾病。</td></tr>
+                <tr><td>7</td><td>水蛭</td><td>你發現腿上爬滿了吸血水蛭。受到 1D6 傷害，且在移除它們之前，<strong>體質</strong>檢定劣勢。</td></tr>
+                <tr><td>8</td><td>汙水感染</td><td>有人跌入發臭的水中。該 冒險者 需進行<strong>體質</strong>檢定（若 HP 未滿，檢定劣勢），失敗則感染<strong>叢林腐爛病</strong>。</td></tr>
+                <tr><td>9</td><td>毒氣泡</td><td>沼氣突然噴發。相鄰的 冒險者 需進行<strong>閃避</strong>，失敗者吸入毒氣，受到 1D4 傷害並陷入<strong>暈眩</strong>。</td></tr>
+                <tr><td>10</td><td>黑曜石碎片</td><td>水底藏著鋒利的古代黑曜石碎片。隨機一名 冒險者 腳部受傷，受到 1D8 傷害，移動力減半直到休息。</td></tr>
+                <tr><td>11</td><td>鱷魚</td><td>一塊「浮木」突然張開了嘴。一隻巨大的鱷魚發動突襲。進行戰鬥。</td></tr>
+                <tr><td>12</td><td>流沙/泥沼</td><td>隨機 PC 陷入致命的泥沼。需進行<strong>力量</strong>檢定（劣勢）逃脫。每輪失敗會下沉並受到 1D6 窒息傷害。需隊友協助（給予優勢）才能拉出。</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+    </div>
+  </div>
+
+  <div id="sect-camp" class="main-section journey-content-box">
+    <div class="text-block">
+      <h2>紮營</h2>
+      <p>PC 至少需要睡眠<strong>一班時間</strong>。在荒野睡覺時，若<strong>求生檢定</strong>失敗，PC 沒有睡好。若大失敗，遭遇紮營意外。</p>
+    </div>
+
+   <div class="rule-card" style="border-left: 4px solid #f1c40f; padding:15px; background:rgba(0,0,0,0.2);">
+      <h3>⛺ 紮營意外 (Camping Mishaps)</h3>
+      
+      <input type="radio" name="cm-tabs" id="cm-1" class="sub-radio" checked>
+      <input type="radio" name="cm-tabs" id="cm-2" class="sub-radio">
+      <input type="radio" name="cm-tabs" id="cm-3" class="sub-radio">
+      <input type="radio" name="cm-tabs" id="cm-4" class="sub-radio">
+
+      <div class="bookmark-nav">
+        <label class="sub-tab-label" for="cm-1">🌲 一般/高地</label>
+        <label class="sub-tab-label" for="cm-2">🌳 叢林</label>
+        <label class="sub-tab-label" for="cm-3">🌵 荒野</label>
+        <label class="sub-tab-label" for="cm-4">🐊 沼澤</label>
+      </div>
+
+      <div id="show-cm-1" class="nested-content">
+        <h4>🌲 一般/高地紮營意外 (D12) <span class="tag-badge">馬茲提卡/房規調整</span> </h4>
+        <div class="table-scroll">
+          <table class="rules-table">
+            <thead><tr><th style="width:50px">D12</th><th>意外</th><th>效果</th></tr></thead>
+            <tbody>
+              <tr><td>1-2</td><td>食物腐爛</td><td>被老鼠偷吃或因保存不當腐壞。團隊失去 1D6 份食物。</td></tr>
+              <tr><td>3</td><td>地點不佳</td><td>地面充滿樹根或碎石。PC 完全沒有睡好，起床時陷入<strong>力竭</strong>。</td></tr>
+              <tr><td>4</td><td>大暴雨</td><td>被淋濕了，必須進行<strong>求生</strong>檢定抵抗寒冷，且完全沒有睡好。</td></tr>
+              <tr><td>5</td><td>營火熄滅</td><td>強風吹熄了營火。PC 必須進行<strong>求生</strong>檢定抵抗寒冷，且完全沒有睡好。</td></tr>
+              <tr><td>6</td><td>火災！</td><td>營火失控延燒到帳篷。PC 受到 2D6 火焰傷害，且隨機失去一件裝備。</td></tr>
+              <tr><td>7</td><td>紅火蟻</td><td>睡在螞蟻窩附近。受到 1 點傷害和自選一個狀態，且完全沒有睡好。</td></tr>
+              <tr><td>8</td><td>蝨子/跳蚤</td><td>被寄生蟲侵擾。受 1 點傷害和自選狀態，無法睡覺。需<strong>醫療</strong>檢定治療。</td></tr>
+              <tr><td>9</td><td>蚊子群</td><td>PC 被蚊蟲攻擊，若不在帳篷裡則陷入<strong>憤怒</strong>狀態，且完全沒有睡好。</td></tr>
+              <tr><td>10</td><td>野獸入侵</td><td>野生動物（如浣熊或野豬）闖入營地。進行戰鬥。</td></tr>
+              <tr><td>11</td><td>小偷</td><td>附近的哥布林或猴子偷走了隨機一件物品。</td></tr>
+              <tr><td>12</td><td>惡夢</td><td>受到遠古靈體的干擾，所有人做惡夢。醒來後失去 1D6 WP。</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="show-cm-2" class="nested-content">
+        <h4>🌳 叢林紮營意外 (D12) <span class="tag-badge">馬茲提卡/房規調整</span> </h4>
+        <div class="table-scroll">
+          <table class="rules-table">
+            <thead><tr><th style="width:50px">D12</th><th>意外</th><th>效果</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td>極速腐敗</td><td>叢林的黴菌無孔不入。所有未妥善密封的食物全部腐爛（失去一半食物）。</td></tr>
+              <tr><td>2</td><td>吼猴尖叫</td><td>噪音震耳欲聾，所有人無法入睡，且獲得<strong>力竭</strong>狀態。</td></tr>
+              <tr><td>3</td><td>行軍蟻</td><td>數以萬計的行軍蟻過境。必須立刻棄營逃跑。所有人受到 1D6 傷害。</td></tr>
+              <tr><td>4</td><td>悶熱</td><td>夜晚依然像蒸籠一樣。所有 PC 需進行<strong>體質</strong>檢定，失敗者因熱衰竭無法恢復 WP。</td></tr>
+              <tr><td>5</td><td>潮濕木材</td><td>找不到乾柴，生不起火。無法烹飪或取暖，士氣低落（意志檢定失敗則獲得<strong>沮喪</strong>）。</td></tr>
+              <tr><td>6</td><td>獵豹</td><td>一隻獵豹無聲無息地潛入營地。守夜者需進行<strong>察覺</strong>（劣勢），失敗則被突襲。</td></tr>
+              <tr><td>7</td><td>落木</td><td>巨大的枯枝砸落在帳篷上。隨機一名 PC 受到 2D6 鈍擊傷害。</td></tr>
+              <tr><td>8</td><td>寄生蟲</td><td>膚蠅（Botfly）在某人皮膚下產卵。受到 1 點傷害並感染<strong>疾病</strong>，需醫療手術取出。</td></tr>
+              <tr><td>9</td><td>吸血蝙蝠</td><td>趁睡著時吸血。隨機一名 PC 失去 1D6 HP，且醒來後感到<strong>虛弱</strong>。</td></tr>
+              <tr><td>10</td><td>裝備發霉</td><td>早起發現皮甲或弓弦長滿了綠毛。隨機一件木製或皮製裝備<strong>受損</strong>。</td></tr>
+              <tr><td>11</td><td>毒蛇暖床</td><td>一隻毒蛇鑽進了睡袋取暖。該 PC 起床時需進行敏捷檢定，失敗則被咬（強效毒素）。</td></tr>
+              <tr><td>12</td><td>暴雨洪災</td><td>營地被突然暴漲的溪水淹沒。隨機物品被沖走，所有人渾身溼透且沒有睡好。</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="show-cm-3" class="nested-content">
+        <h4>🌵 荒野/沙漠紮營意外 (D12) <span class="tag-badge">馬茲提卡/房規調整</span> </h4>
+        <div class="table-scroll">
+          <table class="rules-table">
+            <thead><tr><th style="width:50px">D12</th><th>意外</th><th>效果</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td>沙子入侵</td><td>沙塵暴過後，食物裡全是沙子。吃下食物的人需通過體質檢定，否則沒吃飽。</td></tr>
+              <tr><td>2</td><td>沙漠極寒</td><td>日夜溫差極大。若無<strong>毛毯</strong>或火源，所有人需進行求生檢定抵抗<strong>寒冷</strong>。</td></tr>
+              <tr><td>3</td><td>蠍子鞋</td><td>一隻劇毒蠍子躲在靴子裡。穿鞋時需通過幸運（或察覺），否則被螫傷（強效毒素）。</td></tr>
+              <tr><td>4</td><td>強風</td><td>狂風吹垮了帳篷。所有人半夜驚醒，需花費時間重新搭建，導致<strong>睡眠不足</strong>。</td></tr>
+              <tr><td>5</td><td>燃料短缺</td><td>找不到枯木或仙人掌乾。無法生火，無法抵抗寒冷。</td></tr>
+              <tr><td>6</td><td>土狼群</td><td>一群飢餓的土狼包圍營地，發出詭異的叫聲。所有人失去 1D4 WP。</td></tr>
+              <tr><td>7</td><td>脫水</td><td>水袋在夜間破裂或蒸發。團隊失去 1D4 份水資源。</td></tr>
+              <tr><td>8</td><td>響尾蛇</td><td>守夜者差點踩到響尾蛇。進行<strong>敏捷</strong>檢定，失敗則受到 1D6 傷害並中毒。</td></tr>
+              <tr><td>9</td><td>流沙地基</td><td>睡到一半地面塌陷。帳篷半邊陷入坑洞，隨機一件物品遺失。</td></tr>
+              <tr><td>10</td><td>禿鷹盤旋</td><td>早起發現禿鷹停在營地周圍，似乎在等待你們死亡。意志檢定失敗則獲得<strong>畏縮</strong>。</td></tr>
+              <tr><td>11</td><td>仙人掌刺</td><td>黑暗中誤觸仙人掌叢。受到 1D4 傷害，拔刺過程讓人無法入睡。</td></tr>
+              <tr><td>12</td><td>海市蜃樓</td><td>醒來發現景物全變了。導航完全迷失，今日的探路檢定獲得劣勢。</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="show-cm-4" class="nested-content">
+        <h4>🐊 沼澤紮營意外 (D12) <span class="tag-badge">馬茲提卡/房規調整</span> </h4>
+        <div class="table-scroll">
+          <table class="rules-table">
+            <thead><tr><th style="width:50px">D12</th><th>意外</th><th>效果</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td>地基下沉</td><td>睡到一半水淹進帳篷。所有人醒在泥水中，沒有睡好且獲得<strong>虛弱</strong>狀態。</td></tr>
+              <tr><td>2</td><td>水蛭盛宴</td><td>醒來發現腿上吸滿了水蛭。受到 1D6 傷害，且體質檢定劣勢持續一天。</td></tr>
+              <tr><td>3</td><td>巨型蚊蟲</td><td>蚊帳破了。所有人被叮得滿頭包，暴露於<strong>斷骨熱</strong>風險中，且沒有睡好。</td></tr>
+              <tr><td>4</td><td>腐臭瘴氣</td><td>沼氣聚集在營地。所有人需進行體質檢定，失敗者嘔吐不止（無法進食，視為飢餓）。</td></tr>
+              <tr><td>5</td><td>鬼火誘惑</td><td>守夜者看到遠處有光。需進行<strong>意志</strong>檢定，失敗則被誘離營地並迷路。</td></tr>
+              <tr><td>6</td><td>鱷魚潛伏</td><td>一隻鱷魚偽裝成浮木停在營地旁。若有人靠近水邊取水，立即被攻擊。</td></tr>
+              <tr><td>7</td><td>裝備鏽蝕</td><td>濕氣腐蝕金屬。隨機一件金屬武器或護甲耐久度 -1。</td></tr>
+              <tr><td>8</td><td>發霉</td><td>食物受潮發霉。失去 1D4 份食物。</td></tr>
+              <tr><td>9</td><td>泥人</td><td>半夜有東西在帳篷外走動。守夜者驚嚇過度，失去 1D6 WP。</td></tr>
+              <tr><td>10</td><td>無法生火</td><td>所有木材都是濕的。無法生火，無法烤乾衣物，感染風險增加。</td></tr>
+              <tr><td>11</td><td>毒蛙</td><td>鮮豔的毒蛙在裝備上爬行。觸碰裝備前需通過敏捷檢定，否則中毒（接觸型）。</td></tr>
+              <tr><td>12</td><td>浮島漂移</td><td>你們紮營的「地面」其實是漂浮的植被。醒來時發現營地已經漂流到陌生的地方（迷路）。</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="sect-forage" class="main-section journey-content-box">
+    
+    <div class="text-block">
+      <h2>荒野的食物來源</h2>
+      <p>在野外，冒險者可以輪班狩獵、釣魚或尋找可食用植物。在覓食期間，角色無法行軍。</p>
+    </div>
+
+<input type="radio" name="fm-tabs" id="fm-1" class="sub-radio" checked> <input type="radio" name="fm-tabs" id="fm-2" class="sub-radio"> <input type="radio" name="fm-tabs" id="fm-3" class="sub-radio"> <input type="radio" name="fm-tabs" id="fm-4" class="sub-radio"> <div class="bookmark-nav">
+      <label class="sub-tab-label" for="fm-1">🏹 狩獵</label>
+      <label class="sub-tab-label" for="fm-2">🎣 釣魚</label>
+      <label class="sub-tab-label" for="fm-3">🍄 採集</label>
+      <label class="sub-tab-label" for="fm-4">🍳 烹飪</label>
+    </div>
+
+<div id="show-fm-1" class="nested-content">
+      <div class="rule-card" style="border-left: 4px solid #e67e22; background:rgba(0,0,0,0.2); padding:20px;">
+        <h3 style="margin-top:0; color:#e67e22;">🏹 狩獵 (Hunting)</h3>
+        <p>狩獵需要遠程武器或陷阱。成功後，請依地形擲骰決定獵物。</p>
+
+<input type="radio" name="ht-tabs" id="ht-1" class="sub-radio" checked>
+         <input type="radio" name="ht-tabs" id="ht-2" class="sub-radio">
+         <input type="radio" name="ht-tabs" id="ht-3" class="sub-radio">
+         <input type="radio" name="ht-tabs" id="ht-4" class="sub-radio">
+
+<div class="bookmark-nav">
+           <label class="sub-tab-label" for="ht-1">🌲 一般</label>
+           <label class="sub-tab-label" for="ht-2">🌳 叢林</label>
+           <label class="sub-tab-label" for="ht-3">🌵 荒野</label>
+           <label class="sub-tab-label" for="ht-4">🐊 沼澤</label>
+         </div>
+
+       <div id="show-ht-1" class="nested-content">
+          <h4 style="color:#2ecc71;">🌲 一般/高地獵物 (D6) <span class="tag-badge">馬茲提卡/房規調整</span> </h4>
+          <div class="table-scroll">
+            <table class="rules-table">
+              <thead><tr><th>D6</th><th>動物</th><th>需求</th><th>生食（份）</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>地鼠 (Gopher)</td><td>武器或陷阱</td><td>1</td></tr>
+                <tr><td>2</td><td>鵪鶉 (Quail)</td><td>武器</td><td>1</td></tr>
+                <tr><td>3</td><td>棉尾兔 (Rabbit)</td><td>武器或陷阱</td><td>1D3</td></tr>
+                <tr><td>4</td><td>火雞 (Turkey)</td><td>武器</td><td>1D4</td></tr>
+                <tr><td>5</td><td>郊狼 (Coyote)</td><td>武器</td><td>1D6</td></tr>
+                <tr><td>6</td><td>白尾鹿 (Deer)</td><td>武器</td><td>2D8</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <h4>狩獵意外 (大失敗) <span class="tag-badge">馬茲提卡/房規調整</span> </h4>
+          <table class="rules-table">
+              <thead><tr><th>D6</th><th>意外</th><th>效果</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>腳踝扭傷</td><td>追捕時踩空。受到 2D6 傷害。穿靴子可將傷害減半。</td></tr>
+                <tr><td>2</td><td>工具損毀</td><td>弓弦斷裂或陷阱卡死。需<strong>工藝</strong>檢定修復。</td></tr>
+                <tr><td>3</td><td>衣服勾破</td><td>被灌木勾破衣服，視為「破布」。</td></tr>
+                <tr><td>4</td><td>誤中陷阱</td><td>你踩到了其他獵人留下的舊陷阱，受到 1D6 傷害。</td></tr>
+                <tr><td>5</td><td>狩豹</td><td>你以為你是獵人，其實你是獵物。遭狩豹突襲（戰鬥）。</td></tr>
+                <tr><td>6</td><td>跌落山坡</td><td>失足滾落。受到 1D6 傷害並遺失隨機一件物品。</td></tr>
+              </tbody>
+          </table>
+        </div>
+
+        <div id="show-ht-2" class="nested-content">
+          <h4 style="color:#2ecc71;">🌳 叢林獵物 (D6) <span class="tag-badge">馬茲提卡/房規調整</span> </h4>
+          <div class="table-scroll">
+            <table class="rules-table">
+              <thead><tr><th>D6</th><th>動物</th><th>需求</th><th>生食（份）</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>綠鬣蜥 (Iguana)</td><td>武器或陷阱</td><td>1</td></tr>
+                <tr><td>2</td><td>蜘蛛猴 (Monkey)</td><td>武器</td><td>1D2</td></tr>
+                <tr><td>3</td><td>鳳冠雉 (Curassow)</td><td>武器</td><td>1D4</td></tr>
+                <tr><td>4</td><td>長鼻浣熊 (Coati)</td><td>武器或陷阱</td><td>1D4</td></tr>
+                <tr><td>5</td><td>西貒/野豬 (Peccary)</td><td>武器</td><td>2D6</td></tr>
+                <tr><td>6</td><td>貘 (Tapir)</td><td>武器</td><td>2D10</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <h4>狩獵意外 (大失敗) <span class="tag-badge">馬茲提卡/房規調整</span> </h4>
+          <table class="rules-table">
+              <thead><tr><th>D6</th><th>意外</th><th>效果</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>迷失方向</td><td>追逐獵物太過深入。下一次的<strong>探路</strong>檢定獲得劣勢。</td></tr>
+                <tr><td>2</td><td>毒箭蛙</td><td>誤觸有毒生物。受到<strong>弱效麻痺毒素</strong>影響。</td></tr>
+                <tr><td>3</td><td>子彈蟻</td><td>靠在這種螞蟻棲息的樹上。受到 1 點傷害並陷入<strong>劇痛</strong>（暈眩）。</td></tr>
+                <tr><td>4</td><td>猴群騷擾</td><td>猴子對你投擲硬果實。受到 1D4 傷害並暴露位置（隱匿劣勢）。</td></tr>
+                <tr><td>5</td><td>狩豹</td><td>叢林之王現身。遭狩豹突襲（戰鬥）。</td></tr>
+                <tr><td>6</td><td>武器脫手</td><td>武器卡在藤蔓高處或掉進深坑，無法取回（遺失）。</td></tr>
+              </tbody>
+          </table>
+        </div>
+
+        <div id="show-ht-3" class="nested-content">
+          <h4 style="color:#f1c40f;">🌵 荒野/沙漠獵物 (D6) <span class="tag-badge">馬茲提卡/房規調整</span> </h4>
+          <div class="table-scroll">
+            <table class="rules-table">
+              <thead><tr><th>D6</th><th>動物</th><th>需求</th><th>生食（份）</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>蠍子/昆蟲</td><td>武器</td><td>1 (需檢定)</td></tr>
+                <tr><td>2</td><td>蜥蜴 (Lizard)</td><td>武器或陷阱</td><td>1</td></tr>
+                <tr><td>3</td><td>響尾蛇 (Snake)</td><td>武器</td><td>1D3</td></tr>
+                <tr><td>4</td><td>大野兔 (Jackrabbit)</td><td>武器或陷阱</td><td>1D4</td></tr>
+                <tr><td>5</td><td>犰狳 (Armadillo)</td><td>武器</td><td>1D4</td></tr>
+                <tr><td>6</td><td>大角羊 (Bighorn)</td><td>武器</td><td>2D6</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <h4>狩獵意外 (大失敗) <span class="tag-badge">馬茲提卡/房規調整</span> </h4>
+          <table class="rules-table">
+              <thead><tr><th>D6</th><th>意外</th><th>效果</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>仙人掌刺</td><td>摔進刺叢。受到 1D6 傷害，拔刺前敏捷檢定劣勢。</td></tr>
+                <tr><td>2</td><td>毒蠍螫傷</td><td>翻開石頭尋找獵物時被螫。受到<strong>強效劇痛毒素</strong>影響。</td></tr>
+                <tr><td>3</td><td>響尾蛇</td><td>你沒聽到警告聲。被咬傷，受到<strong>致命毒素</strong>影響。</td></tr>
+                <tr><td>4</td><td>熱衰竭</td><td>追逐過久導致中暑。獲得<strong>虛弱</strong>與<strong>力竭</strong>狀態。</td></tr>
+                <tr><td>5</td><td>土狼群</td><td>一群飢餓的土狼包圍了你。進行戰鬥。</td></tr>
+                <tr><td>6</td><td>獵物反擊</td><td>看似死掉的獵物突然反擊。受到 1D6 傷害。</td></tr>
+              </tbody>
+          </table>
+        </div>
+
+        <div id="show-ht-4" class="nested-content">
+          <h4 style="color:#27ae60;">🐊 沼澤獵物 (D6) <span class="tag-badge">馬茲提卡/房規調整</span> </h4>
+          <div class="table-scroll">
+            <table class="rules-table">
+              <thead><tr><th>D6</th><th>動物</th><th>需求</th><th>生食（份）</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>牛蛙 (Bullfrog)</td><td>武器或陷阱</td><td>1</td></tr>
+                <tr><td>2</td><td>澤龜 (Turtle)</td><td>武器</td><td>1D2</td></tr>
+                <tr><td>3</td><td>麝鼠 (Muskrat)</td><td>武器或陷阱</td><td>1D3</td></tr>
+                <tr><td>4</td><td>野鴨 (Duck)</td><td>武器</td><td>1D4</td></tr>
+                <tr><td>5</td><td>水豚 (Capybara)</td><td>武器</td><td>2D6</td></tr>
+                <tr><td>6</td><td>凱門鱷 (Caiman)</td><td>武器</td><td>2D8 (危險)</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <h4>狩獵意外 (大失敗) <span class="tag-badge">馬茲提卡/房規調整</span> </h4>
+          <table class="rules-table">
+              <thead><tr><th>D6</th><th>意外</th><th>效果</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>陷入泥沼</td><td>雙腳深陷。需花費一班時間和力量檢定才能脫困（獲得力竭）。</td></tr>
+                <tr><td>2</td><td>水蛭</td><td>腿上吸滿水蛭。受到 1D4 傷害，體質檢定劣勢。</td></tr>
+                <tr><td>3</td><td>武器鏽蝕</td><td>武器掉進酸性泥水。金屬武器耐久歸零，木製武器受損。</td></tr>
+                <tr><td>4</td><td>毒蛇</td><td>被水腹蛇咬傷。受到<strong>致命毒素</strong>影響。</td></tr>
+                <tr><td>5</td><td>巨鱷</td><td>你以為那是浮木。遭巨型鱷魚突襲（戰鬥）。</td></tr>
+                <tr><td>6</td><td>感染</td><td>傷口接觸汙水。需進行體質檢定，失敗感染<strong>叢林腐爛病</strong>。</td></tr>
+              </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+ <div id="show-fm-2" class="nested-content">
+       <div class="rule-card" style="border-left: 4px solid #3498db; background:rgba(0,0,0,0.2); padding:20px;">
+         <h3 style="margin-top:0; color:#3498db;">🎣 釣魚 (Fishing)</h3>
+         <p>在河流、湖泊或神聖的滲穴（Cenote）中釣魚。需釣具並進行 <strong>狩獵</strong> 檢定。</p>
+         <ul>
+           <li><strong>成功：</strong>釣竿捕獲 1D4 生食；漁網捕獲 1D6 生食。吃生食會有 <strong>致病</strong> 風險。</li>
+           <li><strong>地形調整：</strong>在<strong>滲穴</strong>釣魚獲得 1 個優勢；在<strong>沼澤</strong>釣魚獲得 1 個劣勢。</li>
+           <li><strong>大失敗：</strong>你遭遇釣魚意外。</li>
+         </ul>
+
+         <h4>釣魚意外 (大失敗時觸發)  <span class="tag-badge">馬茲提卡/房規調整</span> </h4>
+         <div class="table-scroll">
+           <table class="rules-table">
+             <thead><tr><th>1D6</th><th>意外</th><th>效果</th></tr></thead>
+             <tbody>
+               <tr><td>1</td><td>勾到遺蹟</td><td>魚鉤卡在水底的古代廢墟上。需<strong>力量</strong>檢定收回，失敗則失去裝備。</td></tr>
+               <tr><td>2</td><td>食人魚</td><td>手指被嗜血的魚咬傷。受到 1D4 傷害。若使用漁網則重骰。</td></tr>
+               <tr><td>3</td><td>工具損毀</td><td>釣竿折斷或漁網破裂。需<strong>工藝</strong>檢定修理或購買新工具。</td></tr>
+               <tr><td>4</td><td>蚊子群</td><td>若無<strong>斗篷</strong>或藥膏則陷入<strong>憤怒</strong>狀態，且有染病風險。</td></tr>
+               <tr><td>5</td><td>跌入滲穴</td><td>腳滑跌入深水區。獲得自選一個狀態，且需進行 <strong>游泳</strong> 檢定上岸。</td></tr>
+               <tr><td>6</td><td>凱門鱷</td><td>水面下的陰影發動突襲。遭鱷魚攻擊，受到 2D6 傷害。</td></tr>
+             </tbody>
+           </table>
+         </div>
+       </div>
+    </div>
+
+<div id="show-fm-3" class="nested-content">
+       <div class="rule-card" style="border-left: 4px solid #9b59b6; background:rgba(0,0,0,0.2); padding:20px;">
+         <h3 style="margin-top:0; color:#9b59b6;">🍄 採集 (Foraging)</h3>
+         <p>尋找可食用的仙人掌果、野莓或塊根。採集者進行<strong>求生</strong>檢定－雨季有優勢，旱季有劣勢。</p>
+         <ul>
+           <li>成功：找到 1D3 份植物食物。</li>
+           <li>植物可安全生吃，但需 2 份補足一日所需。</li>
+           <li><strong>大失敗：</strong>遭遇採集意外。</li>
+         </ul>
+
+         <table class="rules-table"> <span class="tag-badge">馬茲提卡/房規調整</span> 
+            <thead><tr><th>地形</th><th>調整</th><th>地形</th><th>調整</th></tr></thead>
+            <tbody>
+              <tr><td>梯田/農地</td><td>1 優勢</td><td>荒野/沙漠</td><td>1 劣勢</td></tr>
+              <tr><td>叢林</td><td>無</td><td>高山</td><td>1 劣勢</td></tr>
+              <tr><td>沼澤</td><td>無 (風險高)</td><td>廢墟</td><td>1 劣勢</td></tr>
+            </tbody>
+         </table>
+
+         <h4>採集意外 (大失敗時觸發)  <span class="tag-badge">馬茲提卡/房規調整</span> </h4>
+         <div class="table-scroll">
+           <table class="rules-table">
+             <thead><tr><th>1D6</th><th>意外</th><th>效果</th></tr></thead>
+             <tbody>
+               <tr><td>1</td><td>毒樹 (Chechen)</td><td>誤觸劇毒的黑漆樹。皮膚潰爛，受到 1D6 傷害並受到中效<strong>劇痛毒素</strong>效果。</td></tr>
+               <tr><td>2</td><td>子彈蟻</td><td>抓到棲息著子彈蟻的樹枝。受到 1 點傷害並<strong>暈眩</strong>（極度痛苦）。</td></tr>
+               <tr><td>3</td><td>仙人掌刺</td><td>被尖刺扎滿雙手。在拔除前，<strong>巧手</strong>與<strong>攀爬</strong>檢定獲得劣勢。</td></tr>
+               <tr><td>4</td><td>撕破衣服</td><td>被帶刺藤蔓勾破衣服。視為「破布」，可用<strong>工藝</strong>檢定修補。</td></tr>
+               <tr><td>5</td><td>蝮蛇 (Viper)</td><td>採集時驚動了毒蛇。進行<strong>敏捷</strong>檢定，失敗則被咬（致命毒素）。</td></tr>
+               <tr><td>6</td><td>狩豹</td><td>你低頭採集時，感覺到背後有熱氣。遭狩豹突襲（戰鬥）。</td></tr>
+             </tbody>
+           </table>
+         </div>
+       </div>
+    </div>
+
+<div id="show-fm-4" class="nested-content">
+       <div class="rule-card" style="border-left: 4px solid #f39c12; background:rgba(0,0,0,0.2); padding:20px;">
+         <h3 style="margin-top:0; color:#f39c12;">🍳 烹飪 (Cooking)</h3>
+         <ul>
+           <li>吃生食會有生病風險，進行 <strong>體質</strong> 檢定，否則根據所食生食種類而得到疾病。</li>
+           <li>植物可安全生吃，但需 2 份才能補足一日食量。</li>
+           <li>烹飪需<strong>求生檢定</strong>，花費<strong>一班時間</strong>，最多煮 10 份。</li>
+           <li><strong>野炊工具</strong>可使烹飪獲 1 優勢；廚房亦同，且份量不限。</li>
+         </ul>
+
+         <div style="margin-top: 20px; padding: 12px; background: rgba(243, 156, 18, 0.1); border: 1px dashed #f39c12; border-radius: 6px;">
+            <strong style="color: #f39c12; font-size: 1.05rem;">【特殊：大廚 Chef】 <span class="tag-badge">馬茲提卡/房規調整</span> </strong>
+            <p style="margin: 5px 0 0 0; color: #ddd; line-height: 1.6;">
+                如果擁有英雄能力：<strong>大廚</strong>，你可以為隊伍製作美味好吃的菜餚而非單純飽腹的糧食。<br>
+                <span style="font-size: 0.9rem; color: #aaa;">(詳見 <strong>【農業與烹飪】</strong> 章節)</span>
+            </p>
+         </div>
+
+       </div>
+    </div>
+
+  </div>
+  <button class="back-to-top-btn" onclick="document.getElementById('journey-top').scrollIntoView({behavior:'smooth'})">▲</button>
+</div>

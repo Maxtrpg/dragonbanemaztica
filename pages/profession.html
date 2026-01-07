@@ -1,0 +1,2616 @@
+<style>
+/* === 職業頁面專屬 CSS === */
+.prof-section { display: none; animation: fadeIn 0.4s ease; }
+.prof-section.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* 1. 資訊卡片網格 */
+.info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 40px; }
+.info-card { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-left: 3px solid var(--jade); padding: 20px; border-radius: 6px; transition: transform 0.2s; }
+.info-card:hover { transform: translateY(-3px); background: rgba(255,255,255,0.05); border-left-color: var(--gold); }
+.info-card h4 { color: #fff; margin: 0 0 10px 0; font-size: 1.1rem; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 5px; }
+
+/* 2. 特殊能力框 */
+.special-feature-box { background: linear-gradient(135deg, rgba(201,163,90,0.1), rgba(0,0,0,0.2)); border: 1px solid var(--gold); padding: 25px; border-radius: 8px; margin: 30px 0; position: relative; }
+.special-feature-box::before { content: "SPECIAL FEATURE"; position: absolute; top: -10px; left: 20px; background: #000; color: var(--gold); padding: 0 10px; font-size: 0.75rem; letter-spacing: 1px; border: 1px solid var(--gold); }
+
+/* 3. 引用區塊 */
+blockquote.quote { border-left: 3px solid var(--gold); padding: 10px 20px; margin: 15px 0; background: rgba(255,255,255,0.03); font-style: italic; color: #ddd; }
+
+/* 4. 流派/英雄能力 標籤系統 (Flex Order Magic) */
+.hero-tab-group { 
+  display: flex; 
+  flex-wrap: wrap; 
+  gap: 8px; 
+  margin-bottom: 30px; 
+  justify-content: center; /* 加入這一行即可置中 */
+}
+.hero-radio { display: none; } /* 隱藏原本的 radio */
+
+/* 標籤按鈕樣式 - 優化版 */
+.hero-label {
+  order: 1; /* 讓所有標籤排在上面 */
+  
+  /* 核心修改：六個一排，扣除 gap (8px * 5 = 40px) 後均分 */
+  width: calc((100% - 40px) / 6);
+  
+  /* 統一高度與置中 (模擬五個字的寬度感) */
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 2px; /* 縮小內距以容納較長的文字 */
+  
+  background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2);
+  color: #888; border-radius: 4px; cursor: pointer; transition: 0.3s; 
+  font-weight: bold; font-size: 0.9rem;
+  
+  /* 防止文字換行破壞版面 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hero-label:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+/* RWD: 手機版自動改為 3 個一排，避免文字太擠 */
+@media (max-width: 768px) {
+  .hero-label {
+    width: calc((100% - 16px) / 3);
+  }
+}
+
+/* 標籤激活狀態 */
+.hero-radio:checked + .hero-label {
+  background: var(--gold); color: #000; border-color: var(--gold); box-shadow: 0 0 10px rgba(201,163,90,0.4);
+}
+
+/* 內容區塊樣式 */
+.hero-content {
+  order: 2; /* 讓內容排在標籤下方 */
+  width: 100%; display: none; /* 預設隱藏 */
+  margin-top: 10px;
+}
+.hero-content .info-card { border-left-color: var(--gold); background: rgba(201, 163, 90, 0.05); }
+
+/* 顯示被選中的內容 */
+.hero-radio:checked + .hero-label + .hero-content {
+  display: block; animation: fadeIn 0.4s ease;
+}
+
+/* 5. 薩滿流派卡片 (維持原樣) */
+.epoch-nav { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.epoch-btn { background: rgba(0,0,0,0.3); border: 1px solid #888; color: #aaa; padding: 6px 14px; border-radius: 20px; cursor: pointer; transition: 0.3s; }
+.epoch-btn.active-tab { background: var(--gold); color: #000; font-weight: bold; border-color: var(--gold); }
+.epoch-section { display: none; }
+.epoch-section.active { display: block; animation: fadeIn 0.4s ease; }
+.school-card { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 20px; margin-bottom: 20px; position: relative; border-left: 4px solid var(--gold); }
+.school-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; }
+.school-title { color: #fff; font-size: 1.2rem; font-weight: bold; }
+.lore-label { color: var(--gold); font-size: 0.9rem; font-weight: bold; display: block; margin-bottom: 5px; }
+.lore-text { color: #ddd; font-size: 0.95rem; line-height: 1.6; margin-bottom: 15px; }
+.rp-guide { background: rgba(255,255,255,0.03); padding: 15px; border-radius: 6px; border-left: 2px solid var(--jade); }
+
+/* === 騎士團專屬優化樣式 === */
+
+/* 1. 受訓技能標籤化 */
+.skill-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 0 15px 0;
+}
+
+.skill-tag {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ddd;
+  padding: 4px 10px;
+  border-radius: 15px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  transition: all 0.2s;
+}
+
+.skill-tag:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+/* 2. 額外特性區塊化 */
+.feature-block {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 15px;
+  border-radius: 6px;
+  margin-top: 15px;
+  position: relative;
+}
+
+/* 鷹騎士特性樣式 */
+.feature-eagle {
+  border: 1px solid var(--gold);
+  background: linear-gradient(135deg, rgba(201, 163, 90, 0.15), rgba(0, 0, 0, 0.3));
+}
+.feature-eagle h5 { color: var(--gold); margin: 0 0 8px 0; font-size: 1rem; border-bottom: 1px solid rgba(201, 163, 90, 0.3); padding-bottom: 5px; }
+
+/* 豹騎士特性樣式 */
+.feature-jaguar {
+  border: 1px solid #a85754; /* 紅色 */
+  background: linear-gradient(135deg, rgba(168, 87, 84, 0.15), rgba(0, 0, 0, 0.3));
+}
+.feature-jaguar h5 { color: #a85754; margin: 0 0 8px 0; font-size: 1rem; border-bottom: 1px solid rgba(168, 87, 84, 0.3); padding-bottom: 5px; }
+
+/* 3. 戰技列表樣式 (用於底部區塊) */
+.tactics-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+}
+.tactics-item {
+  background: rgba(255,255,255,0.05);
+  padding: 8px;
+  text-align: center;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #ccc;
+  border: 1px solid transparent;
+}
+.tactics-item strong { display: block; color: #fff; margin-bottom: 2px; }
+
+/* === 騎士團戰技按鈕專屬樣式 === */
+/* 鷹騎士 (金色) */
+.hero-label.eagle-btn {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.hero-label.eagle-btn:hover {
+  background: rgba(201, 163, 90, 0.1);
+}
+/* 激活狀態：金底黑字 */
+.hero-radio:checked + .hero-label.eagle-btn {
+  background: var(--gold);
+  color: #000; 
+  box-shadow: 0 0 15px rgba(201, 163, 90, 0.5);
+}
+
+/* 豹騎士 (紅色) */
+.hero-label.jaguar-btn {
+  border-color: #a85754;
+  color: #a85754;
+}
+.hero-label.jaguar-btn:hover {
+  background: rgba(168, 87, 84, 0.1);
+}
+/* 激活狀態：紅底白字 (增加對比度) */
+.hero-radio:checked + .hero-label.jaguar-btn {
+  background: #a85754;
+  color: #fff;
+  box-shadow: 0 0 15px rgba(168, 87, 84, 0.5);
+}
+
+/* 調整卡片內標題顏色 */
+.info-card h4.eagle-title { color: var(--gold); border-bottom-color: rgba(201, 163, 90, 0.3); }
+.info-card h4.jaguar-title { color: #a85754; border-bottom-color: rgba(168, 87, 84, 0.3); }
+
+/* 工匠專屬特性樣式 */
+.feature-pluma {
+  border: 1px solid var(--gold);
+  background: linear-gradient(135deg, rgba(201, 163, 90, 0.15), rgba(0, 0, 0, 0.3));
+}
+.feature-pluma h5 { color: var(--gold); margin: 0 0 8px 0; font-size: 1rem; border-bottom: 1px solid rgba(201, 163, 90, 0.3); padding-bottom: 5px; }
+
+.feature-hishna {
+  border: 1px solid #c0392b;
+  background: linear-gradient(135deg, rgba(192, 57, 43, 0.15), rgba(0, 0, 0, 0.3));
+}
+.feature-hishna h5 { color: #c0392b; margin: 0 0 8px 0; font-size: 1rem; border-bottom: 1px solid rgba(192, 57, 43, 0.3); padding-bottom: 5px; }
+
+/* === 學者專屬樣式 (Master of One 分頁) === */
+
+/* 1. 特性區塊顏色 (智慧藍) */
+.feature-scholar {
+  border: 1px solid #5277c1;
+  background: linear-gradient(135deg, rgba(82, 119, 193, 0.15), rgba(0, 0, 0, 0.3));
+}
+.feature-scholar h5 { 
+  color: #5277c1; margin: 0 0 8px 0; font-size: 1rem; 
+  border-bottom: 1px solid rgba(82, 119, 193, 0.3); padding-bottom: 5px; 
+}
+.info-card h4.scholar-title { color: #5277c1; border-bottom-color: rgba(82, 119, 193, 0.3); }
+
+/* 2. 學者分頁按鈕樣式 */
+.hero-label.scholar-btn {
+  border-color: #5277c1;
+  color: #5277c1;
+}
+.hero-label.scholar-btn:hover {
+  background: rgba(82, 119, 193, 0.1);
+}
+
+/* 3. 按鈕激活狀態 (藍底白字) */
+.hero-radio:checked + .hero-label.scholar-btn {
+  background: #5277c1;
+  color: #fff;
+  box-shadow: 0 0 15px rgba(82, 119, 193, 0.5);
+}
+/* 讓學者的四個專攻按鈕變寬 (4個一排) */
+.hero-label.scholar-btn {
+  width: calc((100% - 24px) / 4); /* 扣除 3 個 gap 後除以 4 */
+}
+
+/* 手機版維持原本的 3 個或 2 個一排邏輯，避免跑版 */
+@media (max-width: 768px) {
+  .hero-label.scholar-btn {
+    width: calc((100% - 16px) / 3);
+  }
+}
+
+</style>
+
+<header>
+  <h1>職業範型</h1>
+  <div class="ornament-divider"></div>
+  <p class="intro-text">
+    所有 PC 都是冒險者，職業是你踏上冒險旅程前的專業。它決定了你的受訓技能、裝備與起始能力。
+    <br><strong>受訓技能：</strong>從職業提供的 8 項中選擇 6 項 (數值 = 基礎值 × 2)。
+    <br><strong>起始裝備：</strong>選擇其中一組。
+  </p>
+</header>
+
+<nav class="page-index">
+  <span class="index-label">職業資料庫 CLASS DATABASE</span>
+  <div class="index-links">
+    <button class="index-btn active-tab" data-target="artisan">工匠</button>
+    <button class="index-btn" data-target="hunter">獵人</button>
+    <button class="index-btn" data-target="bard">詩人</button>
+    <button class="index-btn" data-target="warrior">戰士</button>
+    <button class="index-btn" data-target="knight">騎士</button>
+    <button class="index-btn" data-target="shaman">薩滿</button>
+    <button class="index-btn" data-target="scholar">學者</button>
+    <button class="index-btn" data-target="merchant">旅商</button>
+    <button class="index-btn" data-target="thief">盜賊</button>
+    <button class="index-btn" data-target="farmer">農民</button>
+  </div>
+</nav>
+
+<main>
+
+  <section id="artisan" class="prof-section active">
+    <h2>工匠 (Artisan)</h2>
+    <div class="race-header">
+      <img src="images/profession/artisan.webp" class="content-img" alt="Artisan">
+      <div class="race-intro-text">
+        <blockquote class="quote" style="font-style:italic; color:var(--gold-glow); border-left:3px solid var(--jade);">
+          「在夸爾特的羽翼下，我們編織陽光；在札爾特克的陰影中，我們雕刻飢餓。馬茲提卡的奇蹟不在書本裡，而在蜂鳥的翅膀振動與狩豹的喉嚨深處。我們不施法，但我們能喚醒沈睡在物質中的靈魂。」
+        </blockquote>
+        <p>工匠，是一群將心血與歲月投注於技藝之人。他們憑藉雙手與知識，將自然界的材料化為堅固的器具、精美的飾品與實用的武器。傳統的工匠懂得挑選最堅韌的黑曜石製作鋒利刃片，或運用玉石、羽毛與金屬打造承載部族榮耀的象徵。然而，在真世界馬茲提卡，還存在著一群「選民」與「覺醒者」，他們能透過技術跨越凡俗的邊界，觸碰奇蹟。</p>
+        <p>在遠古夸爾特與札爾特克的神戰背景下，善與惡的信徒互相攻伐，而在這場激盪中，誕生了兩種非凡的工匠傳承：羽織工匠與獸刻工匠。</p>
+        <p>選擇工匠範型，代表你將看穿魔法表象下的「聲學」與「結構」真理。你可能是聆聽蜂鳥教誨、用虹韻將光芒編織進羽毛的 「夸爾特選民」；也可能是逃離血腥祭壇、用骨鳴將咆哮雕刻進黑曜石的 「獸刻後代」。透過掌握物質的共振頻率，你能在冒險中將死去的怪獸轉化為神聖的武裝，用奇蹟編織法解決那些法術無能為力的難題。這條道路，並非祈求神明的恩賜，而是透過精密的計算與狂野的咆哮，在每一次的「編織」與「雕琢」之中，證明凡人的技術足以比肩神蹟。</p>
+      </div>
+    </div>
+
+    <h3>工匠傳承 (Artisan Traditions) <span class="maz-badge">馬茲提卡</span> </h3>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th style="width:120px;">傳承</th><th style="width:100px;">關鍵屬性</th><th>核心概念</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>羽織工匠</strong><br>(Feather Weaver)</td>
+            <td><span class="wp">敏捷</span></td>
+            <td>
+              羽織工匠的起源來自神諭。<br>據說在庫塔爾離去的前夕，祂未向大祭司降下神諭，而是走入了一群卑微編織工 (Amanteca) 的夢中。祂向這些製作羽毛斗篷的人揭示了宇宙的真理：啟動力量的鑰匙名為 【虹韻】(Nahualli) —— 這是神說話的方式，是構成光、風與生命的聲學語法。<br>神將種子植入工匠的喉嚨，改變了他們的聲帶結構，使他們能發出凡人無法模仿的「複調和聲」。從那天起，第一代羽織工匠誕生了。表面上，他們是為貴族製作儀式服裝的藝術家；實際上，他們是奇蹟的編織者，是夸爾特留給人間的守望者。
+            </td>
+          </tr>
+          <tr>
+            <td><strong>獸刻工匠</strong><br>(Beast Carver)</td>
+            <td><span class="wp">力量</span></td>
+            <td>
+              獸刻工匠的傳說則始於「哀號之夜」的血腥祭壇。<br>一名戰俘在瀕死之際看穿了神的謊言：大祭司手中那把無堅不摧的黑曜石匕首，並非倚靠神力，而是由特定的聲學頻率維持著原子級的震動。在刀鋒落下的瞬間，戰俘爆發出一聲 「逆向咆哮」。這道物理干涉波精準地撞擊了匕首的共振頻率，使其瞬間炸裂。<br>倖存者們靠著這竊取來的聲學技術殺出血路，成為了第一代「獸刻大師」（Hishna-Te）。他們從此摒棄祈禱，遁入叢林拆解怪獸的骨血。對他們而言，札爾特克的獸術不再是邪惡的魔法，而是生物與結構的物理法則——一門曾被神祇壟斷，如今由凡人掌握的殘酷工程學。
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+ <div class="info-grid" style="margin-top:20px;">
+      
+      <div class="info-card">
+        <h4 style="color:var(--gold)">羽織工匠 (Feather Weaver)</h4>
+        
+        <div style="font-size:0.9rem; color:#aaa; margin-bottom:5px;">受訓技能：</div>
+        <div class="skill-container">
+          <span class="skill-tag">工藝</span>
+          <span class="skill-tag">祕聞傳說</span>
+          <span class="skill-tag">語言</span>
+          <span class="skill-tag">巧手</span>
+          <span class="skill-tag">察覺</span>
+          <span class="skill-tag">野獸知識</span>
+          <span class="skill-tag">吹箭筒</span>
+          <span class="skill-tag">投石繩</span>
+        </div>
+
+        <div class="feature-block feature-pluma">
+          <h5>額外特性：羽符編印 Iris-Rhyme Inscription</h5>
+          <p><span class="wp">WP: 不定</span></p>
+          <p>你掌握了如何使用虹韻的秘密，能將神的奇蹟編碼進精密的羽毛鑲嵌中。你的 <strong>工藝</strong> 技能改為依賴 <strong>敏捷</strong>。</p>
+          <p>花費一班時間與羽毛材料，在非金屬裝備上編織<strong>「羽織字形」</strong>。鍛造成功則物品增加字形效果並獲得 <strong>[工藝等級 ÷ 3]</strong> 的充能數；大成功則充能數翻倍。</p>
+          <p>任何知道對應「虹韻指令」的人（以自由動作唸出），可花費 WP 觸發字形效果。</p><p>你初始掌握三個一階字形。（詳見【鍛造與強化】章節）</p>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <h4 style="color:#c0392b">獸刻工匠 (Beast Carver)</h4>
+        
+        <div style="font-size:0.9rem; color:#aaa; margin-bottom:5px;">受訓技能：</div>
+        <div class="skill-container">
+          <span class="skill-tag">工藝</span>
+          <span class="skill-tag">野獸知識</span>
+          <span class="skill-tag">求生</span>
+          <span class="skill-tag">狩獵</span>
+          <span class="skill-tag">調查</span>
+          <span class="skill-tag">徒手</span>
+          <span class="skill-tag">劍</span>
+          <span class="skill-tag">棍棒</span>
+        </div>
+
+        <div class="feature-block feature-hishna">
+          <h5>額外特性：骨鳴雕刻 Resonant Carving</h5>
+          <p><span class="wp">WP: 不定 / 3</span></p>
+          <p>你掌握如何使用骨鳴的秘密，能在野獸或黑曜石等材料上雕刻出特殊的共振槽符。花費一班時間在野獸素材或黑曜石上雕刻<strong>「骨鳴獸紋」</strong>。鍛造成功則物品增加獸紋效果。</p>
+          <p>你可以用一個 <strong>自由動作</strong> (或根據獸刻說明)，花費 3 WP，發出原始咆哮觸發你裝備上的一個 <strong>獸紋效果</strong>。此咆哮同時對周圍 10 米內的所有 <strong>非怪物</strong> 敵人造成 <strong>恐懼攻擊</strong>。</p>
+          <p>你初始掌握三個一階獸紋。（詳見【鍛造與強化】章節）</p>
+        </div>
+      </div>
+
+    </div>
+    <h3>起始裝備 (擇一組)</h3>
+    <div class="info-grid">
+      <div class="info-card">
+        <h4>第一組 (吹箭)</h4>
+        <ul>
+          <li>吹箭筒 & 吹箭袋</li>
+          <li>黑曜石小刀</li>
+          <li>棉甲</li>
+          <li>睡袋卷、松明火炬 & 黃鐵礦取火組</li>
+          <li>1D8 食物 & 1D8 月幣</li>
+        </ul>
+      </div>
+      <div class="info-card">
+        <h4>第二組 (戰鬥)</h4>
+        <ul>
+          <li>馬夸維爾特 (黑曜石劍)</li>
+          <li>圓盾</li>
+          <li>獸皮甲</li>
+          <li>松明火炬 & 黃鐵礦取火組</li>
+          <li>1D8 食物 & 1D8 月幣</li>
+        </ul>
+      </div>
+      <div class="info-card">
+        <h4>第三組 (狩獵)</h4>
+        <ul>
+          <li>黑曜石小刀</li>
+          <li>投石繩 & 10米繩索</li>
+          <li>圈套陷阱 & 背包</li>
+          <li>睡袋卷、松明火炬 & 黃鐵礦取火組</li>
+          <li>1D8 食物 & 1D8 月幣</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:6px; font-size:0.9rem; color:#aaa; border-left:3px solid var(--text-dim);">
+      <strong>額外獲得：</strong><br>
+      • <strong>羽織工匠：</strong>羽織工具（可當木匠工具、織布工具使用）、一袋羽毛 (工藝材料)。<br>
+      • <strong>獸刻工匠：</strong>獸刻工具（可當鍛匠工具、皮匠工具使用）、一袋乾燥的毒囊與牙齒 (工藝材料)。
+      • <strong>初始強化裝備：</strong>你可以選擇初始的任一項裝備已強化你所學會的任一種羽織字形/獸刻字形。
+    </div>
+
+    <h3>英雄能力 (選擇一項，代表你擅長的工藝領域)</h3>
+    <div class="hero-tab-group">
+      <input type="radio" name="artisan-hero" id="art-1" class="hero-radio" checked>
+      <label for="art-1" class="hero-label">鍛匠大師</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【鍛匠大師】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP: 不定</span></p>
+          <p>此能力需要鍛匠工具。你可以利用鍛匠工具做以下的事情：</p>
+          <ul style="margin-left:20px; line-height:1.6;">
+            <li>在一刻時間內，你可以消耗 3 WP，銳化一把帶有黑曜石刀刃或尖端的武器。當使用銳化武器進行攻擊時，目標的護甲值會視為降低 2 點。一旦在戰鬥中使用銳化武器進行過攻擊或格擋，銳化效果會在該戰鬥結束後終止。</li>
+            <li>在一班時間內，你可以嘗試從裝備列表中打造一把黑曜石武器。這個過程需要重量為 1 的黑曜石。消耗的 WP 等於物品的金幣價格（向上取整）。若你沒有足夠的 WP，你可以將工作分成好幾班的時間來處理。</li>
+            <li>或者，你可以使用蒐集到的材料試圖強化裝備（詳見「鍛造與強化」章節）。</li>
+          </ul>
+        </div>
+      </div>
+
+      <input type="radio" name="artisan-hero" id="art-2" class="hero-radio">
+      <label for="art-2" class="hero-label">木匠大師</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【木匠大師】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：不定</span></p>
+          <p>此能力需要木匠工具。你可以利用木匠工具做以下的事情：</p>
+          <ul style="margin-left:20px; line-height:1.6;">
+            <li>以一個動作，你可以消耗 1 WP 對門、牆壁或其他無生命物體造成 1d12 傷害（無視護甲值）。</li>
+            <li>在一班時間內，你可以嘗試從裝備列表中打造一個木製物品，例如棍棒、長棍。這個過程需要重量為 1 的木頭。消耗的 WP 等於物品的金幣價格（向上取整）。</li>
+            <li>或者，你可以使用蒐集到的材料試圖強化裝備（詳見「鍛造與強化」章節）。</li>
+          </ul>
+        </div>
+      </div>
+
+      <input type="radio" name="artisan-hero" id="art-3" class="hero-radio">
+      <label for="art-3" class="hero-label">皮匠大師</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【皮匠大師】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP: 不定</span></p>
+          <p>此能力需要皮匠工具。你可以利用皮匠工具做以下的事情：</p>
+          <ul style="margin-left:20px; line-height:1.6;">
+            <li>在一刻時間內，你可以消耗 2 WP，臨時加固一件皮甲的防護效果。該皮甲的護甲值暫時 + 1。一旦在戰鬥中承受過傷害，該強化效果會在該戰鬥結束後終止。</li>
+            <li>你可以嘗試從將一隻動物或怪物的皮做成一套獸皮甲。該皮甲的護甲值等於野獸護甲值的一半（向上取整），至少為 1。這個過程耗時一班時間，消耗的 WP 等於物品的護甲值。</li>
+            <li>或者，你可以使用蒐集到的材料試圖強化裝備（詳見「鍛造與強化」章節）。</li>
+          </ul>
+        </div>
+      </div>
+
+      <input type="radio" name="artisan-hero" id="art-4" class="hero-radio">
+      <label for="art-4" class="hero-label">織匠大師</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【織匠大師】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP: 不定</span></p>
+          <p>此能力需要織布工具。你可以利用織布工具做以下的事情：</p>
+          <ul style="margin-left:20px; line-height:1.6;">
+            <li>在一刻時間內，你可以消耗 2 WP，臨時加固一件棉甲的防護效果。該棉甲的護甲值暫時 + 1。一旦在戰鬥中承受過傷害，該強化效果會在該戰鬥結束後終止。</li>
+            <li>在一班時間內，你可以嘗試從裝備列表中打造一套服裝。這個過程需要重量為 1 的植物纖維或羽毛。消耗的 WP 等於物品的金幣價格（向上取整）。若你沒有足夠的 WP，你可以將工作分成好幾班的時間來處理。</li>
+            <li>或者，你可以使用蒐集到的材料試圖強化裝備（詳見「鍛造與強化」章節）。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="hunter" class="prof-section">
+    <h2>獵人 (Hunter)</h2>
+    <div class="race-header">
+      <img src="images/profession/Hunter.webp" class="content-img" alt="Hunter">
+      <div class="race-intro-text">
+        <blockquote class="quote" style="font-style:italic; color:var(--gold-glow); border-left:3px solid var(--jade);">
+          「叢林不對喧嘩者低語，只向傾聽者訴說。我們是雷擊前的寂靜，是綠色高牆上唯一的眼睛。獵物以為自己藏得很好，直到箭矢穿過牠的喉嚨。我們不征服荒野，我們是荒野受脅時露出的獠牙。」
+        </blockquote>
+        <p>在馬茲提卡廣袤的叢林與山谷之間，獵人是自然的探索者與守望者。他們熟悉林木的氣息、動物的習性，以及隱藏於濃密葉影中的危機。獵人不僅是弓矢與陷阱的能手，更是觀察的專家：一片斷裂的枝葉、一行輕微的足跡，對他們來說就是指引方向的路標。</p>
+        <p>在部族與城邦的生活裡，獵人負責提供肉食與獸皮，他們懂得如何在不驚擾自然的情況下獲取資源。當危險來臨時，他們的技能更能轉化為守護的力量──無論是設置陷阱對抗入侵者，還是憑藉敏銳的眼力，預先發現潛伏的猛獸。</p>
+        <p>馬茲提卡的叢林充滿濕熱與未知，毒蛇、猛禽與沼澤中的掠食者無所不在。獵人卻能在其中自在行走，靠著熟悉的道路與草藥知識保持安全。他們能為同伴找到乾淨的水源，辨別可食與有毒的果實，並在危險時刻帶領隊伍穿越隱蔽小徑。</p>
+        <p>選擇獵人範型，代表你將把自然當作盟友。你可能是森林部落中磨練出的巡林者，也可能是獨自徘徊於荒野的遊俠。你的價值在於行動的敏捷、目光的銳利，以及對叢林無與倫比的理解。無論是在狩獵還是冒險中，獵人始終是開路的先鋒，也是荒野裡最可靠的同伴。</p>
+      </div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-card" style="border-left-color: var(--gold);">
+        <h4 style="color:var(--gold)">關鍵屬性</h4>
+        <p style="font-size:1.2rem; font-weight:bold; color:#fff; margin:0;">敏捷 (AGL)</p>
+      </div>
+      <div class="info-card">
+        <h4>起始技能 (選 6 項)</h4>
+        <p style="margin:0;">體操、狩獵、隱匿、察覺、求生、小刀、弓、吹箭</p>
+      </div>
+    </div>
+
+    <h3>起始裝備 (擇一組)</h3>
+    <div class="info-grid">
+      <div class="info-card">
+        <h4>第一組 </h4>
+        <ul><li>黑曜石飛刀</li><li>戰弓 & 黑曜石箭袋</li><li>獸皮甲 & 睡袋卷</li><li>圈套陷阱 & 麻繩 (10米)</li><li>松明火炬 & 黃鐵礦取火組</li><li>1D8 食物 & 1D6 月幣</li></ul>
+      </div>
+      <div class="info-card">
+        <h4>第二組</h4>
+        <ul><li>黑曜石小刀</li><li>短弓 & 骨簇箭袋</li><li>獸皮甲 & 睡袋卷</li><li>蘆葦釣竿 & 麻繩 (10米)</li><li>松明火炬 & 黃鐵礦取火組</li><li>1D8 食物 & 1D6 月幣</li></ul>
+      </div>
+      <div class="info-card">
+        <h4>第三組</h4>
+        <ul><li>馬卡短劍</li><li>吹箭筒 & 箭袋</li><li>獸皮甲 & 睡袋卷</li><li>圈套陷阱 & 麻繩 (10米)</li><li>松明火炬 & 黃鐵礦取火組</li><li>1D8 食物 & 1D6 月幣</li></ul>
+      </div>
+    </div>
+
+    <h3>英雄能力 (選擇兩項，代表你身為獵人的專業)</h3>
+    <div class="hero-tab-group">
+      <input type="radio" name="hunter-hero" id="hunt-1" class="hero-radio" checked>
+      <label for="hunt-1" class="hero-label">動物夥伴</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【動物夥伴】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：3</span></p>
+          <p>你可以發動此能力，將一隻動物馴服為你的夥伴。此過程需耗時一刻時間，且你同時只能擁有一隻動物夥伴。</p>
+          <p>只要你待在該動物的自然棲息地，牠就會一直跟著你。</p>
+          <p>牠可以為你偵察附近環境，而不需要消耗額外的 WP。</p>
+          <p>在戰鬥中，你可以額外消耗 3 WP，命令夥伴攻擊一名敵人（不需要花費你的動作）。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="hunter-hero" id="hunt-2" class="hero-radio">
+      <label for="hunt-2" class="hero-label">鷹眼</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【鷹眼】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>你可以看到最遠 200 米外的人或物體，就像在你面前一樣清楚。</p>
+          <p>效果持續一刻時間。</p>
+          <p>你可以在戰鬥中發動此能力，對超出武器有效射程的目標進行攻擊不會獲得 1 個劣勢。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="hunter-hero" id="hunt-3" class="hero-radio">
+      <label for="hunt-3" class="hero-label">水獵巧技</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【水獵巧技】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>你擅長在水域裡捕獵，能在水中迅速應對情況。你可以在以下情況發動此能力：</p>
+          <ul style="margin-left:20px; line-height:1.6;">
+            <li>當你嘗試釣魚時，你可以發動此能力來讓狩獵檢定獲得優勢。</li>
+            <li>當你在水中進行近戰攻擊時，你可以發動此能力來避免該次攻擊獲得劣勢。</li>
+            <li>你在水中受到攻擊時，你可以發動此能力使用游泳來取代閃避檢定。</li>
+          </ul>
+        </div>
+      </div>
+
+      <input type="radio" name="hunter-hero" id="hunt-4" class="hero-radio">
+      <label for="hunt-4" class="hero-label">雙重射擊</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【雙重射擊】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：3</span></p>
+          <p>當你使用 弓 或 吹箭筒 進行攻擊時，你可以發動此能力來射出兩支箭矢/吹箭。</p>
+          <p>你可以指定同一個目標、或兩個不同的目標。</p>
+          <p>無論如何，都只進行一次帶有 1 個劣勢的攻擊檢定。傷害分開計算。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="hunter-hero" id="hunt-5" class="hero-radio">
+      <label for="hunt-5" class="hero-label">蝮蛇瞬咬</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【蝮蛇瞬咬】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>發動此能力後，持續一刻時間（或直到一場戰鬥結束）。</p>
+          <p>如同潛伏在樹葉下的毒蛇，你不需要拉開距離就能發動致命一擊。</p>
+          <p>在此期間，當你的攻擊目標位於你 2 米內時，你的 弓 或 吹箭筒 攻擊不會因此獲得劣勢。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="hunter-hero" id="hunt-6" class="hero-radio">
+      <label for="hunt-6" class="hero-label">蜂鳥迴身</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【蜂鳥迴身】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：3</span></p>
+          <p>模仿蜂鳥在空中的靈動姿態，將防禦與反擊合而為一。</p>
+          <p>當敵人移動結束後，你處於敵人 2 米範圍內時，你可以發動此能力。</p>
+          <p>用一個反應動作（若你這回合還未行動），你立即向後方或側向移動最多等同於你移動力一半的距離（此移動不會引發藉機攻擊），並隨即對該敵人進行一次遠程攻擊。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="hunter-hero" id="hunt-7" class="hero-radio">
+      <label for="hunt-7" class="hero-label">專注追獵</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【專注追獵】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：3</span></p>
+          <p>你將感知聚焦於視線內的一名敵人，將其鎖定為獵物，屏除戰場上其他干擾。透過觀察目標的呼吸節奏與重心變化，你能在對方行動前一瞬看穿其意圖。</p>
+          <p>持續到戰鬥結束、目標死亡或你對其他目標造成傷害。你獲得以下效果：</p>
+          <ul style="margin-left:20px; line-height:1.6;">
+            <li>你在追蹤該目標的檢定自動成功，因為你已記住了牠獨特的氣味與步態。</li>
+            <li>在戰鬥中，你對該目標的攻擊傷害額外增加 1D4。這代表你總能精準命中目標防禦的縫隙或舊傷。</li>
+          </ul>
+        </div>
+      </div>
+
+      <input type="radio" name="hunter-hero" id="hunt-8" class="hero-radio">
+      <label for="hunt-8" class="hero-label">快速塗毒</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【快速塗毒】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>你熟知如何安全且迅速地處理致命毒素。當你宣告攻擊時，你可以發動此能力。</p>
+          <p>你可以用一個流暢的動作將塗毒與攻擊結合（不需額外花費動作塗毒）。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="hunter-hero" id="hunt-9" class="hero-radio">
+      <label for="hunt-9" class="hero-label">熟悉毒物</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【熟悉毒物】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>你對致命植物的氣味與外觀有著異常敏銳的直覺，能在雜亂的叢林中一眼辨識出危險的葉片。</p>
+          <p>當你在森林或沼澤環境尋找有毒植物（作為毒藥原料或陷阱素材）時，你可以發動此能力。</p>
+          <p>你尋找毒藥的求生檢定獲得 1 個優勢。若檢定大成功，你將發現品質極高或份量加倍的毒素原料。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="hunter-hero" id="hunt-10" class="hero-radio">
+      <label for="hunt-10" class="hero-label">怪物獵人</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【怪物獵人】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>若遇到岔路，你可以發動此能力，知曉哪個方向有危險的敵人。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="hunter-hero" id="hunt-11" class="hero-radio">
+      <label for="hunt-11" class="hero-label">尋路者</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【尋路者】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：1</span></p>
+          <p>當你試圖在荒野中尋找正確的方向時，你的求生檢定獲得 1 個優勢。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="hunter-hero" id="hunt-12" class="hero-radio">
+      <label for="hunt-12" class="hero-label">陷阱大師</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【陷阱大師】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：不定</span></p>
+          <p>當你在森林中時，你可以耗時一刻時間蒐集材料，並在你指定的地點設置陷阱。花費的WP和陷阱作用詳見如下：</p>
+          <ul style="margin-left:20px; line-height:1.6;">
+            <li>圈套陷阱<span class="wp">（WP: 2）</span></li>
+            <ul class="sub-list">
+            <li>你用纖維繩（龍舌蘭纖維、藤蔓）做成繩圈，固定在樹根或木樁上，連接觸發機關。每當有生物觸發陷阱時，需進行 閃避 檢定，失敗視為被 擒抱 。繩子可以被割斷。</li>
+          </ul>
+            <li>囚籠陷阱<span class="wp">（WP: 2）</span></li>
+            <ul class="sub-list">
+            <li>用藤蔓或木條製成簡易籠子，內部放置誘餌。一旦觸動機關，籠子扣下並鎖住獵物，使目標「被困」在籠內，行動受限，只能嘗試破壞或推翻籠子。</li>
+          </ul>
+            <li>陷坑陷阱<span class="wp">（WP: 3）</span></li>
+            <ul class="sub-list">
+            <li>挖一個偽裝的深坑，底部插入削尖的木樁，再用樹葉或泥土覆蓋。每當有生物觸發陷阱時，需進行閃避檢定，失敗將跌入 3 米陷坑，並受到 2D4 穿刺傷害。</li>
+          </ul>
+            <li>落石陷阱<span class="wp">（WP: 3）</span></li>
+            <ul class="sub-list">
+            <li>用繩索懸掛一塊巨石，設計觸發點讓石頭砸落。每當有生物觸發陷阱時，需進行閃避檢定，失敗被擊倒伏地，並受到 2D6 鈍擊傷害。</li>
+          </ul>
+            <li>藤鞭陷阱<span class="wp">（WP: 3）</span></li>
+            <ul class="sub-list">
+            <li>將彈力強的細樹枝或藤條拉緊，綁上尖刺或石頭，觸發後迅速彈出。每當有生物觸發陷阱時，需進行閃避檢定，失敗被擊飛 2D6 米，並受到等量揮砍傷害。</li>
+          </ul>
+          </ul>
+        </div>
+
+      <input type="radio" name="hunter-hero" id="hunt-13" class="hero-radio">
+      <label for="hunt-13" class="hero-label">尋毒直覺</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【尋毒直覺】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>你對致命植物的氣味與外觀有著異常敏銳的直覺，能在雜亂的叢林中一眼辨識出危險的葉片。</p>
+          <p>當你在森林或沼澤環境尋找有毒植物（作為毒藥原料或陷阱素材）時，你可以發動此能力。你尋找毒藥的 求生 檢定獲得 1 個優勢。若檢定大成功，你將發現品質極高或份量加倍的毒素原料。</p>
+        </div>
+      </div>
+      </div>
+  </section>
+
+  <section id="bard" class="prof-section">
+    <h2>詩人 (Bard)</h2>
+    <div class="race-header">
+      <img src="images/profession/Bard.webp" class="content-img" alt="Bard">
+      <div class="race-intro-text">
+        <blockquote class="quote" style="font-style:italic; color:var(--gold-glow); border-left:3px solid var(--jade);">
+          「石碑會風化，黃金會遺失，即便是帝國也會化為塵土，唯有歌謠長存。我們不只是娛樂者，我們將馬茲提卡的靈魂編織成時間無法撕裂的織錦。仔細聽，因為我的聲音裡，藏著你所能觸及的唯一永恆。」
+        </blockquote>
+        <p>在馬茲提卡的文明中，詩人並非單純的吟遊者，而是知識的守護者與文化的傳承者。他們被稱為「花與歌之人」，透過詩句、音樂與舞蹈來頌揚神祇、記錄歷史、傳遞智慧。詩人的話語與旋律能凝聚族群的信念，使城邦在動盪與榮耀中維繫共同的記憶。</p>
+        <p>詩人在社會中享有崇高地位，他們出席祭典、戰前儀式與領主的宮廷，擔任見證與講述的角色。人們相信，詩歌不僅能陶冶心靈，更能讓勇士記住自己的榮耀與責任。許多首領與戰士渴望詩人的讚頌，因為那代表他們的名字將在世代的歌聲裡長存。</p>
+        <p>專精於不同領域的詩人各有價值：有的偏重史詩吟誦，能將過往戰事與族群傳說娓娓道來；有的擅長歌舞與樂器，帶來凝聚情感的力量；也有詩人專注於隱喻與箴言，他們的話語像謎語般啟迪聽眾。這些專精不僅是藝術的差異，更影響他們在冒險中的作用——一位史詩詩人能鼓舞士氣，一位歌舞詩人能拉近陌生群體的距離，而一位箴言詩人則可能以機智言詞化解危機。</p>
+        <p>選擇詩人範型，代表你將承擔一份特殊的責任：不只是觀察者，更是文化的記錄者與推動者。你的聲音，能將冒險的片段編織成世代傳唱的傳奇。</p>
+      </div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-card" style="border-left-color: var(--gold);">
+        <h4 style="color:var(--gold)">關鍵屬性</h4>
+        <p style="font-size:1.2rem; font-weight:bold; color:#fff; margin:0;">魅力 (CHA)</p>
+      </div>
+      <div class="info-card">
+        <h4>起始技能 (選 6 項)</h4>
+        <p style="margin:0;">體操、閃避、語言、祕聞傳說、欺瞞、表演、遊說、小刀</p>
+      </div>
+    </div>
+
+    <h3>起始裝備 (擇一組)</h3>
+    <div class="info-grid">
+      <div class="info-card">
+        <h4>第一組 (敘事)</h4>
+        <ul><li>長鼓</li><li>黑曜石小刀</li><li>陶碗油燈 & 油脂（樹脂）</li><li>1D6 食物</li><li>1D8 月幣</li></ul>
+      </div>
+      <div class="info-card">
+        <h4>第二組 (樂師)</h4>
+        <ul><li>長笛</li><li>黑曜石飛刀</li><li>麻繩（10米）松明火炬 & 黃鐵礦取火組</li><li>麻繩（10米）</li><li>1D6 食物</li><li>1D8 月幣</li></ul>
+      </div>
+      <div class="info-card">
+        <h4>第三組 (號角)</h4>
+        <ul><li>海貝號角</li><li>黑曜石飛刀</li><li>松明火炬 & 黃鐵礦取火組</li><li>1D6 食物</li><li>1D8 月幣</li></ul>
+      </div>
+    </div>
+
+    <h3>英雄能力 (選擇兩項，代表了你詩人的專業)</h3>
+    <div class="hero-tab-group">
+      <input type="radio" name="bard-hero" id="bard-1" class="hero-radio" checked>
+      <label for="bard-1" class="hero-label">音樂家</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【音樂家】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：3</span></p>
+          <p>你動人的聲音可以鼓舞你的盟友或挫敗你的敵人。</p>
+          <p>發動此能力（一個動作）可以讓 10 米內所有盟友的所有檢定獲得 1 個優勢，或讓相同範圍內的所有敵人獲得 1 個劣勢（選擇其中一種）。效果持續到你下一個回合開始。</p>
+          <p>你可以使用樂器來增加此能力的範圍，或減少 WP 的消耗量（參考裝備的樂器說明）。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="bard-hero" id="bard-2" class="hero-radio" checked>
+      <label for="bard-2" class="hero-label">頌神曲</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【頌神曲】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：-</span></p>
+          <p>你精通讚揚神祇的祭文禱詞。</p>
+          <p>每日一次，在適當的地方耗時一刻時間向當日侍神誠心唸頌禱詞，進行 表演 檢定。若成功，則侍神將會聽到你的祈禱，並降下神賜給整個隊伍。</p>
+          <p>降下何種神賜取決於當日的守護侍神。（詳見曆法章節）</p>
+        </div>
+      </div>
+
+      <input type="radio" name="bard-hero" id="bard-3" class="hero-radio">
+      <label for="bard-3" class="hero-label">紓壓曲</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【紓壓曲】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：-</span></p>
+          <p>當你進行短休時，你可以使用樂器同時演奏紓壓的音樂來減緩同伴的壓力。</p>
+          <p>你可以讓和你一同短休的其他盟友額外回復 1d6 WP。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="bard-hero" id="bard-4" class="hero-radio">
+      <label for="bard-4" class="hero-label">英雄讚歌</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【英雄讚歌】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>你熟記歷史上許多偉大英雄的事蹟，並能在關鍵時刻透過詩歌喚醒他人的勇氣。</p>
+          <p>當你目睹一名盟友進行檢定失敗時，你可以發動此能力(無須動作)。</p>
+          <p>你吟誦一段相關的英雄史詩，激發該盟友內在的潛能。該盟友可以立即重骰該次檢定，並必須接受重骰的結果。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="bard-hero" id="bard-5" class="hero-radio">
+      <label for="bard-5" class="hero-label">博學多聞</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【博學多聞】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>你在城邦學校受過廣泛的教育，閱讀過無數卷軸與碑文。</p>
+          <p>當你必須進行一項你並不擅長（數值低於 10）的 智力 相關技能檢定時，你可以發動此能力。</p>
+          <p>你回想起某本古籍中的相關記載，該次檢定獲得 1 個優勢。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="bard-hero" id="bard-6" class="hero-radio">
+      <label for="bard-6" class="hero-label">戰歌</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【戰歌】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：3</span></p>
+          <p>你精通鼓舞士氣和振奮人心的激昂戰歌。</p>
+          <p>你可以耗時一刻時間鼓舞隊友，消除其他人的 畏縮 和 沮喪 狀態，每個消除的狀態可回復該隊友 2 WP。</p>
+          <p>此外，在戰鬥時，你也可以用一個動作吼出激勵的戰鬥誓言，聽得見你的所有其他同伴立刻自選 1 個狀態消除。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="bard-hero" id="bard-7" class="hero-radio">
+      <label for="bard-7" class="hero-label">龜縮</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【龜縮】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>當你被攻擊時，若有另一名 盟友 在你 2 米內，你可以發動此能力，讓該 盟友 代替你被攻擊。</p>
+          <p>此能力對 範圍(AOE) 攻擊無效，且你必須在嘗試任何 閃避 或 格擋 前發動此能力。</p>
+          <p>代替你被攻擊的新目標可以正常嘗試閃避或格擋。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="bard-hero" id="bard-8" class="hero-radio">
+      <label for="bard-8" class="hero-label">察言觀色</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【察言觀色】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>你對人心的觀察遠超常人。在你與另一個人的談話中，你可以發動此能力進行 察覺 檢定。依照檢定結果，你可獲得下列一項或多項資訊（大成功則全部獲得）：</p>
+          <ul style="margin-left:20px; line-height:1.6;">
+            <li>失敗/成功：對方目前的情緒。</li>
+            <li>成功：對方是否在說謊。</li>
+            <li>成功：對方對你／某人／某事的真實態度。</li>
+            <li>大成功：你能判斷對方潛在的動機或弱點。</li>
+          </ul>
+        </div>
+      </div>
+
+      <input type="radio" name="bard-hero" id="bard-9" class="hero-radio">
+      <label for="bard-9" class="hero-label">王權威儀</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【王權威儀】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：3</span></p>
+          <p>你身上流露出一種如同古代君王般的自然威嚴。在非戰鬥狀態下，面對守衛、官員或敵對部落領袖時，你可以發動此能力。</p>
+          <p>這讓你擁有「外交豁免」般的特權，你有權要求一次「和平談話」的機會，或者進入通常禁止外人進入的區域（如貴族庭院、祭司神殿）。</p>
+          <p>對方必須進行 意志 檢定來拒絕你的要求。若你隨後做出敵對行為，此效果立即失效。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="bard-hero" id="bard-10" class="hero-radio">
+      <label for="bard-10" class="hero-label">操弄人心</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【操弄人心】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：3</span></p>
+          <p>你擅長煽動或安撫群眾的情緒。當你面對一群人（3人以上）時，你可以發表一段演說。</p>
+          <p>你可以選擇讓群眾的態度轉變為「友善」或「激憤」。</p>
+          <p>這可以用來平息暴動、煽動村民對抗暴政，或是讓商隊給予你們免費的食宿招待。效果持續一班時間。</p>
+        </div>
+      </div>
+
+
+      <input type="radio" name="bard-hero" id="bard-11" class="hero-radio">
+      <label for="bard-11" class="hero-label">天命宣示</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【天命宣示】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>馬茲提卡人深信命運受星辰與曆法支配。你懂得如何解讀（或編造）吉凶預兆來操縱人心。</p>
+          <p>在社交互動中，你可以用「這是神諭」或「今日不宜」為理由來說服迷信的 NPC。這允許你使用 祕聞傳說 技能來代替 遊說 或 欺瞞 進行檢定。</p>
+          <p>若對象是虔誠的信徒或平民，該次檢定獲得 1 個優勢。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="bard-hero" id="bard-12" class="hero-radio">
+      <label for="bard-12" class="hero-label">氏族羈絆</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【氏族羈絆】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>你深諳馬茲提卡氏族之間的互助傳統與禮節。當你到達一個新的城鎮或村落時，你可以發動此能力。</p>
+          <p>你能迅速找到當地的遠親、友好的氏族成員或曾受過你恩惠的人。這能讓整個隊伍獲得免費且安全的食宿（生活品質為普通），並能打聽到只有當地人才知道的八卦傳聞。</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="warrior" class="prof-section">
+    <h2>戰士 (Warrior)</h2>
+    <div class="race-header">
+      <img src="images/profession/Warrior.webp" class="content-img" alt="Warrior">
+      <div class="race-intro-text">
+        <blockquote class="quote" style="font-style:italic; color:var(--gold-glow); border-left:3px solid var(--jade);">
+          「我們流血並非為了痛苦，而是為了餵養照耀萬物的烈日。手中的馬夸維爾特並非兇器，而是要在戰爭的畫布上繪出榮耀的筆。站在我身後，你將屹立不倒；擋在我面前，你將成為踏石。」
+        </blockquote>
+        <p>在馬茲提卡大陸，戰士是社會與城邦的支柱。他們不僅是戰場上的鬥士，更是部族榮耀的象徵。自少年起，戰士便接受嚴格訓練，學習如何在叢林與平原上求生，如何揮舞各式各樣的武器。對馬茲提卡人而言，武勇與榮譽往往決定一個人的地位，而戰士正是這份價值的化身。</p>
+        <p>戰士熟悉多種武器：黑曜石劍(馬夸維爾特) 能劈裂骨肉；長柄木矛與投槍器在近戰與遠距中皆具威脅；羽飾圓盾不僅保護身軀，也象徵身分與成就。部分戰士專注於重裝與近身搏鬥，正面突破敵陣；另一些則強調敏捷與靈巧，習慣於叢林中埋伏、突擊。無論流派不同，戰士們都以紀律與實戰磨練成就自我。</p>
+        <p>在城邦與部族中，戰士的地位舉足輕重。他們是保護領地與人民的屏障，也是祭典與儀式上不可或缺的角色。俘虜敵人、奮戰至死、贏得榮譽，這些行為能使戰士的名字傳頌於世，甚至獲得神祇的垂青。</p>
+        <p>選擇戰士範型，代表你承擔了最直接卻最重要的職責：以武藝與勇氣守護同伴與信念。無論是舉盾在前，還是持矛開道，戰士都是隊伍的核心力量，讓冒險能在危險的土地上持續前行。</p>
+      </div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-card" style="border-left-color: var(--gold);">
+        <h4 style="color:var(--gold)">關鍵屬性</h4>
+        <p style="font-size:1.2rem; font-weight:bold; color:#fff; margin:0;">力量 (STR)</p>
+      </div>
+      <div class="info-card">
+        <h4>起始技能 (選 6 項)</h4>
+        <p style="margin:0;">閃避、徒手、斧、棍棒、矛、劍、弓、投槍器</p>
+      </div>
+    </div>
+
+    <h3>起始裝備 (擇一組)</h3>
+    <div class="info-grid">
+      <div class="info-card">
+        <h4>第一組 (重裝)</h4>
+        <ul><li>馬夸維爾特／銅斧／碎骨棒（三選一）</li><li>圓盾</li><li>皮革戰甲</li><li>松明火炬、黃鐵礦取火組</li><li>1D6 食物 & 1D6 月幣</li></ul>
+      </div>
+      <div class="info-card">
+        <h4>第二組 (游擊)</h4>
+        <ul><li>馬卡短劍／黑曜石斧／投槍器 & 投射標槍（三選一）</li><li>黑曜石箭袋</li><li>棉甲</li><li>松明火炬、黃鐵礦取火組</li><li>1D6 食物 & 1D6 月幣</li></ul>
+      </div>
+      <div class="info-card">
+        <h4>第三組 (長柄)</h4>
+        <ul><li>木矛</li><li>皮革戰甲</li><li>木製戰盔</li><li>松明火炬、黃鐵礦取火組</li><li>1D6 食物 & 1D6 月幣</li></ul>
+      </div>
+    </div>
+
+    <h3>英雄能力 (選擇兩項，代表你身為戰士的專業訓練)</h3>
+    <div class="hero-tab-group">
+      <input type="radio" name="warrior-hero" id="war-1" class="hero-radio" checked>
+      <label for="war-1" class="hero-label">老兵</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【老兵】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：1</span></p>
+          <p>多年來的實戰經驗，讓你能在戰場上持續把握主動權，不被局勢的混亂所動搖。</p>
+          <p>(創角時)你從武器技能裡選擇一項，該武器的技能數值成長1點。</p>
+          <p>此外，在每一輪開始時，你可以發動此能力來保留你上一輪的先攻卡，而不抽取新的先攻卡。</p>
+        </div>
+      </div>
+
+<input type="radio" name="warrior-hero" id="war-2" class="hero-radio">
+      <label for="war-2" class="hero-label">無畏</label>
+      <div class="hero-content">
+        <div class="info-card"> <h4>【無畏】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>你在抵抗恐懼的意志檢定獲得 1 個優勢。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="warrior-hero" id="war-3" class="hero-radio">
+      <label for="war-3" class="hero-label">狂暴</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【狂暴】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：3</span></p>
+          <p>你立即獲得 憤怒 狀態，並立即對最近的敵人進行一次近戰攻擊。狂暴持續到戰場上沒有敵人，或你 HP 歸零為止。</p>
+          <p>狂暴期間：</p>
+          <ul style="margin-left:20px; line-height:1.6;">
+            <li>你的近戰攻擊獲得一個 優勢 。</li>
+            <li>若你攻擊前額外消耗 1 WP ，該次命中額外造成 +1D4 傷害。</li>
+            <li>擊殺一個敵人後，你可以立刻移動 2 米。</li>
+            <li>你不能 格擋 或 閃避 。</li>
+          </ul>
+          <p>戰鬥結束之後，你會陷入 力竭 狀態。</p>
+        </div>
+      </div>
+
+<input type="radio" name="warrior-hero" id="war-4" class="hero-radio" checked>
+      <label for="war-4" class="hero-label">雙重斬擊</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【雙重斬擊】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：3</span></p>
+          <p>當你持握揮砍武器時，你可以同時對兩個相距 2 米內的敵人進行一次攻擊。</p>
+          <p>你只進行一次攻擊檢定，若成功則同時命中兩個敵人。敵人可以分別進行格擋或閃避。傷害骰也分開計算。</p>
+          <p>此能力可以與「雙持戰鬥」能力結合。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="warrior-hero" id="war-5" class="hero-radio" checked>
+      <label for="war-5" class="hero-label">鐵拳重擊</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【鐵拳重擊】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：3</span></p>
+          <p>你徒手攻擊的傷害增加 1D6。</p>
+          <p>你必須在攻擊檢定後、計算傷害前宣告發動此能力。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="warrior-hero" id="war-6" class="hero-radio" checked>
+      <label for="war-6" class="hero-label">強力一擊</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【強力一擊】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：3</span></p>
+          <p>當你使用雙手近戰武器進行攻擊且命中敵人時，你會額外造成 1D8 傷害，但你在該輪無法進行移動。</p>
+          <p>你不能在進行攻擊檢定後才發動此能力，也不能在移動後發動。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="warrior-hero" id="war-7" class="hero-radio" checked>
+      <label for="war-7" class="hero-label">強力投擲</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【強力投擲】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>你可以用驚人的力量將一把近戰武器向一個敵人投擲出去。</p>
+          <p>該敵人與你的距離不能超過你的力量（米）。該武器必須是一把單手武器。</p>
+          <p>你正常進行攻擊檢定。敵人可以正常格擋或閃避。無論命中與否，武器都會落在敵人的腳邊。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="warrior-hero" id="war-8" class="hero-radio" checked>
+      <label for="war-8" class="hero-label">鋸裂處刑</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【鋸裂處刑】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>此能力需使用黑曜石武器。你熟知如何利用黑曜石鋸齒狀的邊緣造成最可怕的傷口。當你使用黑曜石武器造成揮砍傷害時，你可以發動此能力。</p>
+          <p>除了正常的武器傷害外，目標獲得「流血」狀態。在目標的每一輪開始時，受到 1D4 傷害（無視護甲）。</p>
+          <p>此效果持續直到目標接受治療（醫療檢定或魔法）或戰鬥結束。此能力只對活體生物有效。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="warrior-hero" id="war-9" class="hero-radio" checked>
+      <label for="war-9" class="hero-label">破甲強襲</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【破甲強襲】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：3</span></p>
+          <p>你懂得利用蠻力與技巧，針對敵人盔甲的接縫或盾牌的弱點進行打擊。</p>
+          <p>當你對一名敵人進行近戰攻擊且造成鈍擊傷害時，你可以發動此能力。</p>
+          <p>若該次攻擊被格檔或被裝備的防具減傷，用來格擋或減傷的裝備會直接損壞；若為天生護甲，護甲值-1(可疊加)。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="warrior-hero" id="war-10" class="hero-radio" checked>
+      <label for="war-10" class="hero-label">不屈意志</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【不屈意志】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>馬茲提卡的戰士視榮耀重於生命。當你的 HP 歸零時，你可以發動此能力。</p>
+          <p>進行一次 體質 檢定，若成功你不會立刻昏迷，視為 鼓舞 檢定成功，可繼續戰鬥。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="warrior-hero" id="war-11" class="hero-radio" checked>
+      <label for="war-11" class="hero-label">碎骨重擊</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【碎骨重擊】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：3</span></p>
+          <p>你揮舞沉重的 碎骨棒 或 刃棒 ，目標不是敵人的血肉，而是底下的骨骼。當你命中敵人時，你可以發動此能力。</p>
+          <p>除了造成正常傷害外，目標必須進行 體質 檢定。若失敗，目標獲得「蜷縮」狀態（下回合無法採取攻擊動作），因為強烈劇痛奪走了他的行動力。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="warrior-hero" id="war-12" class="hero-radio" checked>
+      <label for="war-12" class="hero-label">銅斧鉤殺</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【銅斧鉤殺】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：3</span></p>
+          <p>你利用銅斧獨特的弧形構造來破壞平衡。當敵人 格擋 你的攻擊，或你攻擊持有 盾牌 的敵人時，可以發動此能力。</p>
+          <p>攻擊命中時，可不對其造成傷害而改成用斧刃鉤住 盾牌（或用來格擋的武器）邊緣並猛力拉扯。敵人的盾牌（或用來格擋的武器）立即脫手飛出 2 米遠(被繳械)。</p>
+          <p>若你另一手正持握另一把武器，你可以用另一把武器立即對該目標進行一次帶劣勢的追加攻擊。</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+<section id="knight" class="prof-section">
+    <h2>騎士 (Knight)</h2>
+    <div class="race-header">
+      <img src="images/profession/Knight.webp" class="content-img" alt="Knight">
+      <div class="race-intro-text">
+        <blockquote class="quote" style="font-style:italic; color:var(--gold-glow); border-left:3px solid var(--jade);">
+          「諸神或許沈默，但祂們的雷鳴仍在我等心中迴響。無論如鷹般翱翔以洞見真理，或如豹般潛伏以獵殺謊言，我們的誓言是這混亂浪潮中的錨。我們是文明與吞噬黑暗之間的最後防線。」
+        </blockquote>
+        <p>在馬茲提卡的城邦與部族社會中，騎士象徵著最高的榮耀與最沉重的責任。他們不僅是訓練有素的精銳戰士，更是信仰與軍事的代表。成為騎士意味著經歷無數戰役、累積戰功，並獲得城邦與神祇的認可。騎士肩負守護族群、維護秩序的使命，他們的存在不僅是武力的展現，更是榮耀與信仰的化身。</p>
+        <p>儘管諸神已然隱沒，不再如往昔那般直接干預凡間，但許多人相信，他們仍透過夢境、徵兆或神聖遺物，賜予騎士們非凡的意志與力量。</p>
+        <p>在馬茲提卡，主要有兩個騎士團：<strong>鷹騎士團</strong> 和 <strong>豹騎士團</strong>。選擇騎士範型，意味著承擔古老的榮光與沉重的責任。鷹騎士以光明之名守護秩序，豹騎士則以狩獵之道尋求新榮耀。</p>
+      </div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-card" style="border-left-color: var(--gold);">
+        <h4 style="color:var(--gold)">關鍵屬性</h4>
+        <p style="font-size:1.2rem; font-weight:bold; color:#fff; margin:0;">力量 (STR)</p>
+      </div>
+    </div>
+
+ <div class="special-feature-box">
+      <h3>騎士團誓言 (選擇其一)</h3>
+      <div class="info-grid" style="margin-top:15px;">
+        
+        <div class="info-card">
+          <h4 style="color:var(--gold)">鷹騎士團</h4>
+          <p>鷹騎士追隨羽父夸爾特的理想。夸爾特象徵光明、公正與生命力，即使隱沒，他的榮光仍在鷹騎士的誓言中延續。
+
+他們身披金羽與鮮亮羽飾，行動果斷，視野高遠，常擔任前鋒與斥候。鷹騎士以守護與秩序為責，試圖在動盪的大陸中維持希望。</p>
+          
+          <div style="font-size:0.9rem; color:#aaa; margin-bottom:5px;">受訓技能：</div>
+          <div class="skill-container">
+            <span class="skill-tag">劍</span>
+            <span class="skill-tag">矛</span>
+            <span class="skill-tag">投槍器</span>
+            <span class="skill-tag">體操</span>
+            <span class="skill-tag">察覺</span>
+            <span class="skill-tag">祕聞傳說</span>
+            <span class="skill-tag">遊說</span>
+            <span class="skill-tag">表演</span>
+          </div>
+
+          <div class="feature-block feature-eagle">
+            <h5>額外特性－羽父之祝福</h5>
+            <p>每一位真正的鷹騎士，都背負著羽父的羽翼。這份羽翼只會展開一次，帶領你越過死亡，直至最後的榮耀。</p>
+            <p>當你死亡時，下一輪你的身體將會發出神性的光輝，你視為獲得 <strong>碎魂換生</strong> 法術的效果，且不會受到負面影響。一旦此祝福發動後，你將永久失去此項特性。</p>
+            <p style="margin-top:10px; font-size:0.9rem; color:#ddd;"><strong>獲得裝備：</strong> <span class="wp">鷹騎士戰甲</span></p>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <h4 style="color:#a85754">豹騎士團</h4>
+          <p>豹騎士曾是邪神噬心者札爾特克的守護者。過去他們以「心臟獻祭」榮耀其神，但如今獻祭被禁止，這段歷史成為陰影。不得不尋求新的榮耀方式的他們，轉向以狩獵威脅這塊土地的蝰手獸或巨怪為榮。如今的榮耀，來自守護族群與斬殺危險，而非祭壇上的心臟。</p>
+          
+          <div style="font-size:0.9rem; color:#aaa; margin-bottom:5px;">受訓技能：</div>
+          <div class="skill-container">
+            <span class="skill-tag">劍</span>
+            <span class="skill-tag">棍棒</span>
+            <span class="skill-tag">隱匿</span>
+            <span class="skill-tag">狩獵</span>
+            <span class="skill-tag">求生</span>
+            <span class="skill-tag">體操</span>
+            <span class="skill-tag">野獸知識</span>
+            <span class="skill-tag">表演</span>
+          </div>
+
+          <div class="feature-block feature-jaguar">
+            <h5>額外特性－噬心者之怒</h5>
+            <p>當豹騎士殞落時，他的心臟化為復仇的祭品，帶著札爾特克的憤怒爆裂而出，將敵人一併拖入獻祭的火焰之中。</p>
+            <p>當你死亡時，你的心臟將會爆裂，以你為中心施放 威力等級 3 的<strong>「鮮血漩渦」</strong>法術（形成札爾特克怒容而非血鎧）。在下一個回合，怒容爆炸，神之怒火將無情地傾瀉。</p>
+            <p style="margin-top:10px; font-size:0.9rem; color:#ddd;"><strong>獲得裝備：</strong> <span class="wp">豹騎士戰甲</span></p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <h3>起始裝備 (標準)</h3>
+    <div class="info-grid">
+      <div class="info-card">
+        <h4>騎士裝備組</h4>
+        <ul>
+          <li>投槍器、投射標槍</li>
+          <li>選擇一項：馬夸維爾特、刃棒、銅斧、碎骨棒、木矛</li>
+          <li>圓盾、木製戰盔</li>
+          <li>根據騎士團獲得：<strong>鷹騎士戰甲</strong> 或 <strong>豹騎士戰甲</strong></li>
+          <li>松明火炬、黃鐵礦取火組</li>
+          <li>1D6 食物、1D12 月幣</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>英雄能力 (選擇一項，象徵你在成為騎士前的訓練)</h3>
+    <div class="hero-tab-group">
+      <input type="radio" name="knight-hero" id="knt-1" class="hero-radio" checked>
+      <label for="knt-1" class="hero-label">守護者</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【守護者】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>你願意毫不猶豫地為盟友擋下攻擊。</p>
+          <p>若你和另一名盟友都與同一名敵人相距 2 米內，當該敵人嘗試攻擊你的盟友時，你可以發動此能力，強迫敵人改為攻擊你。</p>
+          <p>此能力可以在你的回合外使用，且不需要花費動作。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="knight-hero" id="knt-2" class="hero-radio">
+      <label for="knt-2" class="hero-label">舉盾格擋</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【舉盾格擋】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>當你使用盾牌進行格擋時，你可以發動此能力讓該次格擋檢定獲得 1 個優勢。</p>
+          <p>另外，你也可以使用此能力用盾牌格擋通常無法被格擋的怪物物理攻擊（範圍 AOE 由 GM 判斷）。</p>
+          <p>此能力可以和「堅強防禦」能力結合。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="knight-hero" id="knt-3" class="hero-radio">
+      <label for="knt-3" class="hero-label">堅強防禦</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【堅強防禦】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：3</span></p>
+          <p>你可以在不消耗該輪動作的情況下嘗試格擋一次攻擊。</p>
+          <p>你只能對同一次攻擊嘗試格擋一次，且你無法再對該次攻擊進行閃避或格擋。</p>
+          <p>只要你有足夠的 WP，你在同一輪中可以多次發動此能力。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="knight-hero" id="knt-4" class="hero-radio">
+      <label for="knt-4" class="hero-label">守衛矛陣</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【守衛矛陣】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：3</span></p>
+          <p>你將木矛架起，黑曜石刃片對準前方，形成絕對的防禦圈。</p>
+          <p>發動此能力後，你進入「防衛」姿態，任何敵人試圖進入你近戰範圍（2米）內時，你都可以立即使用反應動作（若你回合還未結束）對其進行一次攻擊。</p>
+          <p>若該次攻擊命中，除了造成傷害外，敵人的移動立即結束（被木矛架住或逼退），無法再靠近你。</p>
+          <p>此姿態直到你移動或你主動進行攻擊而解除。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="knight-hero" id="knt-5" class="hero-radio">
+      <label for="knt-5" class="hero-label">穿雲長擲</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【穿雲長擲】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：3</span></p>
+          <p>你利用投槍器的槓桿原理，投擲出動能驚人的一擊。此攻擊的有效射程加倍且具有優勢。</p>
+          <p>若目標位於直線上，你的投射標槍具有「貫穿」效果。對第一個目標結算攻擊後，若傷害殺死目標，標槍會穿透並繼續攻擊（正常檢定）後方直線射程範圍內的下一個目標。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="knight-hero" id="knt-6" class="hero-radio">
+      <label for="knt-6" class="hero-label">血誓</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【血誓】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：3</span></p>
+          <p>在重視鮮血與榮譽的馬茲提卡，沒有什麼比以血為證的誓言更神聖。你可以在與 NPC 達成協議時，要求進行血誓儀式（需割破手指或手掌）。</p>
+          <p>若 NPC 同意並完成儀式，這份契約將受到社會規範與潛在神力的保護。若對方試圖違背誓言，他將受到強烈的良心譴責或詛咒暗示（所有檢定具有 劣勢 ），且任何知情者都會視其為背叛者。</p>
+          <p>這是一個確保盟友忠誠或強迫敵人守信的終極手段。</p>
+        </div>
+      </div>
+    </div>
+
+<h3>英雄能力－騎士團戰技</h3>
+    <p style="margin-bottom: 15px; color:#aaa; font-size:0.95rem;">
+      除了上方的英雄能力，你還可以選擇一項你所屬騎士團的專屬戰技（需符合先決條件）獲得。<br>
+      或者，你也可以放棄獲得騎士團戰技，改成從戰士職業範型列出的英雄能力中選擇一項獲得（象徵你進階騎士前的戰士專業）。
+    </p>
+    
+    <h4 style="color:var(--gold); border-bottom:1px solid rgba(201, 163, 90, 0.3); padding-bottom:5px; margin-bottom:10px; margin-top:20px;">
+      🦅 鷹騎士戰技 (Eagle Knights)
+    </h4>
+    <div class="hero-tab-group">
+      
+      <input type="radio" name="eagle-tactic" id="ord-e1" class="hero-radio" checked>
+      <label for="ord-e1" class="hero-label eagle-btn">猛禽俯衝</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4 class="eagle-title">【猛禽俯衝 Raptor's Dive】</h4>
+          <p><span class="wp">先決條件：體操 12</span> <span class="wp">WP: 3</span></p>
+          <p>模仿巨鷹的狩獵姿態，你從高處（至少 4 米，或從坐騎上）躍下對敵人發動致命一擊。你必須在攻擊前移動並跳躍。</p>
+          <p>該次近戰攻擊獲得 1 個優勢，且武器傷害骰增加 1 顆。若攻擊命中，你熟練的卸力與翻滾技巧使你不會受到該次跳躍的墜落傷害。這招通常用於金字塔階梯戰或從樹冠突襲。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="eagle-tactic" id="ord-e2" class="hero-radio">
+      <label for="ord-e2" class="hero-label eagle-btn">耀光戰姿</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4 class="eagle-title">【耀光戰姿 Radiant Stance】</h4>
+          <p><span class="wp">先決條件：表演 12</span> <span class="wp">WP: 3</span></p>
+          <p>你懂得調整角度，利用武器或盔甲上的金屬與黑曜石反射陽光（或火光），瞬間干擾敵人的視線，同時發出振奮人心的戰吼。你可以花費一個動作，強迫周圍 10 米內的所有敵人進行<strong>意志</strong>檢定。</p>
+          <p>失敗者因視線受阻與氣勢被壓制，陷入 <strong>暈眩</strong> 與 <strong>畏縮</strong> 狀態。此外，你展現出的無畏姿態能安撫盟友，移除範圍內盟友的 <strong>畏縮</strong> 狀態。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="eagle-tactic" id="ord-e3" class="hero-radio">
+      <label for="ord-e3" class="hero-label eagle-btn">飛羽偏轉</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4 class="eagle-title">【飛羽偏轉 Feathered Deflection】</h4>
+          <p><span class="wp">先決條件：體操 12</span> <span class="wp">WP: 2</span></p>
+          <p>你身上的鷹羽戰甲經過特殊編織，厚實的棉絮能緩衝衝擊，飄動的羽毛披風則能混淆敵人的瞄準點。當你被遠程武器攻擊時，你可以消耗 2 WP 進行戰術規避。</p>
+          <p>你揮舞披風干擾視線，使該次遠程攻擊獲得 1 個劣勢。若攻擊仍然命中，你利用護甲的卸力技巧，使受到的傷害減半。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="eagle-tactic" id="ord-e4" class="hero-radio">
+      <label for="ord-e4" class="hero-label eagle-btn">生擒者</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4 class="eagle-title">【生擒者 The Captor】</h4>
+          <p><span class="wp">先決條件：徒手 12</span> <span class="wp">WP: 2</span></p>
+          <p>鷹騎士的教義中，生擒敵人比殺死他們更具榮耀。當你試圖在戰鬥中進行 <strong>擒抱</strong> 檢定時，你可以消耗 2 WP 讓該次檢定獲得 1 個優勢。</p>
+          <p>此外，當你將敵人的 HP 降至 0 時，你可以無須檢定直接宣稱將其「生擒」而非殺死。敵人會立即穩定傷勢但陷入昏迷狀態。這是晉升鷹騎士階級的關鍵能力。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="eagle-tactic" id="ord-e5" class="hero-radio">
+      <label for="ord-e5" class="hero-label eagle-btn">獵鷹之姿</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4 class="eagle-title">【獵鷹之姿 Windstride】</h4>
+          <p><span class="wp">先決條件：體操 12</span> <span class="wp">WP: 3</span></p>
+          <p>你經過嚴酷的訓練，能在戰場上展現出如同獵鷹般的靈活性。你可以用一個自由動作發動此能力。</p>
+          <p>你該回合的移動速度變成兩倍，且你的移動不會引發敵人的藉機攻擊。你利用滑步、翻滾與蹬牆跳躍穿梭於敵陣之間，直取高價值目標。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="eagle-tactic" id="ord-e6" class="hero-radio">
+      <label for="ord-e6" class="hero-label eagle-btn">雷霆釘刺</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4 class="eagle-title">【雷霆釘刺 Thunderous Pin】</h4>
+          <p><span class="wp">先決條件：投槍器 12</span> <span class="wp">WP: 3</span></p>
+          <p>你將投槍器的槓桿力學發揮到極致，你的投射標槍帶有轟鳴破空聲。這純粹是物理動能的毀滅性應用。</p>
+          <p>由於巨大的衝擊力，此攻擊<strong>無視目標的物理護甲值</strong>。若攻擊命中，標槍會深深釘入目標的鎧甲縫隙、肌肉或將其衣物釘在地面上，使其獲得<strong> 禁錮 </strong>狀態（無法移動），直到目標花費一個動作強行拔出標槍。</p>
+        </div>
+      </div>
+
+    </div>
+
+    <h4 style="color:#a85754; border-bottom:1px solid rgba(168, 87, 84, 0.3); padding-bottom:5px; margin-bottom:10px; margin-top:30px;">
+      🐆 豹騎士戰技 (Jaguar Knights)
+    </h4>
+    <div class="hero-tab-group">
+
+      <input type="radio" name="jaguar-tactic" id="ord-j1" class="hero-radio" checked>
+      <label for="ord-j1" class="hero-label jaguar-btn">獵豹突襲</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4 class="jaguar-title">【獵豹突襲 Jaguar's Pounce】</h4>
+          <p><span class="wp">先決條件：體操 12</span> <span class="wp">WP: 3</span></p>
+          <p>這不只是突襲，而是壓倒性的動能釋放。當你位於敵人 6 米外（需要助跑或跳躍空間）時，你可以宣告發動此能力。</p>
+          <p>你進行一次爆發性的跳躍移動接近敵人（此移動無視困難地形），並在接觸瞬間進行一次近戰攻擊。若攻擊命中，除造成正常傷害外，目標必須進行力量檢定。若失敗，目標被你巨大的衝擊力撞擊至 <strong>伏地</strong>。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="jaguar-tactic" id="ord-j2" class="hero-radio">
+      <label for="ord-j2" class="hero-label jaguar-btn">處決準備</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4 class="jaguar-title">【處決準備 Sacrificial Grapple】</h4>
+          <p><span class="wp">先決條件：徒手 12</span> <span class="wp">WP: 2</span></p>
+          <p>為了滿足儀式需求，你練就了在混戰中精準制服敵人的關節技。當你在近戰攻擊中成功命中敵人時，你可以選擇不造成傷害，而是利用關節技立即將敵人 <strong>擒抱</strong>。</p>
+          <p>被擒抱的敵人無法移動或攻擊，每回合需進行力量對抗才能掙脫。當你維持擒抱時，你對該目標的下一次徒手或小刀攻擊自動命中（視為以匕首抵喉或勒頸的處決準備）。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="jaguar-tactic" id="ord-j3" class="hero-radio">
+      <label for="ord-j3" class="hero-label jaguar-btn">弱點打擊</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4 class="jaguar-title">【弱點打擊 Seek Weakness】</h4>
+          <p><span class="wp">先決條件：狩獵 12</span> <span class="wp">WP: 3</span></p>
+          <p>這不是依賴蠻力，而是像掠食者一樣尋找獵物最柔軟的腹部或關節。你可以使用任何近戰武器（不限穿刺）使用 <strong>尋找弱點</strong> 攻擊。</p>
+          <p>若你使用的是穿刺武器，則你的 尋找弱點 攻擊不具劣勢。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="jaguar-tactic" id="ord-j4" class="hero-radio">
+      <label for="ord-j4" class="hero-label jaguar-btn">密林潛獵</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4 class="jaguar-title">【密林潛獵 Shadow Prowl】</h4>
+          <p><span class="wp">先決條件：隱匿 12</span> <span class="wp">WP: 3</span></p>
+          <p>你接受過在如庫塔卡深林中像野獸般長時間潛伏的嚴酷訓練。你懂得利用泥土掩蓋氣味，並本能地在光影死角中移動，如同狩豹般接近獵物。</p>
+          <p>你在森林、廢墟或微光環境下的 <strong>隱匿</strong> 檢定獲得 1 個優勢。此外，你在隱匿狀態下的移動完全無聲，獵物無法通過聽覺察覺你的逼近，直到獠牙刺入的那一刻。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="jaguar-tactic" id="ord-j5" class="hero-radio">
+      <label for="ord-j5" class="hero-label jaguar-btn">鮮血嗅覺</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4 class="jaguar-title">【鮮血嗅覺 Scent of Blood】</h4>
+          <p><span class="wp">先決條件：狩獵 12</span> <span class="wp">WP: 3</span></p>
+          <p>長期的殺戮訓練讓你對血腥味與敵人的痛苦姿態異常敏感。這是一種戰鬥本能。</p>
+          <p>當你對一名已經受傷（HP 未滿）的敵人進行近戰攻擊時，你可以發動此能力讓攻擊檢定獲得 1 個優勢。這代表你總能本能地攻擊敵人的傷口或防禦死角。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="jaguar-tactic" id="ord-j6" class="hero-radio">
+      <label for="ord-j6" class="hero-label jaguar-btn">死亡尖嘯</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4 class="jaguar-title">【死亡尖嘯 Death Scream】</h4>
+          <p><span class="wp">先決條件：表演 12</span> <span class="wp">WP: 3</span></p>
+          <p>你不需要傳說中的死亡哨，你的喉嚨就是最恐怖的樂器。透過長期的訓練，你能模仿出如千人慘叫般的高頻尖嘯，或是利用簡單的獸骨碎片吹出令人毛骨悚然的風聲。</p>
+          <p>花費一個動作發出尖嘯，周圍 20 米內的所有非怪物敵人必須進行 <strong>意志</strong> 檢定。失敗者將陷入 <strong>畏縮</strong> 狀態，且對你的攻擊檢定具有 <strong>劣勢</strong>。這展示了你作為恐懼化身的本質。</p>
+        </div>
+      </div>
+
+    </div>
+
+  </section>
+
+  <section id="shaman" class="prof-section">
+    <h2>薩滿 (Shaman)  <span class="maz-badge">馬茲提卡/房規調整</span> </h2>
+    <div class="race-header">
+      <img src="images/profession/Shaman.webp" class="content-img" alt="Shaman">
+      <div class="race-intro-text">
+        <blockquote class="quote" style="font-style:italic; color:var(--gold-glow); border-left:3px solid var(--jade);">
+          「你手中握著的不是法術，是歷史的傷疤。凡人呼吸空氣，而我們呼吸神明的意志。如今諸神沈默，唯有我們能聽見世界在傷痛中覺醒的聲音。」
+        </blockquote>
+        <p>在馬茲提卡，大地與諸神的力量並未隨著神祇隱沒而完全消失。薩滿是最接近這股神秘力量的人，他們能觸碰凡人無法理解的能量，並以詩歌、祈禱、舞蹈或獻祭的方式引導魔法流動。薩滿的角色不僅是施術者，更是靈性導師、祭儀主持者與未知奧秘的研究者。</p>
+        <p>而現今的六大魔法流派，本質上代表了過去眾神之戰的歷史。在這個眾神退去、神聖閥門破碎的第六紀元，舊有的秩序正在崩塌。你必須選擇一條<strong>「靈性之道」</strong>作為你的力量之源：是延續古老的守護誓言，擁抱以血換血的霸權，還是駕馭新生的野性洪流？</p>
+      </div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-card" style="border-left-color: var(--gold);">
+        <h4 style="color:var(--gold)">關鍵屬性</h4>
+        <p style="font-size:1.2rem; font-weight:bold; color:#fff; margin:0;">意志 (WIL)</p>
+      </div>
+    </div>
+
+    <div class="special-feature-box">
+      <h3>魔法編年史：選擇你的傳承</h3>
+      <p style="margin-bottom:15px; color:#aaa; font-size:0.9rem;">點擊下方紀元按鈕，翻閱魔法演變的歷史與技能。</p>
+      
+      <div class="epoch-nav">
+        <button class="epoch-btn active-tab" data-target="epoch-1">Ⅰ. 二元對立</button>
+        <button class="epoch-btn" data-target="epoch-2">Ⅱ. 神戰兵器</button>
+        <button class="epoch-btn" data-target="epoch-3">Ⅲ. 傷痛憐憫</button>
+        <button class="epoch-btn" data-target="epoch-4">Ⅳ. 萬象覺醒</button>
+      </div>
+
+<div id="epoch-1" class="epoch-section active">
+        <p style="margin-bottom:20px; font-style:italic; color:#ccc;">「最初，世界只有兩種聲音：羽蛇的歌聲與獸性的咆哮。這是魔法最純粹的時代。」</p>
+ 
+        <div class="school-card hishna">
+          <div class="school-header">
+            <span class="school-title">毒牙獸術 (獸術)</span>
+          </div>
+          <div class="lore-block">
+            <span class="lore-label">起源與本質</span>
+            <p class="lore-text">
+              最初，這是由<strong>邪神札爾特克 (Zaltec)</strong> 賜予其信徒的禮物。它象徵野性、直覺、毒素與獵殺，是為了生存、狩獵與保衛部落而生的魔法。在早期，它是豹騎士、偵察兵與平民獵戶的工具，也是搜刮戰俘（獻祭品）的基礎手段。<br>
+              隨著神戰升級，當羽織祕法的文明優勢壓制了野蠻，札爾特克將 毒牙獸術 異化為更純粹的殺戮工具，並衍生出了更高階的「心血噬焰」魔法。毒牙獸術因此成為了基層信徒的標準配備，專注於物理強化與製造痛苦。</p>
+          </div>
+          <div style="background:rgba(255,255,255,0.05); padding:10px 15px; border-radius:4px; margin-bottom:15px;">
+            <span class="lore-label" style="color:var(--gold);">受訓技能 (8 選 6)</span>
+            <p style="color:#fff; margin:0;">毒牙獸術、狩獵、隱匿、野獸知識、求生、徒手、小刀、閃避</p>
+          </div>
+          <div class="rp-guide">
+            <span class="lore-label">流派背景</span>
+            <p class="lore-text">你可能是弱肉強食法則的狂信者，或單純喜愛叢林的生存法則，不在乎神話的高深。你拒絕文明的矯飾，擁抱內心的野獸直覺。</p>
+          </div>
+        </div>
+             
+        <div class="school-card pluma">
+          <div class="school-header">
+            <span class="school-title">羽織秘法 (羽術)</span>
+          </div>
+          <div class="lore-block">
+            <span class="lore-label">起源與本質</span>
+            <p class="lore-text">
+            羽織秘法是由馬茲提卡女神（大地之母）創造，並由其子羽蛇神夸爾特傳授給萬民的禮物。是專門用來對付札爾特克創造的毒牙獸術。<br>
+            它象徵文明、邏輯、編織與高貴。這是用來建設城邦、創造藝術與維持社會秩序的魔法。它是貴族、外交官與工匠大師的特權，代表了馬茲提卡社會光鮮亮麗的一面，與野蠻的毒牙獸術形成鮮明對比。<br>
+            羽織秘法基於「氣息」與「編織」。羽毛是其媒介，象徵生命的輕盈與天空的自由。它強調節奏的控制、防護的編織以及對戰場資訊的掌握。</p>
+          </div>
+          <div style="background:rgba(255,255,255,0.05); padding:10px 15px; border-radius:4px; margin-bottom:15px;">
+            <span class="lore-label" style="color:var(--gold);">受訓技能 (8 選 6)</span>
+            <p style="color:#fff; margin:0;">羽織秘法、祕聞傳說、語言、巧手、察覺、遊說、表演、棍棒</p>
+          </div>
+          <div class="rp-guide">
+            <span class="lore-label">流派背景</span>
+            <p class="lore-text">你可能是舊貴族或傳統守護者，或單純遵從夸爾特的回歸之前的願景之民。你認為魔法應如藝術般優雅，喜歡用智謀與談判而非蠻力解決問題。</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="epoch-2" class="epoch-section">
+        <p style="margin-bottom:20px; font-style:italic; color:#ccc;">「為了對抗黑暗，光輝亦染上了狂熱。魔法被升級為戰爭兵器，代價是燃燒的生命。」</p>
+
+        <div class="school-card teyolia">
+          <div class="school-header">
+            <span class="school-title">心血噬儀 (血術)</span>
+          </div>
+          <div class="lore-block">
+            <span class="lore-label">起源與本質</span>
+            <p class="lore-text">
+           面對羽織秘法的壓制，毒牙獸術失去了以往的優勢。渴望鮮血的邪神札爾特克將禁忌的鮮血禁術傳授給了祂的大祭司們。關於<strong>「宰制」</strong>與<strong>「壓榨」</strong>的禁忌神術。心血噬儀的薩滿們是戰場上的祭司兼劊子手，他們將戰場視為祭壇，將敵人視為牲畜。他們不創造能量，而是粗暴地從血管中<strong>「強徵」</strong>生命力，將痛苦轉化為神權的燃料。
+            </p>
+          </div>
+          <div style="background:rgba(255,255,255,0.05); padding:10px 15px; border-radius:4px; margin-bottom:15px;">
+            <span class="lore-label" style="color:var(--gold);">受訓技能 (8 選 6)</span>
+            <p style="color:#fff; margin:0;">心血噬焰、祕聞傳說、醫療、欺瞞、調查、小刀、徒手、閃避</p>
+          </div>
+          <div class="rp-guide">
+            <span class="lore-label">流派背景</span>
+            <p class="lore-text">你可能是當年令人畏懼的黑暗祭司的後裔，或是單純喜歡鮮血之力的「異端」，深知力量必須付出代價。但謹記，在如今光明遍布的大地，你必須小心翼翼地留下你黑暗的足跡。</p>
+          </div>
+        </div>
+
+        <div class="school-card tonalli">
+          <div class="school-header">
+            <span class="school-title">天命曜日 (日術)</span>
+          </div>
+          <div class="lore-block">
+            <span class="lore-label">起源與本質</span>
+            <p class="lore-text">
+              為了對抗心血噬儀，夸爾特竊取太陽神力後的產物，並強勢回歸帶給信徒全新的神蹟。一種霸道的、操控命運與意志的太陽魔法。將個人的「天命」與太陽運行連結，強行扭轉凡人的命運。這是屬於戰爭領袖與國師的王權之力。
+            </p>
+          </div>
+          <div style="background:rgba(255,255,255,0.05); padding:10px 15px; border-radius:4px; margin-bottom:15px;">
+            <span class="lore-label" style="color:var(--gold);">受訓技能 (8 選 6)</span>
+            <p style="color:#fff; margin:0;">天命曜日、語言、祕聞傳說、遊說、察覺、棍棒、劍、閃避</p>
+          </div>
+          <div class="rp-guide">
+            <span class="lore-label">流派背景</span>
+            <p class="lore-text">你可能是當年光明祭司的後裔，或是享受社會地位的文明特權者。你的意志如烈日般灼熱，接受了此流派的傳承。</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="epoch-3" class="epoch-section">
+        <p style="margin-bottom:20px; font-style:italic; color:#ccc;">「血流成河，哀鴻遍野。在善惡鬥爭的夾縫中，女神聽見了凡人的哭聲。」</p>
+
+        <div class="school-card ticiyotl">
+          <div class="school-header">
+            <span class="school-title">滌穢醫道 (醫術)</span>
+          </div>
+          <div class="lore-block">
+            <span class="lore-label">起源與本質</span>
+            <p class="lore-text">
+              瓦蒂爾與基爾茲兩位女神傳授的慈悲法門。專注於洗滌靈魂的污穢，拯救那些無辜和祈求和平之人。在充滿殺戮的魔法體系中，這是唯一的溫柔與避風港。
+            </p>
+          </div>
+          <div style="background:rgba(255,255,255,0.05); padding:10px 15px; border-radius:4px; margin-bottom:15px;">
+            <span class="lore-label" style="color:var(--gold);">受訓技能 (8 選 6)</span>
+            <p style="color:#fff; margin:0;">滌穢醫道、醫療、工藝、求生、語言、遊說、察覺、徒手</p>
+          </div>
+          <div class="rp-guide">
+            <span class="lore-label">流派背景</span>
+            <p class="lore-text">你是那些救死扶傷者的後裔，或單純追求醫道藥理之人。愛好和平，不喜暴力，願這世上不再有紛爭。</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="epoch-4" class="epoch-section">
+        <p style="margin-bottom:20px; font-style:italic; color:#ccc;">「神明沈默了，但世界開始說話。一種模仿神明力量的篡奪者在荒野中覺醒。」</p>
+
+        <div class="school-card nauhyotl">
+          <div class="school-header">
+            <span class="school-title">萬象神息 (源術)</span>
+          </div>
+          <div class="lore-block">
+            <span class="lore-label">起源與本質</span>
+            <p class="lore-text">
+              起源不明。源術者是自然力量的感悟者和利用者。他們透過模仿神祇的呼吸與心跳，強行撬開現實的裂縫，讓風、水、土、火、雷的原始力量流瀉而出。
+            </p>
+          </div>
+          <div style="background:rgba(255,255,255,0.05); padding:10px 15px; border-radius:4px; margin-bottom:15px;">
+            <span class="lore-label" style="color:var(--gold);">受訓技能 (8 選 6)</span>
+            <p style="color:#fff; margin:0;">萬象靈息、求生、體操、閃避、察覺、狩獵、游泳、棍棒</p>
+          </div>
+          <div class="rp-guide">
+            <span class="lore-label">流派背景</span>
+            <p class="lore-text">你是覺醒者。你侍奉大自然的一切。你代表著馬茲提卡未知的未來。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h3>英雄能力 (Hero Ability)</h3>
+    <div class="info-grid">
+      <div class="info-card" style="grid-column: 1 / -1;">
+        <h4>【魔法】</h4>
+        <p>身為薩滿，你創角時不會獲得英雄能力，而是可以施放魔法。你必須選擇一個魔法流派，該流派魔法會成為你的受訓次要技能(智力)。</p>
+        <ul style="margin-top:10px; color:#ddd; font-size:0.95rem;">
+          <li><strong>起始法術：</strong>你可以選擇 <strong>3 個戲法</strong> 、 <strong>3 個一階法術和 1 個二階法術（須滿足先決條件）</strong>。</li>
+          <li><strong>受訓技能：</strong>依據你選擇的流派，從對應流派的列表中選擇 6 項技能受訓。</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>起始裝備 (擇一組)</h3>
+    <div class="info-grid">
+      <div class="info-card">
+        <h4>第一組 (正統祭司)</h4>
+        <p style="font-size:0.85rem; color:#aaa; margin-bottom:10px;">適合：羽術、日術</p>
+        <ul>
+          <li>黑曜石鏡（法器）</li>
+          <li>骨哨</li>
+          <li>阿莫斯特利法典（法術載體）</li>
+          <li>祭司棉袍 （棉甲）</li>
+          <li>一袋鷹類羽毛 或 一袋占卜骨片</li>
+          <li>松木火炬</li>
+          <li>黃鐵礦取火組</li>
+          <li>1D6 食物</li>
+          <li>1D10 月幣</li>
+        </ul>
+      </div>
+      <div class="info-card">
+        <h4>第二組 (荒野行者)</h4>
+        <p style="font-size:0.85rem; color:#aaa; margin-bottom:10px;">適合：獸術、源術</p>
+        <ul>
+          <li>黑曜石飾針（法器）</li>
+          <li>硬木棒</li>
+          <li>黑曜石鐮刀</li>
+          <li>獸骨圖騰 （法術載體）</li>
+          <li>獸皮披肩 （獸皮甲）</li>
+          <li>一袋蛇鱗 或 寬口陶桶</li>
+          <li>松木火炬</li>
+          <li>黃鐵礦取火組</li>
+          <li>1D6 食物</li>
+          <li>1D10 月幣</li>
+        </ul>
+      </div>
+      <div class="info-card">
+        <h4>第三組 (血誓醫者)</h4>
+        <p style="font-size:0.85rem; color:#aaa; margin-bottom:10px;">適合：血術、醫術</p>
+        <ul>
+          <li>神靈雕像（法器）</li>
+          <li>奇普繩結 （法術載體）</li>
+          <li>草藥師工具</li>
+          <li>一罐神聖柯巴脂 或 葫蘆瓶</li>
+          <li>松木火炬</li>
+          <li>黃鐵礦取火組</li>
+          <li>1D6 食物</li>
+          <li>1D10 月幣</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="scholar" class="prof-section">
+    <h2>學者 (Scholar)</h2>
+    <div class="race-header">
+      <img src="images/profession/Scholar.webp" class="content-img" alt="Scholar">
+      <div class="race-intro-text">
+        <p>在馬茲提卡的城邦裡，學者代表著知識的傳承與探索。這片大地上的人類社會極為重視教育：兒童在十五歲之前由家長教育，學習基礎的倫理、勞作與信仰，並受公社監督。十五歲後，他們進入城邦學校，接受五年的進階教育。隨著不同族裔與人類的交流加深，學校裡也能看到半身人、矮人，甚至其他族群的學生，共同參與知識的學習。</p>
+        <p>在這些教育機構中，教師（Tlamatimine）是專責的講師，直到退休都屬於城邦的公共財產。但並非所有受過教育的人都會留在體制內。有些人選擇獨立研究，專注於天文、歷史、生物或數學的領域；也有人因失誤、爭議或挑戰傳統而被逐出教育體制。這些人，無論因何原因離開學校，通常都被稱為「學者」。</p>
+        <p>選擇學者範型，意味著你將以知識為武器。你可能是仰望星辰的占星師，或是保存傳說的記錄者，又或是深入叢林探究奇異生命的觀察者。雖然缺乏教師的穩固地位，卻能在冒險中成為隊伍的智囊，以知識與洞察力支援隊伍，解讀符號、推理線索、記錄歷史，用智慧與研究成果引導同伴走過險境。</p>
+      </div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-card" style="border-left-color: var(--gold);">
+        <h4 style="color:var(--gold)">關鍵屬性</h4>
+        <p style="font-size:1.2rem; font-weight:bold; color:#fff; margin:0;">智力 (INT)</p>
+      </div>
+      <div class="info-card">
+        <h4>起始技能 (選 6 項)</h4>
+        <p style="margin:0;">閃避、察覺、野獸知識、求生、醫療、語言、祕聞傳說、調查</p>
+      </div>
+    </div>
+
+<h3>術業有專攻 (Master of One)  <span class="maz-badge">馬茲提卡</span> </h3>
+    <p style="margin-bottom:15px;"><span class="wp">WP: 3</span> </p>
+          <p>學者或許涉獵萬端，但你在某門學問上精進不懈，學有所成。請選擇一項專攻：</p>
+    
+    <div class="hero-tab-group">
+      
+      <input type="radio" name="scholar-spec" id="spec-cel" class="hero-radio" checked>
+      <label for="spec-cel" class="hero-label scholar-btn">天律學</label>
+      
+      <div class="hero-content">
+        <div class="info-card">
+          <h4 class="scholar-title">【天律學 Celestonomy】（學院出身）</h4>
+          <p>你能解讀日月星辰的運行，辨明天體之間的軌跡。天象既是神祇的語言，也是未來的暗示。</p>
+          
+          <div style="font-size:0.9rem; color:#aaa; margin-bottom:5px;">獲得次要技能：</div>
+          <div class="skill-container">
+            <span class="skill-tag" style="border-color:#5277c1; color:#a9c5e8;">天律學 (智力)</span>
+          </div>
+
+          <div class="feature-block feature-scholar">
+            <h5>專攻特性</h5>
+            <p>當你進行技能檢定時，合理狀況下（由GM判定）可發動此能力改用「天律學」，並獲得 1 個優勢。</p>
+            <p>在第四班長休時，你可耗費一刻時間觀看星象。發動此能力進行「天律學」檢定，你將捕捉到星律——天體運行所揭示的恆定秩序。在該次團務剩下的時間內，你可以發動此能力將一個失敗(大失敗除外)的檢定改為成功。（每場團務限一次）</p>
+          </div>
+          
+          <blockquote class="quote" style="border-left-color:#5277c1;">
+            「星辰雖沉默，卻以軌道揭示秩序；我們理解天道，不靠信仰，而靠觀測。」——瑪索亞‧光觀者，《天體秩序論》訓誡
+          </blockquote>
+        </div>
+      </div>
+
+      <input type="radio" name="scholar-spec" id="spec-theo" class="hero-radio">
+      <label for="spec-theo" class="hero-label scholar-btn">神律學</label>
+      
+      <div class="hero-content">
+        <div class="info-card">
+          <h4 class="scholar-title">【神律學 Theonomy】（學院出身）</h4>
+          <p>你並非以祈禱祈求神蹟，而是以研究神祇的律法與祭儀來獲取力量。你知道該如何取悅神祇，才能讓神意在凡世迴響。</p>
+          
+          <div style="font-size:0.9rem; color:#aaa; margin-bottom:5px;">獲得次要技能：</div>
+          <div class="skill-container">
+            <span class="skill-tag" style="border-color:#5277c1; color:#a9c5e8;">神律學 (智力)</span>
+          </div>
+
+          <div class="feature-block feature-scholar">
+            <h5>專攻特性</h5>
+            <p>當你進行技能檢定時，合理狀況下可發動此能力改用「神律學」，並獲得 1 個優勢。</p>
+            <p>此外，當你身處與某位神祇相關的場所（神廟、祭壇或領域）時，你可以花費一刻時間進行「神律學」檢定。若成功，你得以理解此地所運行的神之法則，並以理論推演模擬其邏輯。在該次團務剩下的時間內檢定出現大失敗時，你可宣告「引用神律」來重構事件的結果，使該檢定重新擲骰一次並取較佳結果（每場團務限一次）。這代表你以對神法的理解暫時干預了命運的演算。</p>
+          </div>
+
+          <blockquote class="quote" style="border-left-color:#5277c1;">
+            「神蹟並非違背自然法則，而是運作於更高層次的邏輯中。」——亞瑪赫‧奎奧提爾，《羽父之法論》訓誡
+          </blockquote>
+        </div>
+      </div>
+
+      <input type="radio" name="scholar-spec" id="spec-num" class="hero-radio">
+      <label for="spec-num" class="hero-label scholar-btn">數律學</label>
+      
+      <div class="hero-content">
+        <div class="info-card">
+          <h4 class="scholar-title">【數律學 Numeronomy】（學院出身）</h4>
+          <p>你精通神聖的數字與曆法，能從秩序的奧秘中看見世界的規律。數字不是單純的計算，而是眾神遺留於世的密碼。</p>
+          
+          <div style="font-size:0.9rem; color:#aaa; margin-bottom:5px;">獲得次要技能：</div>
+          <div class="skill-container">
+            <span class="skill-tag" style="border-color:#5277c1; color:#a9c5e8;">數律學 (智力)</span>
+          </div>
+
+          <div class="feature-block feature-scholar">
+            <h5>專攻特性</h5>
+            <p>當你進行技能檢定時，合理狀況下可發動此能力改用「數律學」，並獲得 1 個優勢。</p>
+            <p>此外，你能快速測算敵人的站位與距離來找到反擊的機會。當戰鬥的一輪結束時，你可以在抽下一輪的先攻卡前發動此能力。進行「數律學」檢定，若成功，本輪不抽先攻卡，由你直接安排所有戰鬥人員的先攻卡（每場戰鬥限一次）。</p>
+          </div>
+
+          <blockquote class="quote" style="border-left-color:#5277c1;">
+            「萬物皆可計算，混沌只是我們尚未解出的公式；當我們能計出秩序，便能看見神留下的數。」——奧蘇特‧計序者，《秩序的幾何》訓誡
+          </blockquote>
+        </div>
+      </div>
+
+      <input type="radio" name="scholar-spec" id="spec-vit" class="hero-radio">
+      <label for="spec-vit" class="hero-label scholar-btn">生知學</label>
+      
+      <div class="hero-content">
+        <div class="info-card">
+          <h4 class="scholar-title">【生知學 Vitalogy】（通用）</h4>
+          <p>你從生命的經驗中學習世界的法則。每一次錯誤、傷痕與發現，都是知識的印記；唯有親身體驗，才能真正理解世界的運作。</p>
+          
+          <div style="font-size:0.9rem; color:#aaa; margin-bottom:5px;">強化技能：</div>
+          <div class="skill-container">
+            <span class="skill-tag" style="border-color:#5277c1; color:#a9c5e8;">任選一個核心技能（智力） +1</span>
+          </div>
+
+          <div class="feature-block feature-scholar">
+            <h5>專攻特性</h5>
+            <p>當你使用你選擇提升的技能進行檢定時，你可發動此能力來獲得 1 個優勢。</p>
+            <p>此外，你能從錯誤中累積經驗並快速學習。當你進行技能檢定失敗時，你可以發動此能力，直接將該技能標上提升標記。（每場團務限一次）</p>
+          </div>
+
+          <blockquote class="quote" style="border-left-color:#5277c1;">
+            「真正的知識不在文字裡，而在那些讓你改變的經歷中。」——伊札特‧長行者，《行於生命之書》
+          </blockquote>
+        </div>
+      </div>
+
+    </div>
+
+    <h3>起始裝備 (擇一組)</h3>
+    <div class="info-grid">
+      <div class="info-card">
+        <h4>第一組 (筆記)</h4>
+        <ul>
+          <li>硬木棒</li>
+          <li>空白摺本</li>
+          <li>蘆葦筆 & 胭脂墨</li>
+          <li>睡袋卷</li>
+          <li>松明火炬 & 黃鐵礦取火組</li>
+          <li>1D6 食物</li>
+          <li>1D10 月幣</li>
+        </ul>
+      </div>
+      <div class="info-card">
+        <h4>第二組 (典籍)</h4>
+        <ul>
+          <li>黑曜石小刀</li>
+          <li>樹皮知識卷 (任一主題)</li>
+          <li>睡袋卷</li>
+          <li>陶碗油燈 & 油脂/樹脂 (10劑)</li>
+          <li>黃鐵礦取火組</li>
+          <li>1D6 食物</li>
+          <li>1D10 月幣</li>
+        </ul>
+      </div>
+      <div class="info-card">
+        <h4>第三組 (醫學)</h4>
+        <ul>
+          <li>投石繩</li>
+          <li>乾淨棉布 (10份) </li>
+          <li>睡袋卷</li>
+          <li>蘆薈草膏</li>
+          <li>鏤空陶燈</li>
+          <li>黃鐵礦取火組</li>
+          <li>1D6 食物</li>
+          <li>1D10 月幣</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>英雄能力 (選擇兩項，代表了你的學術研究和專業訓練)</h3>
+    <div class="hero-tab-group">
+      <input type="radio" name="scholar-hero" id="sch-1" class="hero-radio" checked>
+      <label for="sch-1" class="hero-label">直覺思考</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【直覺思考】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：3</span></p>
+          <p>當面臨困難抉擇時，你可以發動此能力，直接詢問 GM 一個問題，並得到一個有用的答案。</p>
+          <p>該答案代表你的廣泛知識，僅有助於你的決策，無法揭示所有需要知道的事情。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="scholar-hero" id="sch-2" class="hero-radio">
+      <label for="sch-2" class="hero-label">現場教學</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【現場教學】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：3</span></p>
+          <p>你可以快速講述知識來幫助所有人。當你在協助他人時，你可以協助複數盟友進行同一項檢定。</p>
+          <p>但你協助的對象有人檢定失敗的話你陷入憤怒狀態（若你還未憤怒）。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="scholar-hero" id="sch-3" class="hero-radio">
+      <label for="sch-3" class="hero-label">經驗分享</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【經驗分享】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：-</span></p>
+          <p>在技能成長階段開始前，你可以放棄一項技能成長機會，將自身經驗傳授給其他夥伴，讓最多兩位盟友額外獲得該項技能成長機會，之後正常進行技能成長流程。</p>
+          <p>你不能選擇已經標記該技能的盟友。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="scholar-hero" id="sch-4" class="hero-radio">
+      <label for="sch-4" class="hero-label">王權威儀</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【王權威儀】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：3</span></p>
+          <p>你身上流露出一種如同古代君王般的自然威嚴。在非戰鬥狀態下，面對守衛、官員或敵對部落領袖時，你可以發動此能力。</p>
+          <p>這讓你擁有「外交豁免」般的特權，你有權要求一次「和平談話」的機會，或者進入通常禁止外人進入的區域（如貴族庭院、祭司神殿）。</p>
+          <p>對方必須進行意志檢定來拒絕你的要求。若你隨後做出敵對行為，此效果立即失效。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="scholar-hero" id="sch-5" class="hero-radio">
+      <label for="sch-5" class="hero-label">英雄讚歌</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【英雄讚歌】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>你熟記歷史上所有偉大英雄的事蹟，並能在關鍵時刻透過詩歌喚醒他人的勇氣。當你目睹一名盟友進行檢定失敗時，你可以發動此能力(無須動作)。</p>
+          <p>你吟誦一段相關的英雄史詩，激發該盟友內在的潛能。該盟友可以立即重骰該次檢定，並必須接受重骰的結果。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="scholar-hero" id="sch-6" class="hero-radio">
+      <label for="sch-6" class="hero-label">博學多聞</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【博學多聞】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>你在城邦學校受過廣泛的教育，閱讀過無數卷軸與碑文。當你必須進行一項你並不擅長（數值低於 10）的智力相關技能檢定時，你可以發動此能力。</p>
+          <p>你回想起某本古籍中的相關記載，該次檢定獲得 1 個優勢。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="scholar-hero" id="sch-7" class="hero-radio">
+      <label for="sch-7" class="hero-label">龜縮</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【龜縮】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>當你被攻擊時，若有另一名 PC 在你 2 米內，你可以發動此能力，讓該 PC 代替你被攻擊。</p>
+          <p>此能力對 範圍（AOE） 攻擊無效，且你必須在嘗試任何閃避或格擋前發動此能力。</p>
+          <p>代替你被攻擊的新目標可以正常嘗試閃避或格擋。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="scholar-hero" id="sch-8" class="hero-radio">
+      <label for="sch-8" class="hero-label">戰地手術</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【戰地手術】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>你精通人體與生物的解剖結構，能進行比一般包紮更精密的手術。</p>
+          <p>你在進行 急救 動作時可以發動此能力，該次 醫療 檢定獲得優勢。若你擁有 手術工具 ，無須檢定直接成功。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="scholar-hero" id="sch-9" class="hero-radio">
+      <label for="sch-9" class="hero-label">預判警示</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【預判警示】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>透過觀察肌肉的收縮與重心的偏移，你能預測敵人下一秒的攻擊軌跡。</p>
+          <p>當一名位於你視線內的盟友（或你自己）即將被攻擊命中時，你可以大喊一聲干擾敵人。（無須動作，但同一個攻擊只能一次）</p>
+          <p>該次攻擊必須重新進行檢定，且帶有 1 個劣勢（因為你提前洩漏了攻擊路徑）。你必須在傷害結算前發動此能力。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="scholar-hero" id="sch-10" class="hero-radio">
+      <label for="sch-10" class="hero-label">軍需官</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【軍需官】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：1</span></p>
+          <p>你很擅長尋找適合的紮營地點。</p>
+          <p>當你在旅行中嘗試紮營時，你的求生檢定會獲得 1 個優勢。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="scholar-hero" id="sch-11" class="hero-radio">
+      <label for="sch-11" class="hero-label">氏族羈絆</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【氏族羈絆】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>你深諳馬茲提卡氏族之間的互助傳統與禮節。當你到達一個新的城鎮或村落時，你可以發動此能力。</p>
+          <p>你能迅速找到當地的遠親、友好的氏族成員或曾受過你恩惠的人。這能讓整個隊伍獲得免費且安全的食宿（生活品質為普通），並能打聽到只有當地人才知道的八卦傳聞。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="scholar-hero" id="sch-12" class="hero-radio">
+      <label for="sch-12" class="hero-label">天命宣示</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【天命宣示】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>馬茲提卡人深信命運受星辰與曆法（Tonalpohualli）支配。你懂得如何解讀（或編造）吉凶預兆來操縱人心。</p>
+          <p>在社交互動中，你可以用「這是神諭」或「今日不宜」為理由來說服迷信的 NPC。這允許你使用「祕聞傳說」技能來代替「遊說」或「欺瞞」進行檢定。若對象是虔誠的信徒或平民，該次檢定獲得 1 個優勢。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="merchant" class="prof-section">
+    <h2>旅商 (Pochteca)  <span class="maz-badge">馬茲提卡/房規調整</span> </h2>
+    <div class="race-header">
+      <img src="images/profession/Pochteca.webp" class="content-img" alt="Pochteca">
+      <div class="race-intro-text">
+        <blockquote class="quote" style="font-style:italic; color:var(--gold-glow); border-left:3px solid var(--jade);">
+          「黃金沉重，但秘密輕盈且價值連城。道路不僅是途徑，更是文明的血管。我用微笑與公平交易跨越敵對的距離。別把我的馬車僅僅當作貨物，它是連結世界的命脈，也是帝國的心臟。」
+        </blockquote>
+        <p>在馬茲提卡廣袤的大地上，旅商不僅是貨物的搬運者，更是聯繫城邦與部族的關鍵人物。他們走遍叢林、山谷與河道，帶來玉石、黑曜石、可可豆、羽毛、香料與珍貴藥材，用以交換各地的特產。旅商讓資源得以流通，也讓偏遠村落得以接觸外界的繁榮。</p>
+        <p>然而，旅商的價值遠不止於貿易。當他們踏上漫長的旅程時，同時也承擔了情報傳遞的責任。城邦的統治者往往要求旅商在歸途中回報沿途所見，包括敵對勢力的動態、道路的狀況、部族間的爭執，甚至遺跡與怪物的傳聞。這些情報能決定一場戰爭的走向，或讓一座城邦提前準備防禦。</p>
+        <p>因而，旅商所傳遞的消息極其珍貴。若旅商在交易途中遭到殺害，不僅意味著貨物流通的中斷，更常被視為外交挑釁，足以成為戰爭爆發的導火線。他們的安危與地位，遠超出一般商人的想像。</p>
+        <p>選擇旅商範型，代表你將肩負財富與情報的雙重責任。你或許是一位能言善道的談判者，也可能是習慣長途旅行的生存家。無論如何，你的足跡與話語，將能改變馬茲提卡的命運。</p>
+      </div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-card" style="border-left-color: var(--gold);">
+        <h4 style="color:var(--gold)">關鍵屬性</h4>
+        <p style="font-size:1.2rem; font-weight:bold; color:#fff; margin:0;">魅力 (CHA)</p>
+      </div>
+      <div class="info-card">
+        <h4>起始技能 (選 6 項)</h4>
+        <p style="margin:0;">閃避、騎術、察覺、調查、交易、欺瞞、遊說、小刀</p>
+      </div>
+    </div>
+
+    <div class="special-feature-box">
+      <h3>【馬車】簡易行囊車</h3>
+      <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+        <img src="images/profession/cart.png" style="width: 200px; border-radius: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);">
+        <div style="flex: 1;">
+          <p>作為旅商，你開場擁有一輛馬車。可在冒險中花錢改良。</p>
+          <ul>
+            <li><strong>底盤：</strong>小型底盤 (HP 35)。</li>
+            <li><strong>坐騎：</strong>驢子 (HP 12)，受驚需騎術檢定。</li>
+            <li><strong>配備：</strong>布質遮篷 (遮陽避雨/睡袋功能)、貨物區 (載重 25)、火盆 (照明 10 米)。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <h3>起始裝備 (擇一組)</h3>
+    <div class="info-grid">
+      <div class="info-card">
+        <h4>第一組 (野營)</h4>
+        <ul><li>黑曜石小刀</li><li>額帶背架</li><li>松明火炬 & 黃鐵礦取火組</li><li>陶製野炊組</li><li>1D6 食物 & 1D12 月幣</li></ul>
+      </div>
+      <div class="info-card">
+        <h4>第二組 (照明)</h4>
+        <ul><li>黑曜石飛刀</li><li>額帶背架</li><li>鏤空陶燈 & 油脂/樹脂 (10劑) </li><li>黃鐵礦取火組</li><li>1D6 食物 & 1D12 月幣</li></ul>
+      </div>
+      <div class="info-card">
+        <h4>第三組 (負重)</h4>
+        <ul><li>黑曜石小刀</li><li>防水皮帳</li><li>陶碗油燈 & 油脂/樹脂 (10劑) </li><li>黃鐵礦取火組</li><li>1D6 食物 & 1D12 月幣</li></ul>
+      </div>
+    </div>
+
+    <h3>英雄能力 (選擇兩項，代表你做為旅商的貿易訓練)</h3>
+    <div class="hero-tab-group">
+      <input type="radio" name="merchant-hero" id="mer-1" class="hero-radio" checked>
+      <label for="mer-1" class="hero-label">察言觀色</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【察言觀色】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>你對人心的觀察遠超常人。在你與另一個人的談話中，你可以發動此能力進行 察覺 檢定。依照檢定結果，你可獲得下列一項或多項資訊（大成功則全部獲得）：</p>
+          <ul style="margin-left:20px; line-height:1.6;">
+            <li>失敗/成功：對方目前的情緒。</li>
+            <li>成功：對方是否在說謊。</li>
+            <li>成功：對方對你／某人／某事的真實態度。</li>
+            <li>大成功：你能判斷對方潛在的動機或弱點。</li>
+          </ul>
+        </div>
+      </div>
+
+      <input type="radio" name="merchant-hero" id="mer-2" class="hero-radio">
+      <label for="mer-2" class="hero-label">商隊領袖</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【商隊領袖】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：3</span></p>
+          <p>你熟悉商路捷徑，能縮短長途旅行所需時間，並在遭遇危險時能迅速指揮眾人應對。</p>
+          <p>當隊伍在荒野上長途旅行（兩天以上的路程）時，你可以發動此能力來縮短 1d4 班的路程。</p>
+          <p>此外，若旅行過程中的探路檢定失敗而遇到危險時，你可以發動此能力來讓所有人面對危險的檢定獲得一個優勢。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="merchant-hero" id="mer-3" class="hero-radio">
+      <label for="mer-3" class="hero-label">情報掮客</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【情報掮客】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：3</span></p>
+          <p>在重要城邦、市集或貿易路口停留至少一天時間後，你可以發動此能力向 GM 提出一個針對當地的問題，獲得可靠訊息。</p>
+          <p>這些訊息可能包括附近部族的動向、危險怪物出沒、政治陰謀或市場需求，實際能獲得什麼資訊由GM決定。</p>
+        </div>
+    </div>
+
+      <input type="radio" name="merchant-hero" id="mer-4" class="hero-radio">
+      <label for="mer-4" class="hero-label">博學多聞</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【博學多聞】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>你在城邦學校受過廣泛的教育，閱讀過無數卷軸與碑文。</p>
+          <p>當你必須進行一項你並不擅長（數值低於 10）的智力相關技能檢定時，你可以發動此能力。</p>
+          <p>你回想起某本古籍中的相關記載，該次檢定獲得 1 個優勢。</p>
+        </div>
+    </div>
+
+      <input type="radio" name="merchant-hero" id="mer-5" class="hero-radio">
+      <label for="mer-5" class="hero-label">龜縮</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【龜縮】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>當你被攻擊時，若有另一名 盟友 在你 2 米內，你可以發動此能力，讓該 盟友 代替你被攻擊。</p>
+          <p>此能力對 範圍(AOE) 攻擊無效，且你必須在嘗試任何 閃避 或 格擋 前發動此能力。</p>
+          <p>代替你被攻擊的新目標可以正常嘗試閃避或格擋。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="merchant-hero" id="mer-6" class="hero-radio">
+      <label for="mer-6" class="hero-label">散財誘敵</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【散財誘敵】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>你深知貪婪是智慧生物最大的弱點。</p>
+          <p>在戰鬥中，你可以花費一個動作，向一群敵人（半徑 6 米內）撒出一把珍貴的可可豆、玉珠或金飾，具體花費多少由你自行決定。</p>
+          <p>範圍內的敵人必須進行意志檢定（難度根據你所丟出的錢財決定）。若失敗，他們會因貪婪本能而影響他們的行動（試圖撿拾或盯著財物），持續到你的下一回合開始。</p>
+          <p>此能力對無智力生物或構裝體無效。</p>
+        </div>
+    </div>
+
+      <input type="radio" name="merchant-hero" id="mer-7" class="hero-radio">
+      <label for="mer-7" class="hero-label">尋路者</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【尋路者】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：1</span></p>
+          <p>當你試圖在荒野中尋找正確的方向時，你的求生檢定獲得 1 個優勢。</p>
+        </div>
+    </div>
+
+      <input type="radio" name="merchant-hero" id="mer-8" class="hero-radio">
+      <label for="mer-8" class="hero-label">軍需官</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【軍需官】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：1</span></p>
+          <p>你很擅長尋找適合的紮營地點。當你在旅行中嘗試紮營時，你的求生檢定會獲得 1 個優勢。</p>
+        </div>
+    </div>
+
+      <input type="radio" name="merchant-hero" id="mer-9" class="hero-radio">
+      <label for="mer-9" class="hero-label">尋寶獵人</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【尋寶獵人】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>若遇到岔路，你可以發動此能力，知曉哪個方向藏有巨大財寶。</p>
+        </div>
+    </div>
+
+      <input type="radio" name="merchant-hero" id="mer-10" class="hero-radio">
+      <label for="mer-10" class="hero-label">金錢賄賂</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【金錢賄賂】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>你深信沒有什麼問題是一袋可可豆解決不了的，如果有，那就兩袋。當你在社交檢定（如遊說、欺瞞）中失敗時，你可以發動此能力。</p>
+          <p>你向對方暗示或直接提供一筆賄賂（具體金額由 GM 裁定，通常是少量貨物或可可豆）。你可以重新擲骰該次檢定，並獲得 1 個優勢。</p>
+          <p>此能力對榮譽極高或無法溝通的對象無效。</p>
+        </div>
+    </div>
+
+      <input type="radio" name="merchant-hero" id="mer-11" class="hero-radio">
+      <label for="mer-11" class="hero-label">旅商行令</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【旅商行令】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：3</span></p>
+          <p>你手持象徵旅商身分的黑色木杖與羽扇，這在馬茲提卡意味著通行無阻的特權，甚至被視為潛在的皇室使節。</p>
+          <p>在任何城邦（甚至是敵對勢力），你可以出示信物來啟動「外交保護」。這讓你和你的隊伍能安全通過關卡、免除入城稅，甚至有權要求面見當地的統治者或祭司長。</p>
+          <p>此外，當地公會成員有義務向你提供最新的政治情報，且不敢欺騙你。</p>
+        </div>
+    </div>
+
+      <input type="radio" name="merchant-hero" id="mer-12" class="hero-radio">
+      <label for="mer-12" class="hero-label">易容</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【易容】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>你精通偽裝的技術，可以輕易地假扮成別人的外觀。</p>
+          <p>在經過一刻時間的喬裝後，你可以假扮另一個人的外觀、聲音和行為。你的族裔必須與偽裝目標相同。</p>
+          <p>若偽裝目標的熟人在 10 米內看到你，他可以進行一次察覺檢定來試圖拆穿你。</p>
+        </div>
+    </div>
+
+  </section>
+
+  <section id="thief" class="prof-section">
+    <h2>盜賊 (Thief)</h2>
+    <div class="race-header">
+      <img src="images/profession/Thief.webp" class="content-img" alt="Thief">
+      <div class="race-intro-text">
+        <blockquote class="quote" style="font-style:italic; color:var(--gold-glow); border-left:3px solid var(--jade);">
+          「榮譽是居於石殿之人的奢侈品。我靠手指的靈巧與步伐的寂靜為生。沒有打不開的鎖，沒有偷不走的真相。歷史由光輝中的勝利者書寫，卻往往由陰影中的雙手塑造。」
+        </blockquote>
+        <p>盜賊是行走於陰影與光明之間的人物。他們不如戰士般光榮，也不像詩人般受人讚頌，卻是城邦與荒野中不可或缺的角色。盜賊擅長鑽研陷阱、開鎖與潛行，他們的眼睛總能比別人更快找到隱藏的財寶與秘密。對許多人來說，盜賊雖帶著不光彩的名聲，但在探索古老遺跡、解決危險任務時，他們卻往往是最可靠的同伴。</p>
+        <p>馬茲提卡的叢林與遺跡中充滿陷阱與詭計，許多財寶不是被怪物守護，就是隱匿於古老機關之後。盜賊專精於拆解這些挑戰，能迅速判斷石板陷阱的壓力點，或發現牆壁中幾乎無痕的暗門。他們的雙手靈巧，不僅能竊取，也能修補與操作精密的機關。</p>
+        <p>在隊伍中，盜賊往往是「處理髒活」的人。他們能潛入敵營偷取情報，能悄然解決守衛，或是以狡詐與速度奪回珍貴的物品。他們懂得在黑市周旋，能將戰利品轉化為實際的資源。對盜賊而言，榮耀並非來自光明，而是來自於任務完成後，團隊仍能安全離開並滿載而歸。</p>
+        <p>選擇盜賊範型，代表你將探索危險的深處，扮演那個在陰影中行走、替隊伍解除危機的人。你或許是財寶的追尋者，也可能是不被光明接納的「解決者」──但無論如何，你的價值，總會在最關鍵的時刻顯現。</p>
+      </div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-card" style="border-left-color: var(--gold);">
+        <h4 style="color:var(--gold)">關鍵屬性</h4>
+        <p style="font-size:1.2rem; font-weight:bold; color:#fff; margin:0;">敏捷 (AGL)</p>
+      </div>
+      <div class="info-card">
+        <h4>起始技能 (選 6 項)</h4>
+        <p style="margin:0;">體操、閃避、巧手、隱匿、察覺、調查、欺瞞、小刀</p>
+      </div>
+    </div>
+
+    <h3>起始裝備 (擇一組)</h3>
+    <div class="info-grid">
+      <div class="info-card">
+        <h4>第一組 (攀爬)</h4>
+        <ul><li>黑曜石小刀</li><li>投石繩</li><li>鹿角鉤爪 & 麻繩 (10米) </li><li>1D6 食物 & 1D10 月幣</li></ul>
+      </div>
+      <div class="info-card">
+        <h4>第二組 (開鎖)</h4>
+        <ul><li>黑曜石飛刀</li><li>骨製解繩錐</li><li>松明火炬 & 黃鐵礦取火組</li><li>1D6 食物 & 1D10 月幣</li></ul>
+      </div>
+      <div class="info-card">
+        <h4>第三組 (干擾)</h4>
+        <ul><li>黑曜石飛刀</li><li>吹箭筒</li><li>睡袋卷</li><li>滑步種子</li><li>松明火炬 & 黃鐵礦取火組</li><li>1D6 食物 & 1D10 月幣</li></ul>
+      </div>
+    </div>
+
+    <h3>英雄能力 (選擇兩項，代表你身為盜賊的專業技術)</h3>
+    <div class="hero-tab-group">
+      <input type="radio" name="thief-hero" id="thf-1" class="hero-radio" checked>
+      <label for="thf-1" class="hero-label">背刺</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【背刺】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>當你對一名敵人進行近戰攻擊時，若該敵人和你的另一個盟友相距 2 米內，你可以發動此能力。</p>
+          <p>你的攻擊會視為偷襲，代表敵人無法閃避或格擋、你的攻擊檢定獲得 1 個優勢、傷害骰數增加一顆（例如 1D8 變成 2D8）。</p>
+          <p>只有靈巧武器才能發動此能力。</p>
+        </div>
+    </div>
+
+
+      <input type="radio" name="thief-hero" id="thf-2" class="hero-radio">
+      <label for="thf-2" class="hero-label">刺殺</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【刺殺】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：3</span></p>
+          <p>你的偷襲會額外造成 1D8 傷害。</p>
+          <p>此能力可以與「背刺」能力結合。</p>
+          <p>你必須在攻擊檢定後、計算傷害前宣告發動此能力。</p>
+        </div>
+    </div>
+
+      <input type="radio" name="thief-hero" id="thf-3" class="hero-radio">
+      <label for="thf-3" class="hero-label">迅捷步法</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【迅捷步法】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：3</span></p>
+          <p>你可以在不消耗該輪動作的情況下嘗試閃避一次攻擊。</p>
+          <p>你只能對同一次攻擊嘗試閃避一次，且你無法再對該次攻擊進行閃避或格擋。</p>
+          <p>只要你有足夠的 WP，你在同一輪中可以多次使用此能力。</p>
+        </div>
+    </div>
+
+      <input type="radio" name="thief-hero" id="thf-4" class="hero-radio">
+      <label for="thf-4" class="hero-label">閃電速度</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【閃電速度】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>當戰鬥開始抽先攻卡時，你可以抽兩張卡，並選擇想要的其中一張。</p>
+        </div>
+    </div>
+
+      <input type="radio" name="thief-hero" id="thf-5" class="hero-radio">
+      <label for="thf-5" class="hero-label">蝮蛇瞬咬</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【蝮蛇瞬咬】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>發動此能力後，持續一刻時間（或直到一場戰鬥結束）。</p>
+          <p>如同潛伏在樹葉下的毒蛇，你不需要拉開距離就能發動致命一擊。</p>
+          <p>在此期間，當你的攻擊目標位於你 2 米內時，你的 弓 或 吹箭筒 攻擊不會因此獲得劣勢。</p>
+        </div>
+    </div>
+
+      <input type="radio" name="thief-hero" id="thf-6" class="hero-radio">
+      <label for="thf-6" class="hero-label">快速塗毒</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【快速塗毒】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>你熟知如何安全且迅速地處理致命毒素。當你宣告攻擊時，你可以發動此能力。</p>
+          <p>你可以用一個流暢的動作將塗毒與攻擊結合（不需額外花費動作塗毒）。</p>
+        </div>
+    </div>
+
+      <input type="radio" name="thief-hero" id="thf-7" class="hero-radio">
+      <label for="thf-7" class="hero-label">卑鄙手段</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【卑鄙手段】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>榮譽不能當飯吃，生存才是真理。</p>
+          <p>你可以對一個 2 米內的目標使用。用一個自由動作，利用隨手抓起的沙土來撒向敵人。</p>
+          <p>目標必須進行閃避檢定（無須動作）。若失敗，目標獲得「目盲」狀態直到你的下一回合開始。此能力對無視覺生物無效。</p>
+        </div>
+    </div>
+
+      <input type="radio" name="thief-hero" id="thf-8" class="hero-radio">
+      <label for="thf-8" class="hero-label">妙手空空</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【妙手空空】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：3</span></p>
+          <p>你的手指靈活得令人恐懼，甚至能在刀光劍影中竊取物品。</p>
+          <p>你可以用動作對一個 2 米內的目標進行一次 巧手 檢定（對抗敵人的 察覺 檢定）。</p>
+          <p>若成功，你可以從敵人身上竊取一件未被緊握的物品（如腰帶上的藥水、錢袋、飾品等）。</p>
+          <p>若大成功，你甚至可以解下敵人的副手武器或盾牌，使其落入你手中或掉在地上。</p>
+        </div>
+    </div>
+
+      <input type="radio" name="thief-hero" id="thf-9" class="hero-radio">
+      <label for="thf-9" class="hero-label">輕身落地</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【輕身落地】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：不定</span></p>
+          <p>你每花費 1 點 WP，計算墜落傷害的 D6 數量就減一顆。</p>
+          <p>你可以先進行一次減輕墜落傷害的 體操 檢定，然後再發動此能力。</p>
+        </div>
+    </div>
+
+      <input type="radio" name="thief-hero" id="thf-10" class="hero-radio">
+      <label for="thf-10" class="hero-label">熟悉毒物</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【熟悉毒物】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>你對致命植物的氣味與外觀有著異常敏銳的直覺，能在雜亂的叢林中一眼辨識出危險的葉片。</p>
+          <p>當你在森林或沼澤環境尋找有毒植物（作為毒藥原料或陷阱素材）時，你可以發動此能力。</p>
+          <p>你尋找毒藥的求生檢定獲得 1 個優勢。若檢定大成功，你將發現品質極高或份量加倍的毒素原料。</p>
+        </div>
+    </div>
+
+      <input type="radio" name="thief-hero" id="thf-11" class="hero-radio">
+      <label for="thf-11" class="hero-label">飛簷走壁</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【飛簷走壁】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：3</span></p>
+          <p>垂直的牆面對你而言就如同平地。你獲得驚人的攀爬能力，在牆面或天花板攀爬時你可以發動此能力讓檢定具有優勢，且移動速度不減（除非是完全光滑的表面）。</p>
+          <p>此外，當你在攀爬狀態或位於高處觸發陷阱需進行檢定時，你也可以發動此能力讓該次檢定獲得 1 個優勢。這代表你能利用地形優勢做出常人無法辦到的迴避動作。</p>
+        </div>
+    </div>
+
+      <input type="radio" name="thief-hero" id="thf-12" class="hero-radio">
+      <label for="thf-12" class="hero-label">易容</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【易容】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>你精通偽裝的技術，可以輕易地假扮成別人的外觀。在經過一刻時間的喬裝後，你可以假扮另一個人的外觀、聲音和行為。</p>
+          <p>你的族裔必須與偽裝目標相同。若偽裝目標的熟人在 10 米內看到你，他可以進行一次察覺檢定來試圖拆穿你。</p>
+        </div>
+    </div>
+    </div>
+  </section>
+
+  <section id="farmer" class="prof-section">
+    <h2>農民 (Farmer) <span class="maz-badge">馬茲提卡</span> </h2>
+    <div class="race-header">
+      <img src="images/profession/Farmer.webp" class="content-img" alt="Farmer">
+      <div class="race-intro-text">
+        <blockquote class="quote" style="font-style:italic; color:var(--gold-glow); border-left:3px solid var(--jade);">
+          「讓祭司向天空祈禱吧，我向泥土祈禱。沒有種子就沒有果實，沒有果實就沒有國王。我們是世界的根，當風暴在頭頂肆虐，唯有根基不動如山。帝國的繁榮，始於我手中的一捧泥土。」
+        </blockquote>
+        <p>在馬茲提卡這塊大陸，農民並非單純耕作之人，而是最貼近大自然循環的守護者。他們掌握古老的浮田技術，能在湖泊與水道中建造人工小島，種植玉米、豆類、辣椒與番茄，同時利用水域的魚群與水草來滋養土壤。這種魚菜共生的方式，讓農民成為糧食與生態的維繫者，也是城邦與部族能繁榮存續的根基。</p>
+        <p>農民懂得如何從水域捕撈魚類，如何利用淤泥與水草肥沃土地，也知道哪些植物能作為食物，哪些則是祭品或藥材。他們在日常看似平凡，卻是社會中不可或缺的一環。沒有農民的智慧與辛勤，沒有任何城邦能長久屹立。</p>
+        <p>在冒險中，農民的價值同樣不可小覷。他們能辨認可食與有毒的植物，找到乾淨水源，或用簡單的工具捕獲魚類。他們對土地與水域的熟悉，使他們能帶領隊伍在叢林與濕地間尋找生機。</p>
+        <p>選擇農民範型，代表你將成為那個最踏實卻最堅韌的存在——用智慧與汗水，讓同伴在危險的旅程中不至於挨餓，並將自然的恩澤化為力量。</p>
+      </div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-card" style="border-left-color: var(--gold);">
+        <h4 style="color:var(--gold)">關鍵屬性</h4>
+        <p style="font-size:1.2rem; font-weight:bold; color:#fff; margin:0;">智力 (INT)</p>
+      </div>
+      <div class="info-card">
+        <h4>起始技能 (選 6 項)</h4>
+        <p style="margin:0;">狩獵、野獸知識、求生、察覺、游泳、調查、工藝、徒手</p>
+      </div>
+    </div>
+
+    <h3>起始裝備 (擇一組)</h3>
+    <div class="info-grid">
+      <div class="info-card">
+        <h4>第一組 (工具)</h4>
+        <ul><li>挖掘棒</li><li>棉織毛毯</li><li>陶製野炊組</li><li>火炬 & 黃鐵礦取火組</li><li>1D8 食物 & 1D10 月幣</li></ul>
+      </div>
+      <div class="info-card">
+        <h4>第二組 (開墾)</h4>
+        <ul><li>鹿角尖嘴鋤</li><li>睡袋卷</li><li>陶碗油燈 & 油脂/樹脂 (10劑) </li><li>黃鐵礦取火組</li><li>1D8 食物 & 1D10 月幣</li></ul>
+      </div>
+      <div class="info-card">
+        <h4>第三組 (漁獵)</h4>
+        <ul><li>多叉魚矛</li><li>睡袋卷</li><li>葫蘆瓶</li><li>火炬 & 黃鐵礦取火組</li><li>1D8 食物 & 1D10 月幣</li></ul>
+      </div>
+    </div>
+
+    <h3>英雄能力 (選擇兩項，象徵你身為農民時的技藝與專長)</h3>
+    <div class="hero-tab-group">
+      <input type="radio" name="farmer-hero" id="farm-1" class="hero-radio" checked>
+      <label for="farm-1" class="hero-label">浮田耕藝</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【浮田耕藝】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：不定</span></p>
+          <p>你獲得（創角時受訓）「浮田術」（智力）次要技能。</p>
+          <p>耗費一班時間，你可以在濕地或河湖上建造「簡易小型浮田」，能夠讓你種植少量的作物並收成，提供隊伍所需的糧食。</p>
+          <p>實際種植所需消耗的WP和收成時間詳見「農業與烹飪」章節。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="farmer-hero" id="farm-2" class="hero-radio">
+      <label for="farm-2" class="hero-label">大廚</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【大廚】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：不定</span></p>
+          <p>你獲得（創角時受訓）「廚藝」（智力）次要技能。你可以為隊伍製作美味好吃的菜餚而非單純飽腹的糧食。</p>
+          <p>現在你烹飪時改為進行「廚藝」檢定。每道菜譜有各自所需的時間、WP和食材，成功烹調將製作出有額外增益的食物。</p>
+          <p>你一開始可以學會 2 道一星和 1 道二星料理。詳見「農業與烹飪」章節。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="farmer-hero" id="farm-3" class="hero-radio">
+      <label for="farm-3" class="hero-label">水獵巧技</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【水獵巧技】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>你擅長在水域裡捕獵，能在水中迅速應對情況。你可以在以下情況發動此能力：</p>
+          <ul style="margin-left:20px; line-height:1.6;">
+            <li>當你嘗試釣魚時，你可以發動此能力來讓狩獵檢定獲得優勢。</li>
+            <li>當你在水中進行近戰攻擊時，你可以發動此能力來避免該次攻擊獲得劣勢。</li>
+            <li>你在水中受到攻擊時，你可以發動此能力使用游泳來取代閃避檢定。</li>
+          </ul>
+        </div>
+      </div>
+
+      <input type="radio" name="farmer-hero" id="farm-4" class="hero-radio">
+      <label for="farm-4" class="hero-label">蜂鳴飛石</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【蜂鳴飛石】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>你快速旋轉投石繩，讓石彈劃破空氣發出令人不安的嗡嗡聲。這是一次精準的遠程攻擊。</p>
+          <p>你可以宣告瞄準頭部，用投石繩進行一次帶有 劣勢 的攻擊。命中額外造成 1D6 鈍擊傷害。</p>
+          <p>若未命中，那可怕的破空聲會迫使目標心驚而進行 意志 檢定，失敗則因恐懼而獲得「畏縮」狀態。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="farmer-hero" id="farm-5" class="hero-radio">
+      <label for="farm-5" class="hero-label">收割橫掃</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【收割橫掃】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：3</span></p>
+          <p>你將戰場視為待收割的田野。你可以用一個動作拿著手上的物品對周圍 2 米內的所有敵人進行一次強力掃擊。</p>
+          <p>你只需進行一次 攻擊 檢定。被命中的敵人只會受到正常傷害的一半，但必須進行 力量 檢定。</p>
+          <p>失敗者將被擊倒 伏地 。這模擬了你收割農作物的熟練動作。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="farmer-hero" id="farm-6" class="hero-radio">
+      <label for="farm-6" class="hero-label">忍耐之軀</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【忍耐之軀】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：3</span></p>
+          <p>日復一日的耕作與風吹日曬，賦予了你如皮革般堅韌的皮膚與驚人的痛覺耐受力。</p>
+          <p>你對自然的嚴酷（如蚊蟲、荊棘、極端氣溫）習以為常。遇到部分旅行意外（由 GM 判斷）你可以發動此能力來直接抵銷旅行意外的影響。</p>
+          <p>在戰鬥中，當你受到物理傷害時，你可以發動此能力來「硬扛」這一次攻擊。該次傷害減少 1D6 點。這代表你懂得如何繃緊肌肉，用滿是老繭的部位承受衝擊，將致命傷化為皮肉痛。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="farmer-hero" id="farm-7" class="hero-radio">
+      <label for="farm-7" class="hero-label">下盤穩固</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【下盤穩固】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>你習慣在濕滑的浮田與泥濘中工作，下盤穩固如大樹紮根。你在通過部分困難地形（如泥沼、淺水等）時不會減慢移動速度。</p>
+          <p>此外，當有敵人試圖將你推開或擊倒時，你可以發動此能力讓該次對抗檢定獲得 1 個優勢。</p>
+          <p>若敵人體型比你小，你可以獲得 2 個優勢。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="farmer-hero" id="farm-8" class="hero-radio">
+      <label for="farm-8" class="hero-label">採集大師</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【採集大師】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>你對於如何採集植物可食用的部分瞭如指掌。</p>
+          <p>當你在旅行中嘗試採集食物成功時，你可以發動此能力額外獲得1D4份生食(需要煮熟的植物根莖等)。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="farmer-hero" id="farm-9" class="hero-radio">
+      <label for="farm-9" class="hero-label">親水泳將</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【親水泳將】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：1</span></p>
+          <p>當你處於至少及腰的水中時，你可以發動此能力讓你的游泳檢定獲得 1 個優勢。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="farmer-hero" id="farm-10" class="hero-radio">
+      <label for="farm-10" class="hero-label">氏族羈絆</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【氏族羈絆】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>你深諳馬茲提卡氏族之間的互助傳統與禮節。當你到達一個新的城鎮或村落時，你可以發動此能力。</p>
+          <p>你能迅速找到當地的遠親、友好的氏族成員或曾受過你恩惠的人。這能讓整個隊伍獲得免費且安全的食宿（生活品質為普通），並能打聽到只有當地人才知道的八卦傳聞。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="farmer-hero" id="farm-11" class="hero-radio">
+      <label for="farm-11" class="hero-label">經驗分享</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【經驗分享】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>在技能成長階段開始前，你可以放棄一項技能成長機會，將自身經驗傳授給其他夥伴，讓最多兩位盟友額外獲得該項技能成長機會，之後正常進行技能成長流程。</p>
+          <p>你不能選擇已經標記該技能的盟友。</p>
+        </div>
+      </div>
+
+      <input type="radio" name="farmer-hero" id="farm-12" class="hero-radio">
+      <label for="farm-12" class="hero-label">快速恢復</label>
+      <div class="hero-content">
+        <div class="info-card">
+          <h4>【快速恢復】</h4>
+          <p><span class="wp">先決條件：創角時忽略</span></p>
+          <p><span class="wp">WP：2</span></p>
+          <p>你在短休時可以額外恢復 1D6 HP。</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
