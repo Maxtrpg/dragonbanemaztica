@@ -1,0 +1,454 @@
+:root {
+  --obsidian-bg: rgba(20, 20, 25, 0.95);
+  --sidebar-bg: rgba(12, 12, 14, 0.98);
+  --gold: #c9a35a;
+  --gold-glow: #ebd193;
+  --jade: #2ecc71;
+  --text-main: #d0d0d0;
+  --text-dim: #888;
+  --border-gold: 1px solid rgba(201, 163, 90, 0.3);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Noto Sans TC', sans-serif;
+  background-color: #050505;
+  color: var(--text-main);
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 15px;
+}
+
+/* === 背景層 === */
+#bg-layer {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: url('images/bg-wood.webp') center/cover no-repeat;
+  filter: brightness(0.3) blur(4px); z-index: -2;
+}
+#vignette {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: radial-gradient(circle, transparent 30%, #000 90%);
+  z-index: -1; pointer-events: none;
+}
+
+/* === UI 主容器 === */
+#ui-container {
+  display: flex; width: 95vw; height: 92vh;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.9);
+  overflow: hidden; backdrop-filter: blur(10px);
+}
+
+/* === 左側導航 (Sidebar) === */
+#sidebar {
+  width: 260px; background: var(--sidebar-bg);
+  border-right: var(--border-gold);
+  display: flex; flex-direction: column; flex-shrink: 0;
+}
+.logo-area {
+  padding: 25px 20px; text-align: center;
+  border-bottom: var(--border-gold);
+  background: linear-gradient(to bottom, rgba(0,0,0,0.6), transparent);
+}
+.logo-area h1 {
+  font-family: 'Quatl', serif; color: var(--gold); font-size: 1.6rem;
+  letter-spacing: 2px; margin-bottom: 5px;
+  text-shadow: 0 0 12px rgba(201, 163, 90, 0.4);
+}
+.logo-area span { font-size: 0.65rem; color: var(--text-dim); letter-spacing: 3px; display: block; }
+
+.nav-scroll { flex: 1; overflow-y: auto; padding: 20px; }
+.nav-scroll::-webkit-scrollbar { width: 4px; }
+.nav-scroll::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+
+.nav-group { margin-bottom: 25px; }
+.nav-group h3 {
+  color: var(--gold); font-size: 0.8rem; text-transform: uppercase;
+  letter-spacing: 1px; margin-bottom: 8px; padding-left: 12px;
+  opacity: 0.7; border-left: 2px solid rgba(201,163,90,0.3);
+}
+
+.nav-btn {
+  display: block; width: 100%; text-align: left;
+  background: transparent; border: none; color: var(--text-dim);
+  padding: 8px 12px; margin-bottom: 2px; border-radius: 4px;
+  cursor: pointer; transition: all 0.2s ease; font-size: 0.9rem;
+}
+.nav-btn:hover { background: rgba(255,255,255,0.05); color: #fff; padding-left: 16px; }
+.nav-btn.active {
+  background: linear-gradient(90deg, rgba(201,163,90,0.15), transparent);
+  color: var(--gold); font-weight: 500;
+}
+
+/* === 右側內容板 === */
+#content-panel {
+  flex: 1; background: var(--obsidian-bg);
+  position: relative; display: flex; flex-direction: column;
+}
+#scroll-view {
+  flex: 1; overflow-y: auto; padding: 40px 80px; scroll-behavior: smooth;
+}
+#scroll-view::-webkit-scrollbar { width: 8px; }
+#scroll-view::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+#scroll-view::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; border: 1px solid #222; }
+#dynamic-content { max-width: 960px; margin: 0 auto; padding-bottom: 60px; }
+
+/* === 全域通用排版 (Shared Typography) === */
+header h1 { font-family: 'Quatl', serif; color: var(--gold); font-size: 2.2rem; border-bottom: none; margin-bottom: 5px; }
+
+/* ✅ 修復：全域列表樣式，確保項目符號正確縮排 */
+ul, ol {
+  padding-left: 1.5rem; /* 預留空間給項目符號 */
+  margin-bottom: 15px;
+}
+
+p, li { font-size: 0.95rem; line-height: 1.65; color: #ccc; margin-bottom: 12px; letter-spacing: 0.02em; }
+strong { color: #fff; font-weight: 600; }
+.wp { color: var(--gold); font-family: monospace; font-weight: bold; font-size: 1.05em; }
+.intro-text { font-size: 1rem; color: #aaa; margin-bottom: 20px; border-left: 3px solid rgba(255,255,255,0.2); padding-left: 15px; }
+.ornament-divider { height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); margin: 15px 0 25px; opacity: 0.5; }
+
+/* 通用標題樣式 */
+section h2 {
+  font-family: 'Noto Sans TC', sans-serif; color: #fff; font-size: 1.4rem;
+  margin-top: 40px; margin-bottom: 15px; padding-left: 15px;
+  border-left: 4px solid var(--jade);
+  background: linear-gradient(90deg, rgba(46, 204, 113, 0.05), transparent);
+  padding-top: 8px; padding-bottom: 8px;
+}
+h3 {
+  font-size: 1.1rem; color: var(--gold-glow); margin-top: 25px; margin-bottom: 10px;
+  border-bottom: 1px dashed rgba(201, 163, 90, 0.2); padding-bottom: 5px; display: inline-block;
+}
+
+/* === 全域共用組件 (Shared Components) === */
+
+/* 1. 頁內導航 (Page Index / Tabs) */
+.page-index {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-left: 3px solid var(--gold);
+  border-radius: 6px; padding: 15px 20px; margin: 20px 0 30px 0;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.3); display: block;
+}
+.index-label {
+  display: block; width: 100%; font-size: 0.75rem; color: var(--text-dim); 
+  text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; font-weight: bold;
+  border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px;
+}
+.index-links { display: grid; gap: 10px; grid-template-columns: repeat(5, 1fr); }
+button.index-btn, a.index-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #ccc !important; font-size: 0.95rem; padding: 10px 0; border-radius: 4px;
+  cursor: pointer; transition: all 0.2s ease; text-align: center; 
+  font-family: 'Noto Sans TC', sans-serif; letter-spacing: 1px;
+  text-decoration: none; display: flex; align-items: center; justify-content: center;
+}
+button.index-btn:hover, a.index-btn:hover {
+  background: rgba(201, 163, 90, 0.15); color: var(--gold) !important; 
+  border-color: var(--gold) !important; transform: translateY(-2px);
+}
+button.index-btn.active-tab, a.index-btn.active-tab {
+  background: var(--gold) !important; color: #000 !important; border-color: var(--gold) !important;
+  font-weight: bold; box-shadow: 0 0 15px rgba(201, 163, 90, 0.5); transform: translateY(-1px);
+}
+
+/* 2. 表格 (Table) */
+.table-scroll {
+  width: 100%; overflow-x: auto; margin: 20px 0; border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2);
+}
+table { width: 100%; border-collapse: collapse; min-width: 500px; }
+th {
+  background: rgba(255, 255, 255, 0.08); color: var(--gold); font-weight: 600; 
+  padding: 10px 15px; border-bottom: 2px solid rgba(255,255,255,0.1); text-align: left;
+}
+td { padding: 8px 15px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #ddd; vertical-align: top; }
+tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+
+/* 3. 族裔/職業頭圖 (Race Header) */
+.race-header {
+  display: flex; gap: 35px; align-items: flex-start; margin-bottom: 40px;
+  background: linear-gradient(90deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.1) 100%);
+  padding: 30px; border-radius: 12px;
+  border-left: 4px solid var(--gold); border-top: 1px solid rgba(255,255,255,0.05);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative; overflow: hidden;
+}
+.race-header .content-img {
+  width: 300px; height: auto; aspect-ratio: 1/2; object-fit: cover; object-position: top center;
+  flex-shrink: 0; margin: 0; border-radius: 4px; border: 1px solid rgba(201, 163, 90, 0.4);
+  filter: sepia(0.2) contrast(1.1); box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+.race-header:hover .content-img {
+  transform: scale(1.02) translateY(-5px); border-color: var(--gold); 
+  filter: sepia(0) contrast(1);
+}
+.race-intro-text { flex: 1; }
+
+/* 4. 引用區塊 */
+blockquote.quote {
+  border-left: 3px solid var(--gold); padding: 10px 20px; margin: 15px 0;
+  background: rgba(255,255,255,0.03); font-style: italic; color: #ddd;
+}
+
+/* 通用隱藏類別 (用於 JS 切換) */
+.active { display: block; }
+
+/* RWD */
+@media (max-width: 900px) {
+  .index-links { grid-template-columns: repeat(3, 1fr); }
+  .race-header { flex-direction: column; align-items: center; }
+  .race-header .content-img { width: 100%; max-width: 500px; aspect-ratio: 16/9; margin-bottom: 25px; }
+  #scroll-view { padding: 30px 40px; }
+}
+@media (max-width: 600px) {
+  .index-links { grid-template-columns: repeat(2, 1fr) !important; }
+  #sidebar { display: none; }
+  #scroll-view { padding: 20px; }
+}
+
+/* === 魔法規則頁面專用樣式 (Rule Cards) === */
+.rule-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; margin-top: 20px; }
+.rule-card { background: rgba(20, 20, 25, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-left: 4px solid var(--jade); border-radius: 8px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: transform 0.2s ease; position: relative; overflow: hidden; }
+.rule-card:hover { transform: translateY(-3px); background: rgba(30, 30, 35, 0.8); border-color: rgba(255,255,255,0.2); }
+.rule-card h3 { color: #fff; font-size: 1.2rem; margin-top: 0; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 1px dashed rgba(255,255,255,0.15); }
+.rule-card h3::before { content: '✦ '; color: var(--gold); }
+.rule-card.warning { border-left-color: #e74c3c; background: rgba(40, 10, 10, 0.4); } 
+.rule-card.highlight { border-left-color: var(--gold); background: rgba(40, 35, 10, 0.4); } 
+
+/* === 法術詳情面板 (UI 適配條列格式) === */
+.spell-detail-panel { background: rgba(15, 15, 20, 0.98); border: 1px solid var(--gold); border-top: 4px solid var(--gold); border-radius: 8px; padding: 30px; margin-top: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.9); animation: slideUp 0.3s ease; position: relative; text-align: left; min-height: 150px;}
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+/* 讓插入的 HTML 標籤顯示正確 */
+.spell-detail-panel h3 { color: var(--gold); font-size: 1.6rem; font-family: 'Quatl', serif; margin: 0 0 20px 0; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 10px; }
+.spell-detail-panel .attr { color: #ccc; font-size: 0.95rem; margin-bottom: 4px; line-height: 1.5; }
+.spell-detail-panel .desc { margin-top: 15px; padding-top: 15px; border-top: 1px dashed rgba(255,255,255,0.1); color: #fff; font-size: 1rem; line-height: 1.7; }
+.spell-detail-panel strong { color: var(--gold-glow); margin-right: 5px; font-weight: bold; }
+
+/* === 側邊欄搜尋框樣式 === */
+.sidebar-search {
+  padding: 0 20px 15px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 10px;
+}
+
+#global-search {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid #444;
+  border-radius: 20px;
+  padding: 8px 15px;
+  color: #ddd;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+#global-search:focus {
+  outline: none;
+  border-color: var(--gold);
+  background: rgba(0, 0, 0, 0.8);
+  box-shadow: 0 0 8px rgba(201, 163, 90, 0.3);
+}
+
+/* 搜尋結果彈窗樣式 (JS 生成) */
+.search-result-item {
+  padding: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  cursor: pointer;
+  transition: 0.2s;
+  text-align: left;
+}
+.search-result-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+.search-result-title {
+  color: var(--gold);
+  font-weight: bold;
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+.search-result-snippet {
+  color: #aaa;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+.search-highlight {
+  color: #ff6b6b;
+  font-weight: bold;
+}
+
+/* ==========================================
+   馬茲提卡房規專用樣式 (Maztica House Rules)
+   ========================================== */
+
+/* 1. 行內小標籤 (純文字風格) */
+.maz-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  vertical-align: middle;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  white-space: nowrap;
+
+  /* 指定橘色配色 */
+  color: #ff9f43;
+  border: 1px solid #ff9f43;
+  background: rgba(255, 159, 67, 0.15);
+  box-shadow: 0 0 5px rgba(255, 159, 67, 0.2);
+}
+
+/* 2. 區塊說明框 (配合橘色系) */
+.maz-note {
+  margin: 15px 0;
+  padding: 12px 15px;
+  background: rgba(255, 159, 67, 0.05); /* 極淡橘色背景 */
+  border-left: 3px solid #ff9f43;
+  border-radius: 0 4px 4px 0;
+  color: #ddd;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.maz-note strong {
+  color: #ff9f43;
+  display: block;
+  margin-bottom: 4px;
+}
+
+/* === 新增：占卜結果專用樣式 === */
+.theme-tag {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #e0e0e0;
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin: 3px 3px 3px 0;
+  font-size: 0.95rem;
+}
+
+/* === 歡迎畫面優化版 === */
+.welcome-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;      /* 水平置中 */
+  justify-content: center;   /* 垂直置中 */
+  min-height: 80vh;
+  text-align: center;
+  padding: 40px 20px;
+}
+
+/* 標題改為純金色，增加清晰度 */
+.main-title {
+  font-family: 'Quatl', 'Noto Serif TC', serif;
+  font-size: 5.5rem;
+  font-weight: 900;
+  color: #c9a35a; /* 純金色 */
+  letter-spacing: 6px;
+  margin: 0;
+  line-height: 1;
+  text-shadow: 0 0 20px rgba(201, 163, 90, 0.3); /* 輕微金色霓虹感 */
+}
+
+.sub-title {
+  font-family: 'Noto Serif TC', serif;
+  font-size: 1.8rem;
+  color: #f4f1ea; /* 改為接近白色的米色 */
+  letter-spacing: 12px;
+  margin-top: 15px;
+}
+
+/* 裝飾線 */
+.title-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 25px;
+  color: #c9a35a;
+}
+.title-divider .line {
+  width: 120px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #c9a35a, transparent);
+}
+
+/* 引言 */
+.flavor-intro {
+  font-size: 1.25rem;
+  color: #aaa;
+  font-style: italic;
+  margin: 20px 0 40px 0;
+}
+
+/* 資訊卡片區 */
+.info-container {
+  background: rgba(15, 15, 18, 0.85); /* 稍微加深背景 */
+  border: 1px solid rgba(201, 163, 90, 0.4);
+  border-radius: 12px;
+  padding: 35px 45px;
+  max-width: 550px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+}
+
+.info-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  text-align: left; /* 文字靠左以求整齊，但整體在容器內是置中的 */
+}
+
+.info-list li {
+  margin-bottom: 18px;
+  line-height: 1.6;
+  color: #eee;
+  display: flex;
+  align-items: center;
+}
+
+.info-list .icon {
+  margin-right: 15px;
+  font-size: 1.2rem;
+  width: 25px;
+  text-align: center;
+}
+
+/* 房規標籤視覺設計 */
+.maz-badge {
+  background: #c9a35a;
+  color: #000;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  margin: 0 4px;
+  vertical-align: middle;
+}
+
+.warning-item {
+  color: #ff5555;
+  font-weight: bold;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 85, 85, 0.2);
+}
+
+.version-badge {
+  margin-top: 40px;
+  border: 1px solid #c9a35a;
+  color: #c9a35a;
+  padding: 4px 18px;
+  border-radius: 30px;
+  font-size: 0.85rem;
+}

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>龍與魔 X 馬茲提卡 - 資料網站</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.cdnfonts.com/css/quatl" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* === 歡迎畫面優化與強制置中 === */
+    #scroll-view {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    #dynamic-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .welcome-screen {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;      /* 水平置中 */
+      justify-content: center;   /* 垂直置中 */
+      text-align: center;
+      padding: 40px 20px;
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    /* 標題與文字樣式 */
+    .main-title {
+      font-family: 'Quatl', 'Noto Serif TC', serif;
+      font-size: clamp(3rem, 10vw, 5.5rem);
+      font-weight: 900;
+      color: #c9a35a;
+      letter-spacing: 6px;
+      margin: 0;
+      line-height: 1;
+      text-shadow: 0 0 20px rgba(201, 163, 90, 0.3);
+    }
+
+    .sub-title {
+      font-family: 'Noto Serif TC', serif;
+      font-size: 1.8rem;
+      color: #f4f1ea;
+      letter-spacing: 12px;
+      margin-top: 15px;
+    }
+
+    .title-divider {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 25px;
+      color: #c9a35a;
+    }
+
+    .title-divider .line {
+      width: 120px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #c9a35a, transparent);
+    }
+
+    .flavor-intro {
+      font-size: 1.25rem;
+      color: #aaa;
+      font-style: italic;
+      margin: 20px 0 40px 0;
+      border: none;
+    }
+
+    /* 資訊卡片區 */
+    .info-container {
+      background: rgba(15, 15, 18, 0.85);
+      border: 1px solid rgba(201, 163, 90, 0.4);
+      border-radius: 12px;
+      padding: 35px 45px;
+      max-width: 550px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    }
+
+    .info-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      text-align: left;
+    }
+
+    .info-list li {
+      margin-bottom: 18px;
+      line-height: 1.6;
+      color: #eee;
+      display: flex;
+      align-items: center;
+    }
+
+    .info-list .icon {
+      margin-right: 15px;
+      font-size: 1.2rem;
+      width: 25px;
+      text-align: center;
+    }
+
+    .maz-badge {
+      background: #c9a35a;
+      color: #000;
+      padding: 1px 6px;
+      border-radius: 3px;
+      font-size: 0.85rem;
+      font-weight: bold;
+      margin: 0 4px;
+    }
+
+    .warning-item {
+      color: #ff5555;
+      font-weight: bold;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 85, 85, 0.2);
+    }
+
+    .version-badge {
+      margin-top: 40px;
+      border: 1px solid #c9a35a;
+      color: #c9a35a;
+      padding: 4px 18px;
+      border-radius: 30px;
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="bg-layer"></div>
+  <div id="vignette"></div>
+
+  <div id="ui-container">
+    <aside id="sidebar">
+      <div class="logo-area">
+        <h1>馬茲提卡</h1>
+        <div class="logo-line"></div>
+        <span>資料庫</span>
+      </div>
+
+      <div class="sidebar-search">
+        <br>
+        <input type="text" id="global-search" placeholder="🔍 全站搜尋" autocomplete="off">
+      </div>
+
+   <div class="nav-scroll">
+        <div class="nav-group">
+          <h3><span class="icon">🎭</span> 成名之路</h3>
+          <button class="nav-btn" data-file="create">創角流程</button>
+          <button class="nav-btn" data-file="kin">族裔介紹</button>
+          <button class="nav-btn" data-file="profession">職業範型</button>
+          <button class="nav-btn" data-file="magic">魔法與法術</button>
+          <button class="nav-btn" data-file="abilities">英雄能力</button>
+          <button class="nav-btn" data-file="growth">角色成長</button>
+        </div>
+
+        <div class="nav-group">
+          <h3><span class="icon">⚔️</span> 冒險指南</h3>
+          <button class="nav-btn" data-file="combat">戰鬥與傷害</button>
+          <button class="nav-btn" data-file="skill">技能與檢定</button>
+          <button class="nav-btn" data-file="equipment">裝備與物品</button>
+          <button class="nav-btn" data-file="journey">旅行規則</button>
+        </div>
+
+        <div class="nav-group">
+          <h3><span class="icon">🗺️</span> 世界見聞</h3>
+          <button class="nav-btn" data-file="calendar">曆法</button>
+          <button class="nav-btn" data-file="history">歷史傳說</button>
+          <button class="nav-btn" data-file="locations">地理誌</button>
+          <button class="nav-btn" data-file="academy">三聖學</button>
+        </div>
+
+        <div class="nav-group">
+          <h3><span class="icon">🔮</span> 技術工藝</h3>
+
+          <button class="nav-btn" data-file="farming">農業與烹飪</button>
+          <button class="nav-btn" data-file="forging">鍛造與強化</button>
+          <button class="nav-btn" data-file="carriage">馬車與坐騎</button>
+
+
+        </div>
+      </div>
+    </aside>
+
+    <main id="content-panel">
+      <div class="panel-header">
+        <div class="corner-ornament left"></div>
+        <div class="corner-ornament right"></div>
+      </div>
+      
+      <div id="scroll-view">
+        <div id="dynamic-content">
+          <div class="welcome-screen">
+            <div class="hero-title-box">
+              <h1 class="main-title">馬茲提卡戰役</h1>
+              <div class="sub-title">MAZTICA</div>
+              <div class="title-divider">
+                <span class="diamond">❖</span>
+                <span class="line"></span>
+                <span class="diamond">❖</span>
+              </div>
+            </div>
+
+            <blockquote class="flavor-intro">
+              「馬茲提卡，一塊充滿叢林、神秘和危險的大陸。」
+            </blockquote>
+
+            <div class="info-container">
+              <ul class="info-list">
+                <li class="warning-item">
+                  <span class="icon">❖</span> 
+                  資料僅供 Max 的團務中使用，請勿分享。
+                </li>
+                <li>
+                  <span class="icon">❖</span> 
+                  規則標註 <span class="maz-badge">馬茲提卡</span> 者為房規新增。
+                </li>
+                <li>
+                  <span class="icon">❖</span> 
+                  規則核心採用 <strong>《龍與魔 DragonBane》</strong> 系統。
+                </li>
+                <li>
+                  <span class="icon">❖</span> 
+                  改編自 DND 馬茲提卡設定，並非官方原始架構。
+                </li>
+              </ul>
+            </div>
+
+            <div class="version-badge">當前版本 3.0</div>
+          </div>
+          </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>
