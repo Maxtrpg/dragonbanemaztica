@@ -19,6 +19,7 @@ const ALL_PAGES = [
   { file: 'journey', name: '旅行規則' },
   { file: 'history', name: '歷史與傳說' },
   { file: 'locations', name: '地理誌' },
+  { file: 'religion', name: '信仰與宇宙論' },
   { file: 'magic', name: '魔法與法術' },
   { file: 'farming', name: '農業與烹飪' },
   { file: 'forging', name: '鍛造與強化' },
@@ -67,6 +68,7 @@ async function loadPage(fileName) {
       else if (fileName === 'equipment') initEquipmentPage();
       else if (fileName === 'combat') initCombatPage();
       else if (fileName === 'journey') initJourneyPage(); 
+else if (fileName === 'religion') initReligionPage();
 else if (fileName === 'academy') initAcademyPage();   // 三聖學
       else if (fileName === 'carriage') initCarriagePage(); // 馬車
       else if (fileName === 'calendar') initCalendarPage(); // 曆法
@@ -741,4 +743,10 @@ function initCalendarPage() {
     // 替換舊腳本以執行
     oldScript.parentNode.replaceChild(newScript, oldScript);
   });
+}
+
+// 宗教頁面 (Religion) 初始化
+function initReligionPage() {
+  // 宗教頁面使用 .index-btn 切換 .magic-section 內容
+  initTabs('.index-btn[data-target]', 'magic-section');
 }
