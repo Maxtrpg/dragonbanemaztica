@@ -1,0 +1,595 @@
+<style>
+  /* === 信仰頁面專屬 CSS (橫向滿版完整版) === */
+  .magic-section { display: none; animation: fadeIn 0.4s ease; }
+  .magic-section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* 索引按鈕樣式 */
+  .page-index {
+    background: rgba(0,0,0,0.3);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    border: 1px solid rgba(201, 163, 90, 0.2);
+  }
+  .index-label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--gold);
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+    text-align: center;
+  }
+  .index-links {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .index-btn {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #ccc;
+    padding: 6px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .index-btn:hover { background: rgba(201, 163, 90, 0.2); color: #fff; }
+  .index-btn.active-tab {
+    background: var(--gold);
+    color: #000;
+    border-color: var(--gold);
+    font-weight: bold;
+  }
+
+  /* === 神祇卡片樣式 (橫向滿版) === */
+  .deity-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+  }
+  
+  .deity-card {
+    display: flex;
+    flex-direction: row;
+    background: rgba(10, 10, 12, 0.7);
+    border: 1px solid rgba(201, 163, 90, 0.3);
+    border-left: 5px solid var(--gold);
+    border-radius: 10px;
+    overflow: hidden;
+    min-height: 220px;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .deity-card:hover {
+    transform: translateX(5px);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.6);
+    background: rgba(20, 20, 25, 0.9);
+  }
+
+  /* 左側：頭像與標題 */
+  .deity-header {
+    flex: 0 0 240px;
+    background: rgba(255, 255, 255, 0.03);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 25px;
+    text-align: center;
+  }
+
+  .deity-img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--gold);
+    margin-bottom: 15px;
+    background: #000;
+    box-shadow: 0 0 15px rgba(201, 163, 90, 0.3);
+  }
+
+  .deity-title h3 { 
+    margin: 0; 
+    color: var(--gold); 
+    font-size: 1.4rem; 
+    font-family: 'Noto Serif TC', serif;
+    margin-bottom: 5px;
+  }
+  .deity-title span { 
+    display: block;
+    font-size: 0.9rem; 
+    color: #aaa; 
+    font-weight: normal;
+  }
+
+  /* 右側：完整文本 */
+  .deity-body { 
+    flex: 1;
+    padding: 25px 35px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: #ddd;
+    text-align: justify;
+  }
+  
+  .deity-body p { margin-bottom: 15px; }
+  .deity-body p:last-child { margin-bottom: 0; }
+
+  .deity-meta {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px dashed rgba(255, 255, 255, 0.15);
+    font-size: 0.95rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  .deity-meta li { list-style: none; color: #ccc; }
+  .deity-meta strong { color: #f1c40f; margin-right: 5px; }
+
+  /* RWD 手機適配 */
+  @media (max-width: 768px) {
+    .deity-card { flex-direction: column; }
+    .deity-header { 
+      width: 100%; 
+      flex-direction: row; 
+      justify-content: flex-start;
+      text-align: left;
+      padding: 15px;
+      border-right: none;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      flex: auto;
+    }
+    .deity-img { width: 70px; height: 70px; margin-bottom: 0; margin-right: 15px; }
+    .deity-title h3 { font-size: 1.2rem; }
+    .deity-body { padding: 20px; }
+  }
+</style>
+
+<header>
+  <h1>信仰 RELIGION</h1>
+  <div class="ornament-divider"></div>
+  <p class="intro-text" style="font-style: italic; color: #aaa;">
+    馬茲提卡的信仰偏向泛靈+多神論。祭拜神靈主要是為了感謝神靈的賜予/或出於畏懼，偏向「你需要什麼就向哪位乞求」的概念。<br><br>
+    以下描述了馬茲提克萬神殿的主要神祇。此外，還提供了許多較小的和死去的神，儘管他們的崇拜者不是很少，就是已經不存在了。這份名單並不全面，還有無數的地方神和族裔神沒有被列入這份名單。
+  </p>
+</header>
+
+<nav class="page-index">
+  <span class="index-label">神學典籍 THEOLOGY</span>
+  <div class="index-links">
+    <button class="index-btn active-tab" data-target="deities">眾神萬神殿</button>
+    <button class="index-btn" data-target="cosmo">位面宇宙論</button>
+    <button class="index-btn" data-target="others">其他神靈</button>
+  </div>
+</nav>
+
+<main>
+  <section id="deities" class="magic-section active">
+    <div class="deity-grid">
+      
+      <div class="deity-card">
+        <div class="deity-header">
+          <img src="images/deities/kukul.png" alt="Kukul" class="deity-img">
+          <div class="deity-title">
+            <h3>庫庫爾 (Kukul)</h3>
+            <span>古代眾神之父</span>
+          </div>
+        </div>
+        <div class="deity-body">
+          <p>據說，當庫庫爾因妻子馬茲提卡的去世而離開世界時，他留下了他的屍體以及遍布整個大陸的黃金。祂是人類的創造者、太陽神和所有其他神的父親。現在人們相信他住在太陽本身內，今日被稱為庫庫爾之眼。據說太陽凝視著世界，惡魔之女伊察帕普羅特爾就無法進入人類的領域，所以庫庫爾當然仍掌握著一些力量。</p>
+          <p>作為「死去之神」，他不再有任何正式的崇拜者，也沒有以庫庫爾的名義進行的祭祀，但馬茲提卡的長老、聖賢、編年史家和薩滿仍然偶爾向這位被認為已經過世的偉大父親低聲祈禱。</p>
+          <ul class="deity-meta">
+            <li><strong>別稱：</strong> Ancient Father of The Gods</li>
+            <li><strong>象徵：</strong> 星星、流星、黃金</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="deity-card">
+        <div class="deity-header">
+          <img src="images/deities/Maztica.png" alt="Maztica" class="deity-img">
+          <div class="deity-title">
+            <h3>馬茲提卡 (Maztica)</h3>
+            <span>世界與生命之母</span>
+          </div>
+        </div>
+        <div class="deity-body">
+          <p>馬茲提卡死於她兒子扎爾特克和馬夸維特爾之手，這對馬茲提卡眾神萬神殿和馬茲提卡的凡人來說是一個可怕的打擊。她比埃哈、庫庫爾或任何其他神更能成為真正的生命之母，受到所有人的愛戴。</p>
+          <p>雖然年老女神已經死了，但據說她仍然在這片土地上生存，據說她的靈魂仍然在馬茲特蘭的外域王國中漫遊。她的崇拜仍然存在於民間和更偏遠部落的薩滿的口中。據說即使是北部沙漠的狗民也尊敬她，儘管並不總是名義上的。</p>
+          <ul class="deity-meta">
+            <li><strong>別稱：</strong> Mother of Life, The World</li>
+            <li><strong>象徵：</strong> 山脈、土壤、銀</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="deity-card">
+        <div class="deity-header">
+          <img src="images/deities/Qotal.png" alt="Qotal" class="deity-img">
+          <div class="deity-title">
+            <h3>夸爾特 (Qotal)</h3>
+            <span>羽龍、羽之父</span>
+          </div>
+        </div>
+        <div class="deity-body">
+          <p>夸爾特是羽毛之父和羽龍。他的外表讓人想起最偉大的龍，儘管他那色彩鮮豔的羽毛褶邊使他的外表與除了鮮為人知的妖野幻影龍之外的大多數龍不同。</p>
+          <p>夸爾特比任何其他神祇都更厭惡犧牲，他的祭司們將把犧牲從馬茲提卡的頑固文化中根除作為一項神聖使命。</p>
+          <p>夸爾特並不總是那麼無辜的神，他過去做過一些可怕的事情，但他越來越意識到自己的行為，並從他所犯的每一個錯誤中學習。今天，在馬茲提卡被限制在阿貝爾的長時間沉默之後，夸爾特仔細而專心地聆聽他信徒的祈禱。過去那些狹隘、嫉妒的神祇已經一去不復返了。</p>
+          <ul class="deity-meta">
+            <li><strong>別稱：</strong> The Feathered Dragon, the Plumed father</li>
+            <li><strong>象徵：</strong> 羽龍或羽蛇</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="deity-card">
+        <div class="deity-header">
+          <img src="images/deities/Zaltec.png" alt="Zaltec" class="deity-img">
+          <div class="deity-title">
+            <h3>札爾特克 (Zaltec)</h3>
+            <span>戰爭使者、噬心者</span>
+          </div>
+        </div>
+        <div class="deity-body">
+          <p>札爾特克是一位可怕且完全邪惡的神，他永遠渴望犧牲和吞噬人類的心靈。他經常被描繪成一座巨大的石像，有一個血淋淋的大口，每顆給他的心都被扔進了裡面。這種出現當然已經得到證實，因為神曾經在凡間出現過。</p>
+          <p>他是他的兄弟夸爾特永遠的敵人，並且所代表的一切與他兄弟所代表的一切截然相反。儘管存在這種赤裸裸的仇恨，但他們有時還是不得不合作，並且如果外國勢力試圖侵入馬茲提卡，他們總是會合作。</p>
+          <p>札爾特克 (Zaltec) 是母親女神馬茲提卡 (Maztica) 的殺手，也是蝰手獸 (Beasts of the Viperhand) 的守護神。霍西特爾坐在他的右手邊，但這位神並沒有善待他最偉大的僕人。據說，在札塔爾山最深處的洞穴中，他的石質形態沉睡在那裡，對一種被稱為「暗火」的力量擁有最終的控制權。</p>
+          <ul class="deity-meta">
+            <li><strong>別稱：</strong> Bringer of War, Eater of Hearts</li>
+            <li><strong>象徵：</strong> 心、頭骨、瑪卡、刀、血淋淋的手、爪子、獠牙、狩豹、響尾蛇</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="deity-card">
+        <div class="deity-header">
+          <img src="images/deities/Azul.png" alt="Azul" class="deity-img">
+          <div class="deity-title">
+            <h3>阿祖爾 (Azul)</h3>
+            <span>賜雨者</span>
+          </div>
+        </div>
+        <div class="deity-body">
+          <p>阿祖爾是一位殘酷的神，祂的存在對馬茲提卡的生存和人民的繁榮至關重要。他是命令查克和特拉洛科特爾（雨蛇）等神靈帶來降雨的神，人民尋求阿祖爾的青睞，以便獲得足夠的水。如果他不出手，就可能意味著乾旱和飢荒。</p>
+          <p>世間流傳的形象是一個精壯、微笑的年輕人，臉頰乾乾淨淨，穿著一件簡單的白色長袍，但這位神擁有古老的恥辱和秘密，這使他走上了黑暗的道路。阿祖爾要求獻血以換取他的祝福，最喜歡的犧牲品是經常被淹死在儀式池中的無辜兒童。激怒他總是會帶來可怕的乾旱。因此，每年春天，祭司們都會淹死某人來滿足神靈的需要，而在商隊出發前往荒地之前，通常會獻上一隻小型祭祀動物。</p>
+          <p>阿祖爾的標誌是一條鋸齒狀的紅線，周圍有水滴。一座通常由天然泉水形成的水池總是坐落在供奉阿祖爾的寺廟的中心，牧師和士兵奮勇守護著這座神聖的聖地。阿祖爾最狂熱的追隨者屬於兇猛的沙漠遊牧民族，他們攻擊粗心的旅行者，將奴隸拿來獻祭或用作建造更多神廟的勞動力。</p>
+          <ul class="deity-meta">
+            <li><strong>別稱：</strong> Giver of Rain</li>
+            <li><strong>象徵：</strong> 雨、冰、魚、蛙、奧克特力</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="deity-card">
+        <div class="deity-header">
+          <img src="images/deities/Eha.png" alt="Eha" class="deity-img">
+          <div class="deity-title">
+            <h3>埃哈 (Eha)</h3>
+            <span>風之精魂</span>
+          </div>
+        </div>
+        <div class="deity-body">
+          <p>埃哈是一位煙霧繚繞、虛無縹緲的風之女神。她不可思議的長髮在她的身體上飄揚，據說是埃哈為新生兒帶來呼吸，因此她扮演著生命女神的角色。</p>
+          <p>埃哈也擁有風的管轄權，但她對天氣的控制被認為比阿祖爾或泰茲卡給世界帶來的更溫和。埃哈通常被認為是一位溫柔的女神，儘管事實上她在過去的戰鬥中支持了扎爾特克和夸爾特。</p>
+          <ul class="deity-meta">
+            <li><strong>別稱：</strong> Wind Sprite</li>
+            <li><strong>象徵：</strong> 雲、煙、汽、風、笛、角</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="deity-card">
+        <div class="deity-header">
+          <img src="images/deities/Kiltzi.png" alt="Kiltzi" class="deity-img">
+          <div class="deity-title">
+            <h3>基爾茲 (Kiltzi)</h3>
+            <span>愛與歡樂女神</span>
+          </div>
+        </div>
+        <div class="deity-body">
+          <p>基爾茲是無可爭議且受人喜愛的愛與歡樂女神。她受到所有人的尊敬，也許除了蝰手獸之外，她受到所有人的尊敬。甚至他們也承認她是世界上不可或缺的一部分，而基爾茲的女祭司可能是唯一一個在試圖穿越內克薩爾土地時發現自己被放任的人類。</p>
+          <p>基爾茲的信徒專注於治療病人、舉行婚禮和歡迎孩子來到這個世界。她本人經常被描繪成一位美麗的孕婦。所有死於難產的婦女都會被她親自帶入特拉克斯考特利，這是最尊貴、最美麗的天國。</p>
+          <ul class="deity-meta">
+            <li><strong>別稱：</strong> Giver of Health, Growth, Nourishment and Love</li>
+            <li><strong>象徵：</strong> 花蕾、孕婦、嬰兒、彩虹、月亮</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="deity-card">
+        <div class="deity-header">
+          <img src="images/deities/Mictlāntēcutli.png" alt="Mictlan" class="deity-img">
+          <div class="deity-title">
+            <h3>米克特蘭之主</h3>
+            <span>死者守護神</span>
+          </div>
+        </div>
+        <div class="deity-body">
+          <p>雖然他們曾經在人類中擁有更高的地位，但已婚的神和死亡女神已經退回到米克特蘭的腹地，在那些稱他們為守護神的人們中不再活躍。相反，男神和女神只默默地處理死者的事務，據說他們一起引導著被稱為「齊齊米姆(zizimime)」的骷髏靈魂。</p>
+          <p>米克特蘭領主的崇拜者傾向於悄悄地收集死者的屍體，並以適當的方式處理它們，以便他們可以進入來世的適當區域，無論是天堂還是地獄。他們還負責確保屍體不會污染或在活著的人中傳播疾病。</p>
+          <ul class="deity-meta">
+            <li><strong>別稱：</strong> Lords of Mictlan</li>
+            <li><strong>象徵：</strong> 骷髏、骨王座、頭骨與頭飾</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="deity-card">
+        <div class="deity-header">
+          <img src="images/deities/Nula.png" alt="Nula" class="deity-img">
+          <div class="deity-title">
+            <h3>努拉 (Nula)</h3>
+            <span>動物的守護者</span>
+          </div>
+        </div>
+        <div class="deity-body">
+          <p>努拉是除了羽龍本身之外唯一沒有普遍描繪的擬人形態的神。她的形象很多，但迄今為止最常見的是一隻聰明、四肢長的猴子。</p>
+          <p>努拉很狂野，以滑稽的滑稽動作而聞名，但她並沒有得到許多其他神靈所獲得的尊重。一般來說，馬茲提克人的生存更依賴植物而不是動物。</p>
+          <p>沿海社區傾向於將部分捕獲物獻給她，偶爾會將小飾品扔進海裡，相信它們最終會落入女神手中。</p>
+          <ul class="deity-meta">
+            <li><strong>別稱：</strong> Guardian of Animals</li>
+            <li><strong>象徵：</strong> 猛虎、蜂鳥、蛇、禿鷹、猴子</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="deity-card">
+        <div class="deity-header">
+          <img src="images/deities/Plutoq.png" alt="Plutoq" class="deity-img">
+          <div class="deity-title">
+            <h3>普魯托克 (Plutoq)</h3>
+            <span>大地和岩石之主</span>
+          </div>
+        </div>
+        <div class="deity-body">
+          <p>與札爾特克一樣，普魯托克的外形巨大且堅硬，但外觀更像是元素而不是泰坦尼克雕像。普魯托克是一位強大的神，我行我素，在過去的許多眾神的衝突中一直保持中立。如果一位神靈獲得了他的卑鄙認可，天平肯定會傾斜。</p>
+          <p>普魯托克是大地之主，在山巒中尤其無可爭議。神並不嗜血，也不拒絕偶爾的犧牲以確保祂的祝福。</p>
+          <ul class="deity-meta">
+            <li><strong>別稱：</strong> Master of Earth and Stone</li>
+            <li><strong>象徵：</strong> 山峰、黑曜石、銅、土坯、灰塵、玉石、綠松石、黏土和陶器</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="deity-card">
+        <div class="deity-header">
+          <img src="images/deities/Tezca.png" alt="Tezca" class="deity-img">
+          <div class="deity-title">
+            <h3>泰茲卡 (Tezca)</h3>
+            <span>陽與焰的統治者</span>
+          </div>
+        </div>
+        <div class="deity-body">
+          <p>這個火巨人住在剝皮之地西佩特蘭隧道中的巨大火焰和岩漿池中。他通常被描繪成被他被稱為“xiuhcouatl”的腐化火焰羽蛇僕人包圍，儘管同樣經常，其中一個被描述為他實際選擇的武器。</p>
+          <p>泰茲卡和他的兄弟阿祖爾一樣，被認為是馬茲提卡生存所必需的邪惡，因此即使在更溫和的諸神的最神聖的堡壘中，他也受到容忍和安撫。據信，庫庫爾離開人世後，泰茲卡繼承了太陽神的職責。如果沒有泰茲卡的祝福，它的生命所帶來的溫暖甚至不會降臨在世界上。</p>
+          <p>泰茲卡不受夸爾特或札爾特克的歡迎，並且眾所周知在不同情況下反對這兩個神。然而，他的做法與黑暗兄弟有許多共同之處。</p>
+          <ul class="deity-meta">
+            <li><strong>別稱：</strong> Ruler of Sun and Fire</li>
+            <li><strong>象徵：</strong> 火焰、太陽、螢火蟲、蛇皮、熔岩、煙霧、蜥蜴</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="deity-card">
+        <div class="deity-header">
+          <img src="images/deities/Watil.png" alt="Watil" class="deity-img">
+          <div class="deity-title">
+            <h3>瓦蒂爾 (Watil)</h3>
+            <span>植物守護者</span>
+          </div>
+        </div>
+        <div class="deity-body">
+          <p>瓦蒂爾是馬茲提卡植物群的仁慈女神。她經常被描繪成一位鬱鬱蔥蔥、性感的女性，與她的妹妹基爾茨有很多共同點，儘管她的頭髮和臉通常被鑲在白色的百合花瓣中。</p>
+          <p>瓦蒂爾拒絕犧牲，儘管人們常常認為她對她的哥哥阿祖爾有感激之情，而阿祖爾與妹妹的關係要求很高，而且充滿虐待。然而，瓦蒂爾從未放棄阿祖爾，面對這位廣受其他神靈尊敬的殘酷之神，她保持著平靜的力量。</p>
+          <p>瓦蒂爾的薩滿和信徒普遍是優秀的園藝家。有些人培育出具有奇異而有用的力量的植物，許多人擁有像植物一樣忠誠的守護者。</p>
+          <ul class="deity-meta">
+            <li><strong>別稱：</strong> Guardian of Plants</li>
+            <li><strong>象徵：</strong> 玉米、仙人掌、葉子、開花</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="deity-card">
+        <div class="deity-header">
+          <img src="images/deities/Poshtli.png" alt="Poshtli" class="deity-img">
+          <div class="deity-title">
+            <h3>波什特利 (Poshtli)</h3>
+            <span>偉大之鷹</span>
+          </div>
+        </div>
+        <div class="deity-body">
+          <p>波什特利被廣泛認為是有史以來最偉大的鷹騎士，他強大的能力遠遠超出了典型的鷹騎士的能力。在過去，波什特利被秘密地選為夸爾特選民，部分原因是為了對抗霍西特爾在內克薩爾山谷的權力和影響力，甚至連他自己也不知道。</p>
+          <p>波什特利在夸爾特的祝福下晉升，現在他自己是鷹騎士的守護神。就像霍西特爾之於扎爾特克一樣，他被認為是夸爾特的代言人，夸爾特在參與人類世界方面退了一步。</p>
+          <ul class="deity-meta">
+            <li><strong>別稱：</strong> The Great Eagle</li>
+            <li><strong>象徵：</strong> 一隻張開翅膀的鷹</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="deity-card">
+        <div class="deity-header">
+          <img src="images/deities/Hoxitl.png" alt="Hoxitl" class="deity-img">
+          <div class="deity-title">
+            <h3>霍西特爾 (Hoxitl)</h3>
+            <span>蝰手獸主</span>
+          </div>
+        </div>
+        <div class="deity-body">
+          <p>霍西特爾曾經是札爾特克的選民，從科德爾時代起一直保持著他的信仰和犧牲。</p>
+          <p>札爾特克虐待了他最偉大的僕人，並在過去奪走了並歸還了他活生生的心臟。沒有人單獨崇拜霍西特爾，但當噬心者本人不選擇說話時，他被接受為蝰手獸的守護神和扎爾特克之口。</p>
+          <ul class="deity-meta">
+            <li><strong>別稱：</strong> Lord of The Viperhand</li>
+            <li><strong>象徵：</strong> 咆嘯的狩豹</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="deity-card">
+        <div class="deity-header">
+          <img src="images/deities/Cōātlīcue.png" alt="Cōātlīcue" class="deity-img">
+          <div class="deity-title">
+            <h3>科阿特利庫 (Cōātlīcue)</h3>
+            <span>蛇之母</span>
+          </div>
+        </div>
+        <div class="deity-body">
+          <p>科阿特利庫從不朽時代的最初幾天起就已經是一位死去的女神，但不知何故，她在馬茲提卡仍然保持著一個小小的存在。她曾經以女巫或薩滿的身份出現，戴著無數的神物，但她最明顯的特徵是她那條由可怕的蛇組成的活生生的裙子。</p>
+          <p>據說科阿特利庫的屍體埋藏在地下深處無人涉足的地方。據傳，方圓數英里的洞穴裡會發出令人發狂的吱吱聲，而且還有一種被稱為科特利坎的奇怪生物，它們守護著女神的屍體，防止任何入侵者的入侵。</p>
+          <ul class="deity-meta">
+            <li><strong>別稱：</strong> The Serpent Mother</li>
+            <li><strong>象徵：</strong> 蛇組成的薩滿裙</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+<section id="cosmo" class="magic-section">
+    
+    <div class="rule-card">
+      <h3>位面宇宙論 (Cosmology)</h3>
+      <div class="text-block">
+        <p>
+          馬茲提卡人和崇拜馬茲提卡諸神的靈魂被稱為<strong>托那利 (tonalli)</strong>。在死亡的那一刻，他們會到達一座宏偉的神廟，位於一座延伸至視野之外的金字塔頂端。
+          天空呈現無菌的純白光，讓金字塔沐浴在超現實的光芒中。這座金字塔被稱為「大金字塔」，但實際上是外域的一部分。
+        </p>
+        <div class="religion-quote">「無論托那利聲稱崇拜誰，他們都無法選擇自己的結局。塵世的習慣、行動和行為決定了你的永恆。」</div>
+        <p>
+          從薄霧中，被稱為<strong>齊齊米姆 (zizimime)</strong> 的靈魂出現，引導托那利進入一個更能代表其生前傾向的境界。
+          托納利的最終目的地並非基於守護神，而是基於靈魂的本質。
+        </p>
+        
+        <h4 style="color:var(--gold); margin-top:20px;">死亡的那一刻 (At the Moment of Death)</h4>
+        <p>
+          當一個生物死亡，它的托納利離開主物質位面時，它首先意識到自己位於一座被火把照亮的大型石頭建築中心。
+          視野朦朧如夢，托納利被一圈骷髏生物包圍，既無惡意也無同情。這就是齊齊米姆，靈魂的牧者。
+          托納利不能懇求，也無法影響命運。救贖的時間已經過去了。
+        </p>
+
+        <h4 style="color:var(--gold); margin-top:20px;">覺醒於馬茲特蘭 (Awakening in Maztlan)</h4>
+        <p>
+          通往最終目的地的旅程始終從馬茲特蘭開始。所有靈魂到達的建築其實就是馬茲特蘭本身的體現。
+          對於中立的靈魂，建築物與霧霾消退，取而代之的是廣闊海洋上一座青翠的島嶼——據說人類從庫庫爾斷指中跳出後，首次出現的地方。
+        </p>
+      </div>
+    </div>
+
+    <h3 style="color:var(--gold); margin:30px 0 15px 0; padding-left:10px; border-left:4px solid var(--gold);">位面簡介 (Planes of Existence)</h3>
+    
+    <div class="deity-grid">
+      
+      <div class="rule-card highlight" style="border-left-color: #aaa;">
+        <h4>馬茲特蘭 (Maztlan)</h4>
+        <p>當大金字塔消失，中立的靈魂會看到一座巨大的島嶼，四周被無邊無際的大海包圍。七個洞穴點綴著景觀，據說是所有靈魂出生前的家，也是母神馬茲提卡靈魂的棲息地。</p>
+      </div>
+
+      <div class="rule-card highlight" style="border-left-color: #2ecc71;">
+        <h4>特拉克斯考特利 (Tlaxcautli)</h4>
+        <p>夸爾特備受青睞的家園，本身就是一座巨大的金字塔。巨鷹形式的天使常來拜訪，與孩子們在台階上嬉戲。這裡有永恆的和平，神靈之間只有永恆的愛。</p>
+      </div>
+
+      <div class="rule-card highlight" style="border-left-color: #27ae60;">
+        <h4>希倫 (Xilen) - 奶樹天堂</h4>
+        <p>富饒島嶼上無邊無際的玉米田野。未形成道德觀而夭折的孩子們會來到這裡，由天使齊齊米姆照顧。這裡有神奇的植物，能提供牛奶或平靜瘋狂的心靈。</p>
+      </div>
+
+      <div class="rule-card highlight" style="border-left-color: #f1c40f;">
+        <h4>卡特蘭帕 (Catlampa)</h4>
+        <p>專屬於死於難產的婦女的天堂。即使是殘酷的神也尊重她們的犧牲。這是一片沙漠中的綠洲，母親們被賦予鷹的翅膀，可以飛到很遠的地方去迎接鄰居。</p>
+      </div>
+
+      <div class="rule-card highlight" style="border-left-color: #d35400;">
+        <h4>托奇特爾 (Tochitl)</h4>
+        <p>女神努拉的家園，充滿了動物與強大的掠食者。來到這裡的托納利最終也會變成動物，但擁有覺醒野獸的能力。</p>
+      </div>
+
+      <div class="rule-card highlight" style="border-left-color: #f39c12;">
+        <h4>希通科 (Xitonco)</h4>
+        <p>純淨的田園荒野，氣候溫和。除了偶爾出現的大鵬外沒有威脅。這裡的靈魂慷慨熱情，常常幸福地不知道自己已是亡魂。</p>
+      </div>
+
+      <div class="rule-card highlight" style="border-left-color: #16a085;">
+        <h4>特奧特坎 (Teotecan)</h4>
+        <p>愛神基爾茲居住的巨大山脈，山林平緩。但傳言森林深處潛伏著某種可怕的「黑暗」——一個因夸爾特違背誓言而生的靈魂吞噬者。</p>
+      </div>
+
+      <div class="rule-card highlight" style="border-left-color: #3498db;">
+        <h4>馬耶爾 (Mayel)</h4>
+        <p>充滿旋風和暴風雨的位面。靈魂在這裡被永久的旋風拋來拋去。只有忠於埃哈的人可以在平靜的風眼中度過永恆。</p>
+      </div>
+
+      <div class="rule-card highlight" style="border-left-color: #2980b9;">
+        <h4>特拉洛坎 (Tlalocan)</h4>
+        <p>阿祖爾神創造的國度。這裡不斷下著雨，即使陽光普照也伴隨著溫暖的雨。托納利在這裡休息得很好，但永遠被雨水淋濕。</p>
+      </div>
+
+      <div class="rule-card highlight" style="border-left-color: #e74c3c;">
+        <h4>伊茲利 (Itzli)</h4>
+        <p>無盡的黑曜石露頭。靈魂在這裡進行有組織的戰爭。每個早晨，無論前一天的命運如何，靈魂都會重生，準備新一天的戰鬥。</p>
+      </div>
+
+      <div class="rule-card highlight" style="border-left-color: #c0392b;">
+        <h4>特拉託卡利 (Tlatocalli)</h4>
+        <p>比伊茲利更殘酷的戰場。這裡的靈魂喜歡讓敵人預先受苦。頻繁的地震可以瞬間改變戰局。</p>
+      </div>
+
+      <div class="rule-card highlight" style="border-left-color: #8e44ad;">
+        <h4>米克特蘭 (Mictlan)</h4>
+        <p>真正的「死亡之地」，九層地獄。必須經過多年的旅行才能穿越，從刮肉刀風的田野到充滿狩豹靈魂的血河。由地獄之王與地獄女士統治。</p>
+      </div>
+
+      <div class="rule-card highlight" style="border-left-color: #5b2c6f;">
+        <h4>特奧特里·伊蒂克 (Teotli Itic)</h4>
+        <p>與米克特蘭類似的九層地獄。火坑、酸液和燃燒的血液是不可避免的。許多靈魂被埋到脖子以下，任由螞蟻啃食臉部。</p>
+      </div>
+
+      <div class="rule-card highlight" style="border-left-color: #922b21;">
+        <h4>埃克斯巴爾·肯 (Exbal Ken)</h4>
+        <p>充滿血腥和犧牲的國度。靈魂在沒有心臟、甚至沒有頭腦的情況下繼續存在，永遠感受著犧牲的痛苦。</p>
+      </div>
+
+      <div class="rule-card highlight" style="border-left-color: #7f8c8d;">
+        <h4>宗潘特利 (Zompantli)</h4>
+        <p>由頭骨組成的國度。牆壁、房屋、甚至動植物都是頭骨。大多數保持沉默，但也有許多人永遠尖叫或說著令人抓狂的謎語。</p>
+      </div>
+
+      <div class="rule-card highlight" style="border-left-color: #e67e22;">
+        <h4>西佩特蘭 (Xipetlan) - 剝皮之地</h4>
+        <p>永遠黑暗的沙漠，沙塵暴足以將皮膚從肉上撕下來。泰茲卡經常住在這裡，缺乏陽光和火讓他不舒服，但他以此贖罪。</p>
+      </div>
+
+      <div class="rule-card highlight" style="border-left-color: #000; border: 1px solid #c0392b;">
+        <h4 style="color:#c0392b;">西巴爾巴 (Xibalba)</h4>
+        <p>一個沒有希望的可怕地方。神靈與惡魔進行著致命的球賽。失敗者被永遠遺忘，勝利者則被交給十位惡魔領主，遭受血液病變、身體腫脹、化為骷髏或咳血等永恆折磨。</p>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="others" class="magic-section">
+    <div class="rule-card">
+      <h3>其他神靈 (Other Deities)</h3>
+      <div class="text-block">
+        <p>事實上，在馬茲提卡的人們中還有數十位其他神，其中大多數是本地神。一些比較著名的受崇拜的生物（儘管不知道它們是否是真正的神）包括：</p>
+        
+        <h4 style="color:var(--gold); margin-top:20px;">400 隻兔子</h4>
+        <p>據說它們是飲酒和被稱為奧托的飲料的讚助人。阿祖爾的祭司們質疑並相信奧克特力實際上是來自他們自己的神的禮物。</p>
+
+        <h4 style="color:var(--gold); margin-top:20px;">哈納布-庫姆 (Hunab-Kuum)</h4>
+        <p>對於赫姆斯波特和烏拉托斯的一些人來說，一個被稱為「Hunab-Kuum」的現像是一個謎。這位「神」有一小群類似邪教的追隨者，他的崇拜被認為是當地小神祗與海爾姆甚至強大的艾奧的信條的融合。哈納布-庫姆和一度在海外城市深水城頗受歡迎的奧崇拜有許多相似之處。</p>
+
+        <h4 style="color:var(--gold); margin-top:20px;">伊察帕普羅特爾 (Itzapapalotl)</h4>
+        <p>伊察帕普羅特爾有自己的崇拜者，但大多數術士都將她視為守護神並與惡魔簽訂契約。在她成為真正女神的野心中，她經常鼓勵真正的崇拜，她的黑暗慾望與她曾經的情人札爾特克的慾望不相上下。</p>
+      </div>
+    </div>
+  </section>
+</main>
