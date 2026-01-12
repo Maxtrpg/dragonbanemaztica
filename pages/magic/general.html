@@ -270,13 +270,27 @@
         
         <div class="spell-data" data-name="煙鏡反制" data-req="淨水洗滌, 守護犬的圖騰">
           <h3>煙鏡反制 Tezcatl-Pilli</h3>
-          <p class="attr"><strong>先決條件：</strong>學會 寧靜之水的洗滌 或 守護犬的圖騰</p>
+          <p class="attr"><strong>先決條件：</strong>學會 淨水洗滌 或 守護犬的圖騰</p>
           <p class="attr"><strong>環階：</strong>2階</p>
           <p class="attr"><strong>施法時間：</strong>反應</p>
           <p class="attr"><strong>射程：</strong>10米</p>
           <p class="attr"><strong>持續時間：</strong>即效</p>
           <p class="attr"><strong>構材：</strong>手勢（做鬼臉或鏡面反射動作）</p>
           <p class="desc">你召喚一名侍奉煙鏡的小精靈，它會舉起鏡子干擾並反射其他薩滿施放的法術。這是一個反應法術，會中斷戰鬥的先攻順序。<br/><br/>你可以在對方施法檢定成功，但尚未處理傷害或效果前施放。若你施法成功，對手法術的威力等級會減去你此法術的威力等級。若降至 0 以下，則該法術無效並消散為黑煙。<br/><br/>你也可以使用此法術來對抗怪物的魔法攻擊，讓魔法攻擊的傷害骰數量減去此法術的威力等級。</p>
+        </div>
+
+        <div class="spell-data" data-name="借道之請" data-req="靜默之幕, 守夜的靈石">
+          <h3>借道之請 Rite of Panolti</h3>
+          <p class="attr"><strong>先決條件：</strong>學會 靜默之幕 或 守夜的靈石</p>
+          <p class="attr"><strong>環階：</strong>2階</p>
+          <p class="attr"><strong>施法時間：</strong>反應</p>
+          <p class="attr"><strong>射程：</strong>10米</p>
+          <p class="attr"><strong>持續時間：</strong>即效</p>
+          <p class="attr"><strong>構材：</strong>聲音、手勢（輕敲地面或身邊的物體三次）</p>
+          <p class="desc">你對阻擋在你面前的空間之靈（空氣、地板、障礙物的小神）行了「過路禮」。這些平日被忽視的靈體因受到尊重而感到喜悅，短暫地挪動位置或無視你的物理存在。<br/><br/>你可以瞬間移動至射程內任何你視野可見的地點。 這在物理上表現為一種不可思議的「巧合」：你可能看似要撞上牆角，卻莫名其妙地從另一側滑了出來；或者像一陣穿堂風一樣，無視中間的混戰人群，直接出現在後方。</p>
+            <ul>
+              <li><strong>威力等級：</strong>每提升一個等級，可選擇射程增加 10 米，或帶另一個人類大小的生物和你一起傳送。</li>
+            </ul>
         </div>
       </div>
 
@@ -293,6 +307,21 @@
           <p class="attr"><strong>構材：</strong>手勢</p>
           <p class="desc">你扮演交易者的角色，重新分配生物體內的 <strong>Tonalli (天命/意志力)</strong>。你可以竊取其他類人生物的 WP，或將你的 WP 贈與給其他人。<br/>轉移的 WP 數量最多等於施放此法術所需 WP 的兩倍（威力 1 轉 4 WP、威力 2 轉 8 WP、威力 3 轉 12 WP）。<br/>你施法消耗的 WP 會在過程中被消耗掉。雙方的 WP 都不會超過上限或低於 0。<br/>若目標非自願，你的施法檢定具有劣勢。</p>
         </div>
+        
+        <div class="spell-data" data-name="靈體通道" data-req="借道之請">
+          <h3>靈體通道 Yoli-Ohtli</h3>
+          <p class="attr"><strong>先決條件：</strong>學會 借道之請</p>
+          <p class="attr"><strong>環階：</strong>3階</p>
+          <p class="attr"><strong>施法時間：</strong>動作</p>
+          <p class="attr"><strong>射程：</strong>觸碰</p>
+          <p class="attr"><strong>持續時間：</strong>即效</p>
+          <p class="attr"><strong>構材：</strong>聲音、手勢、材料（一小把玉米粉或菸草，撒向風中作為「過路費」）</p>
+          <p class="desc">你向周圍的「小神」們獻上供品並請求借道。你的身影在一瞬間變得模糊，彷彿融入了背景（樹木、牆壁或地面），當地的靈體將你接納，並瞬間將你「交接」給目標地點的靈體。 你可以將自己傳送至最多 100 米遠的地點。<br/>你必須能看見目標點（確認那裡的靈體願意接收你），或者曾經造訪過該地點並知道那裡的「地靈」之名（即擁有記憶）。</p>
+            <ul>
+              <li><strong>威力等級：</strong>每提升一個等級，你可以將傳送距離加倍，或帶另一個人類大小的生物和你一起傳送。</li>
+            </ul>
+        </div>
+        
 <div class="spell-data" data-name="靈界封絕" data-req="守夜的靈石, 守護犬的圖騰">
           <h3>靈界封絕 Tlatzacualiztli</h3>
           <p class="attr"><strong>先決條件：</strong>學會 守夜的靈石 和 守護犬的圖騰</p>
@@ -490,3 +519,4 @@ document.addEventListener('click', function(e) {
 });
 
 </script>
+
