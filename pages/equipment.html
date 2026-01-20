@@ -358,16 +358,20 @@
           <p style="margin-bottom:15px; color:#aaa;">武器主要攻擊部位的材質：</p>
           <ul style="font-size:0.95rem; color:#ccc; line-height:1.8;">
              <li style="margin-bottom:15px;">
-               <strong style="color:#a569bd; font-size:1.05rem;">黑曜石 (Obsidian) <span class="maz-badge">馬茲提卡</span> </strong><br>
+               <strong style="color:#a569bd; font-size:1.05rem;">黑曜石<span class="maz-badge">馬茲提卡</span> </strong><br>
                攻擊穿戴 <strong>金屬護甲</strong> 的敵人時若攻擊檢定 <strong>大失敗</strong> ，該武器 <strong>受損</strong> 。
              </li>
              <li style="margin-bottom:15px;">
-               <strong style="color:#2ecc71; font-size:1.05rem;">木質 (Wood) <span class="maz-badge">馬茲提卡</span> </strong><br>
+               <strong style="color:#2ecc71; font-size:1.05rem;">木質<span class="maz-badge">馬茲提卡</span> </strong><br>
                由於幾乎隨處可得，你在修復時的 <strong>工藝</strong> 檢定具有 <strong>優勢</strong> 。
              </li>
              <li style="margin-bottom:15px;">
-               <strong style="color:#f1c40f; font-size:1.05rem;">金屬 (Metal)</strong><br>
+               <strong style="color:#f1c40f; font-size:1.05rem;">金屬</strong><br>
                因為金屬的阻魔性，當你 <strong>持握金屬武器</strong> 時 <strong>無法施法</strong> 。
+             </li>
+               <li style="margin-bottom:15px;">
+               <strong style="color:#f1c40f; font-size:1.05rem;">特殊</strong><br>
+               不屬於以上材質的武器裝備。
              </li>
           </ul>
         </div>
@@ -376,43 +380,48 @@
           <div style="display: grid; grid-template-columns: 1fr; gap: 10px;">
             
             <div style="background:rgba(255,255,255,0.05); padding:12px; border-radius:6px; border-left: 3px solid var(--gold);">
-              <strong style="color:var(--gold); display:block; margin-bottom:5px;">靈巧 (Finesse)</strong>
+              <strong style="color:var(--gold); display:block; margin-bottom:5px;">靈巧</strong>
               <span style="font-size:0.9rem; color:#bbb; line-height:1.6;">當使用此武器進行偷襲時，攻擊檢定獲得 1 個優勢，且會提升傷害。</span>
             </div>
             
             <div style="background:rgba(255,255,255,0.05); padding:12px; border-radius:6px; border-left: 3px solid var(--gold);">
-              <strong style="color:var(--gold); display:block; margin-bottom:5px;">長柄 (Reach)</strong>
+              <strong style="color:var(--gold); display:block; margin-bottom:5px;">長柄</strong>
               <span style="font-size:0.9rem; color:#bbb; line-height:1.6;">此武器可以攻擊最遠 4 米內的敵人。</span>
             </div>
 
             <div style="background:rgba(255,255,255,0.05); padding:12px; border-radius:6px; border-left: 3px solid var(--gold);">
-              <strong style="color:var(--gold); display:block; margin-bottom:5px;">絆摔 (Topple)</strong>
+              <strong style="color:var(--gold); display:block; margin-bottom:5px;">絆摔</strong>
               <span style="font-size:0.9rem; color:#bbb; line-height:1.6;">使用此武器嘗試絆摔敵人時獲得 1 個優勢。</span>
             </div>
 
             <div style="background:rgba(255,255,255,0.05); padding:12px; border-radius:6px; border-left: 3px solid var(--gold);">
-              <strong style="color:var(--gold); display:block; margin-bottom:5px;">隱蔽 (Stealth)</strong>
-              <span style="font-size:0.9rem; color:#bbb; line-height:1.6;">此武器輕巧好攜帶，通常可以輕易地藏起不易被發現。當進入禁止攜帶武器的場合時，你隱藏該武器的 巧手 檢定具有優勢。此外，若你處於 隱匿 下使用該武器進行遠程攻擊，敵人需進行 察覺 檢定才能發現你。</span>
+              <strong style="color:var(--gold); display:block; margin-bottom:5px;">隱蔽</strong>
+              <span style="font-size:0.9rem; color:#bbb; line-height:1.6;">此武器輕巧好攜帶，通常可以輕易地藏起不易被發現。當進入禁止攜帶武器的場合時，你隱藏該武器的 巧手 檢定具有優勢。此外，若你處於 隱匿 下使用該武器進行投擲或遠程攻擊，敵人需進行 察覺 檢定才能發現你。</span>
             </div>
 
             <div style="background:rgba(255,255,255,0.05); padding:12px; border-radius:6px; border-left: 3px solid var(--gold);">
-              <strong style="color:var(--gold); display:block; margin-bottom:5px;">速攻 (Quick)</strong>
-              <span style="font-size:0.9rem; color:#bbb; line-height:1.6;">此武器裝填動作極快。你可以一個動作用該武器攻擊兩次，但第二下具有劣勢。</span>
+              <strong style="color:var(--gold); display:block; margin-bottom:5px;">速攻</strong>
+              <span style="font-size:0.9rem; color:#bbb; line-height:1.6;">此武器十分小巧或裝填極快。你可以一個動作用該武器攻擊兩次，但第二下具有劣勢。</span>
             </div>
             
             <div style="background:rgba(255,255,255,0.05); padding:12px; border-radius:6px; border-left: 3px solid #e74c3c;">
-              <strong style="color:#e74c3c; display:block; margin-bottom:5px;">穿刺 (Piercing)</strong>
+              <strong style="color:#e74c3c; display:block; margin-bottom:5px;">穿刺</strong>
               <span style="font-size:0.9rem; color:#bbb; line-height:1.6;">此武器會造成穿刺傷害。當使用穿刺武器時，你可以尋找護甲的空隙，自願讓攻擊檢定承受 1 個劣勢，若仍命中，敵人的護甲無法抵抗該次攻擊。</span>
             </div>
 
             <div style="background:rgba(255,255,255,0.05); padding:12px; border-radius:6px; border-left: 3px solid #e74c3c;">
-              <strong style="color:#e74c3c; display:block; margin-bottom:5px;">揮砍 (Slashing)</strong>
+              <strong style="color:#e74c3c; display:block; margin-bottom:5px;">揮砍</strong>
               <span style="font-size:0.9rem; color:#bbb; line-height:1.6;">此武器會造成揮砍傷害。當鎖子甲在抵抗揮砍傷害時，護甲值 +2。</span>
             </div>
 
             <div style="background:rgba(255,255,255,0.05); padding:12px; border-radius:6px; border-left: 3px solid #e74c3c;">
-              <strong style="color:#e74c3c; display:block; margin-bottom:5px;">鈍擊 (Bludgeoning)</strong>
+              <strong style="color:#e74c3c; display:block; margin-bottom:5px;">鈍擊</strong>
               <span style="font-size:0.9rem; color:#bbb; line-height:1.6;">此武器會造成鈍擊傷害。當獸皮甲和皮革戰甲在抵抗鈍擊傷害時，護甲值 +2。</span>
+            </div>
+
+             <div style="background:rgba(255,255,255,0.05); padding:12px; border-radius:6px; border-left: 3px solid #e74c3c;">
+              <strong style="color:#e74c3c; display:block; margin-bottom:5px;">笨重</strong>
+              <span style="font-size:0.9rem; color:#bbb; line-height:1.6;">此武器體積或重量極大。當你手持該武器時，你的閃避檢定具有劣勢。</span>
             </div>
 
           </div>
@@ -1284,6 +1293,7 @@
 })();
 </script>
 </html>
+
 
 
 
