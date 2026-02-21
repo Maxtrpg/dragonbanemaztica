@@ -242,6 +242,7 @@
     <button class="epoch-btn" data-target="equip-weapons">武器庫</button>
     <button class="epoch-btn" data-target="equip-armor">護甲與頭盔</button>
     <button class="epoch-btn" data-target="equip-instruments">樂器</button>
+    <button class="epoch-btn" data-target="equip-foods">食材與飼料</button>
     <button class="epoch-btn" data-target="equip-items">其他物品</button>
   </div>
 
@@ -809,6 +810,123 @@
     </div>
   </div>
 
+<div id="equip-foods" class="rule-content">
+  <div class="rule-display-area">
+    <div class="rule-card">
+      <h3>食材與飼料 <span class="maz-badge">馬茲提卡</span></h3>
+      <p>在馬茲提卡，維持座騎的體力與忠誠至關重要。不同生物偏好不同食材，正確的餵食能顯著提升冒險效率。所有效果以 5 單位為基礎進行計算。</p>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>名稱</th>
+              <th>價格</th>
+              <th>重量</th>
+              <th>供應</th>
+              <th>效果／用途</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="popup-trigger" data-title="曬乾玉米苞片" data-img="images/gear/MayzHusks.png" data-desc="便宜且輕便的作物副產品。口感乾硬，僅能維持基本體力。由玉米加工而成，是最基礎的草食性座騎主食。這些苞片經過陽光曝曬，輕便易攜帶。">曬乾玉米苞片</span></td>
+              <td><span class="price-bean">5 ∴</span></td>
+              <td>1（5份）</td>
+              <td>常見</td>
+              <td>【草食】【長期保存】提供坐騎飽食度 10 ；親密度 5。</td>
+            </tr>
+            <tr>
+              <td><span class="popup-trigger" data-title="曬乾綠鬣蜥條" data-img="images/gear/IguanaStrips.png" data-desc="經過脫水處理的廉價肉類。適合食肉座騎的日常儲備。">曬乾綠鬣蜥條</span></td>
+              <td><span class="price-moon">8 ☾</span></td>
+              <td>1（5份）/td>
+              <td>常見</td>
+              <td>【肉食】【長期保存】提供坐騎飽食度 10 ；親密度 5。</td>
+            </tr>
+             <tr>
+              <td><span class="popup-trigger" data-title="龍舌蘭纖維漿" data-img="images/gear/IguanaStrips.png" data-desc="將龍舌蘭的中心肥厚葉片搗碎後的副產品，富含水分與糖分。非常適合在穿越沙漠時為座騎補充水分。">龍舌蘭纖維漿</span></td>
+              <td><span class="price-moon">1 ☾</span></td>
+              <td>1（5份）/td>
+              <td>常見</td>
+              <td>【草食】【短期保存】提供坐騎飽食度 5 ；親密度 15。特殊：在一班時間內坐騎對抗酷熱的檢定有優勢。</td>
+            </tr>
+            <tr>
+              <td><span class="popup-trigger" data-title="嫩綠草束" data-img="images/gear/FernHay.png" data-desc="混合了新鮮蕨類與甜草。比乾草更受歡迎。">嫩綠草束</span></td>
+              <td><span class="price-bean">2 ∴</span></td>
+              <td>1（10份）</td>
+              <td>常見</td>
+              <td>【草食】【易腐壞】提供坐騎飽食度 5 ；親密度 10。</td>
+            </tr>
+            
+            <tr>
+              <td><span class="popup-trigger" data-title="玉米" data-img="images/gear/FreshMaize.png" data-desc="Qotal 神賜予的豐盛禮物。顆粒飽滿、甜度高。">玉米</span></td>
+              <td><span class="price-bean">25 ∴</span></td>
+              <td>1（5份）</td>
+              <td>常見</td>
+              <td>【草食】【短期保存】提供坐騎飽食度 10 ；親密度 10。</td>
+            </tr>
+            <tr>
+              <td><span class="popup-trigger" data-title="地根" data-img="images/gear/AmberCarrot.png" data-desc="稀有的馬茲提卡根莖類，爽脆甜美。">地根</span></td>
+              <td><span class="price-moon">5 ☾</span></td>
+              <td>1（5份）</td>
+              <td>常見</td>
+              <td>【草食】【短期保存】提供坐騎飽食度 15 ；親密度 10。</td>
+            </tr>
+            <tr>
+              <td><span class="popup-trigger" data-title="莧菜豆泥球" data-img="images/gear/AmberCarrot.png" data-desc="常見的莧菜與大豆混合搗碎，揉成堅硬的球狀，提供高蛋白質。是勞役型座騎長途旅行的首選營養品。">莧菜豆泥球</span></td>
+              <td><span class="price-moon">3 ☾</span></td>
+              <td>1（5份）</td>
+              <td>常見</td>
+              <td>【草食】【短期保存】提供坐騎飽食度 10 ；親密度 15。</td>
+            </tr>
+             <tr>
+              <td><span class="popup-trigger" data-title="蜂蜜辣椒玉米粒" data-img="images/gear/PlumaGrains.png" data-desc="浸泡過野生蜂蜜與微量辣椒的玉米粒。辣椒的刺激性能激發冷血爬蟲類座騎的活性，讓牠們在寒冷的夜晚或濕氣重的雨林中保持體溫。">蜂蜜辣椒玉米粒</span></td>
+              <td><span class="price-moon">5 ☾</span></td>
+              <td>1（5份）</td>
+              <td>常見</td>
+              <td>【草食】【短期保存】提供坐騎飽食度 10 ；親密度 15。特殊：在一班時間內坐騎的寒冷檢定有優勢。</td>
+            </tr>
+            <tr>
+              <td><span class="popup-trigger" data-title="醃製西猯內臟 Cured Peccary Organs" data-img="images/gear/PeccaryOrgans.png" data-desc="使用鹽漬過的野豬器官。風味濃郁，維持食肉動物野性。">醃製西猯內臟</span></td>
+              <td><span class="price-sun">1 ◎</span></td>
+              <td>1（5份）</td>
+              <td>常見</td>
+              <td>【肉食】【長期保存】提供坐騎飽食度 20 ；親密度 10。</td>
+            </tr>
+            <tr>
+              <td><span class="popup-trigger" data-title="仙人掌鮮肉 Juicy Nopal Pads" data-img="images/gear/NopalPads.png" data-desc="去刺後的肥厚多肉植物，富含水分。">仙人掌鮮肉</span></td>
+              <td><span class="price-sun">1 ◎</span></td>
+              <td>1（5份）</td>
+              <td>罕見</td>
+              <td>【草食】【短期保存】提供坐騎飽食度 5 ；親密度 10。特殊：在一班時間內坐騎對抗酷熱的檢定有優勢。</td>
+            </tr>
+
+            <tr>
+              <td><span class="popup-trigger" data-title="燻貘肉片" data-img="images/gear/SmokedTapir.png" data-desc="選用厚實的貘肉製作。這種肉能提供驚人的耐力，專門供戰鬥用的座騎食用。">燻貘肉片</span></td>
+              <td><span class="price-sun">3 ◎</span></td>
+              <td>1（4份）</td>
+              <td>罕見</td>
+              <td>【肉食】【長期保存】提供坐騎飽食度 25 ；親密度 15。</td>
+            </tr>
+            <tr>
+              <td><span class="popup-trigger" data-title="可可油脂餅 Cocoa Fat Cakes" data-img="images/gear/CocoaCakes.png" data-desc="極致奢華的點心，迅速建立深厚聯繫。">可可油脂餅</span></td>
+              <td><span class="price-sun">10 ◎</span></td>
+              <td>1（4份）</td>
+              <td>罕見</td>
+              <td>【草食】【長期保存】提供坐騎飽食度 25 ；親密度 20。特殊：在一班時間內坐騎的耐力檢定有優勢。</td>
+            </tr>
+            <tr>
+              <td><span class="popup-trigger" data-title="碎肉獸骨粉" data-img="images/gear/BoneMeal.png" data-desc="磨製的野獸骨粉與碎肉，混合了微量礦物質。對於需要加強鱗甲硬度的爬蟲類座騎來說是必要的營養增補劑。">碎肉獸骨粉</span></td>
+              <td><span class="price-sun">20 ◎</span></td>
+              <td>1</td>
+              <td>罕見</td>
+              <td>【肉食】【長期保存】提供坐騎飽食度 15 ；親密度 15。特殊：對爬蟲類坐騎的親密度額外提升10。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
   <div id="equip-items" class="rule-content">
     <div class="rule-display-area">
       <div class="bookmark-nav">
@@ -1311,6 +1429,7 @@
 })();
 </script>
 </html>
+
 
 
 
