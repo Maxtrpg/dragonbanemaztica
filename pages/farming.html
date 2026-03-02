@@ -5,9 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>種植與烹飪 - 馬茲提卡</title>
 </head>
-<body>
+<body style="background-color: #141419; color: #d0d0d0; font-family: 'Noto Sans TC', sans-serif;">
 
 <style>
+/* === 0. 根目錄變數 === */
+:root {
+  --gold: #c9a35a;
+  --jade: #2ecc71;
+}
+
 /* === 1. 核心顯示邏輯 === */
 .rule-content { 
   display: none; 
@@ -22,7 +28,7 @@
   to { opacity: 1; transform: translateY(0); } 
 }
 
-/* === 2. 分頁按鈕 UI (強制覆蓋，確保樣式統一) === */
+/* === 2. 分頁按鈕 UI === */
 .epoch-nav { 
   display: flex; 
   justify-content: center; 
@@ -32,7 +38,6 @@
   padding-bottom: 15px; 
   border-bottom: 1px solid rgba(255, 255, 255, 0.1); 
 }
-
 .epoch-btn { 
   background: rgba(0, 0, 0, 0.3); 
   border: 1px solid #888; 
@@ -45,13 +50,11 @@
   letter-spacing: 1px; 
   white-space: nowrap; 
 }
-
 .epoch-btn:hover { 
   border-color: var(--gold); 
   color: #fff; 
   background: rgba(255,255,255,0.05); 
 }
-
 .epoch-btn.active-tab { 
   background: var(--gold); 
   color: #000; 
@@ -60,45 +63,69 @@
   box-shadow: 0 0 10px rgba(201, 163, 90, 0.3); 
 }
 
-/* === 3. 頁面專屬元件 === */
-.tag { 
-  display: inline-block; padding: 2px 8px; 
-  border: 1px solid var(--gold); border-radius: 12px; 
-  font-size: 0.8rem; color: var(--gold); 
-  margin-right: 5px; margin-bottom: 5px; 
-  background: rgba(201, 163, 90, 0.1);
+/* === 3. 頁面專屬元件與卡片網格 === */
+.rule-grid { 
+  display: grid; 
+  grid-template-columns: repeat(3, 1fr); 
+  gap: 20px; 
+  margin-top: 15px; 
+  margin-bottom: 30px; 
+}
+@media (max-width: 900px) { .rule-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .rule-grid { grid-template-columns: 1fr; } }
+
+.rule-card { 
+  background: rgba(20, 20, 25, 0.6); 
+  border: 1px solid rgba(255, 255, 255, 0.1); 
+  border-left: 4px solid var(--jade); 
+  border-radius: 8px; 
+  padding: 20px; 
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3); 
+  transition: transform 0.2s ease; 
+  display: flex; 
+  flex-direction: column;
+}
+.rule-card:hover { 
+  transform: translateY(-3px); 
+  background: rgba(30, 30, 35, 0.8); 
+  border-color: rgba(201,163,90,0.4); 
+}
+.rule-card h3 { 
+  color: #fff; 
+  font-size: 1.15rem; 
+  margin-top: 0; 
+  margin-bottom: 10px; 
+  padding-bottom: 5px; 
+  border-bottom: 1px dashed rgba(255,255,255,0.15); 
+}
+.rule-card.highlight { border-left-color: var(--gold); }
+
+.maz-badge { 
+  display: inline-block; 
+  padding: 3px 8px; 
+  border-radius: 4px; 
+  font-size: 0.75rem; 
+  font-weight: bold; 
+  color: #ff9f43; 
+  border: 1px solid #ff9f43; 
+  background: rgba(255, 159, 67, 0.15); 
+  margin-right: 5px; 
+  margin-bottom: 8px; 
 }
 
-.popup-trigger { 
-  cursor: pointer; color: var(--gold); 
-  border-bottom: 1px dotted rgba(201, 163, 90, 0.5); 
-  transition: all 0.2s; 
-}
-.popup-trigger:hover { 
-  color: #fff; text-shadow: 0 0 5px var(--gold); 
-  border-bottom-style: solid; 
-}
-
-/* 神奇作物專屬樣式 */
-.magic-crop-row td {
-  background: linear-gradient(90deg, rgba(201, 163, 90, 0.15), rgba(0,0,0,0));
-  border-top: 1px solid rgba(201, 163, 90, 0.3);
-  border-bottom: 1px solid rgba(201, 163, 90, 0.3);
-  color: #fff;
-}
 .magic-badge {
   display: inline-block; background: var(--gold); color: #000; 
   font-weight: bold; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem;
-  margin-right: 5px; vertical-align: text-bottom;
+  margin-right: 5px; vertical-align: middle;
 }
 
-/* 插圖容器 */
 .illus-container {
-  width: 100%; margin: 20px 0;
+  width: 100%; margin: 10px 0 15px 0;
   border: 1px solid rgba(255,255,255,0.2);
   border-radius: 8px; overflow: hidden;
   box-shadow: 0 5px 15px rgba(0,0,0,0.5);
   position: relative;
+  background: #000;
 }
 .illus-container img {
   width: 100%; display: block;
@@ -113,7 +140,6 @@
   font-size: 0.9rem; font-style: italic; text-align: right;
 }
 
-/* Dragonbane 風格數據塊 */
 .stat-block {
   background: rgba(0,0,0,0.3); border-left: 3px solid var(--jade);
   padding: 10px 15px; margin: 10px 0; font-size: 0.9rem; color: #ccc;
@@ -122,50 +148,48 @@
 .stat-block .wp { color: var(--gold); font-weight: bold; font-family: monospace; }
 </style>
 
-<header>
-  <h1>種植與烹飪</h1>
-  <div class="ornament-divider"></div>
-  <p class="intro-text">
+<header style="max-width: 1100px; margin: 0 auto; padding: 0 20px;">
+  <h1 style="color: var(--gold); margin-bottom: 10px; font-size: 2rem;">種植與烹飪</h1>
+  <div style="height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); margin: 15px 0 25px; opacity: 0.5;"></div>
+  <p class="intro-text" style="color: #aaa; margin-bottom: 20px;">
     浮田（Chinampa）讓城市緊貼水域而生長；農民的耕藝與大廚的美食，構成馬茲提卡的日常與儀式。
   </p>
 </header>
 
-<main>
+<main style="max-width: 1100px; margin: 0 auto; padding: 0 20px;">
   <div class="epoch-nav">
     <button class="epoch-btn active-tab" data-target="farm-chinampa">浮田技術</button>
-    <button class="epoch-btn" data-target="farm-plant">種植規則</button>
+    <button class="epoch-btn" data-target="farm-plant">種植規則與作物</button>
     <button class="epoch-btn" data-target="farm-magic">神奇作物</button>
     <button class="epoch-btn" data-target="farm-cook">烹飪料理</button>
+    <button class="epoch-btn" data-target="farm-ingredients">食材圖鑑</button>
   </div>
 
   <div id="farm-chinampa" class="rule-content active">
-    
     <div class="rule-display-area">
       <div class="rule-card highlight">
         <h3>浮田 (Chinampa) —— 湖面上的編織花園</h3>
         <p>浮田並非自然形成的島嶼，而是馬茲提卡農民運用智慧與勞力創造的奇蹟。這些長方形的人造耕地如同巨大的籃子，漂浮在淺湖與沼澤之上。</p>
-        
         <div class="illus-container">
-          <img src="images/chinampa.webp" alt="阿茲特克浮田結構圖">
+          <img src="images/chinampa-hero.png" alt="阿茲特克浮田結構圖">
           <div class="illus-caption">「編織柳條，填入淤泥，讓根系擁抱湖水。」</div>
         </div>
-
         <h4>建造工藝</h4>
-        <ul>
-          <li><strong>阿韋霍特 (Ahuejote) 柳樁：</strong> 農民首先將這種生長快速的柳樹樁打入湖底，圍出長方形的邊界。柳樹的根系會迅速在水下交織，形成天然的「擋土牆」。</li>
-          <li><strong>編織與填土：</strong> 在柳樁之間編織蘆葦與樹枝，形成圍籬。接著，農民潛入湖底，挖掘富含腐殖質與魚類排泄物的淤泥（Limo），將其填入圍籬中，直到高出水面。</li>
-          <li><strong>永續肥力：</strong> 這種結構讓作物能直接從湖水中吸取水分（毛細現象），農民只需定期將湖底的新鮮淤泥覆蓋在田面上，便能維持土地的永恆肥沃，無需休耕。</li>
+        <ul style="padding-left: 20px; line-height: 1.6; margin-top:10px;">
+          <li><strong>阿韋霍特 (Ahuejote) 柳樁：</strong> 農民首先將這種生長快速的柳樹樁打入湖底，圍出長方形的邊界。</li>
+          <li><strong>編織與填土：</strong> 在柳樁之間編織蘆葦與樹枝，接著潛入湖底挖掘富含腐殖質的淤泥填入其中。</li>
+          <li><strong>永續肥力：</strong> 這種結構讓作物能直接從湖水中吸取水分，農民只需定期覆蓋新淤泥便能維持肥沃。</li>
         </ul>
       </div>
 
-      <div class="rule-card">
+      <div class="rule-card" style="margin-top: 20px;">
         <h3>三姊妹農法 (The Three Sisters)</h3>
         <p>這是一種神聖的共生種植法，模仿了自然界的互助法則。在同一塊土地上同時種植三種作物，能發揮出 1+1+1 > 3 的效果：</p>
         <div class="stat-block">
-          <ul>
+          <ul style="padding-left: 20px; margin:0;">
             <li><strong>🌽 玉米 (Maize)：</strong> 提供支架，讓豆類攀爬，並作為主食來源。</li>
-            <li><strong>🌱 豆類 (Beans)：</strong> 攀附在玉米桿上，其根系能將空氣中的氮固定在土壤中，為玉米和南瓜提供養分。</li>
-            <li><strong>🎃 南瓜 (Squash)：</strong> 巨大的葉片覆蓋地表，保持土壤濕潤，並抑制雜草生長，其帶刺的藤蔓還能嚇阻小型害獸。</li>
+            <li><strong>🌱 豆類 (Beans)：</strong> 攀附在玉米桿上，其根系能將空氣中的氮固定在土壤中提供養分。</li>
+            <li><strong>🎃 南瓜 (Squash)：</strong> 巨大的葉片覆蓋地表，保持土壤濕潤，並抑制雜草生長。</li>
           </ul>
         </div>
         <p><strong>遊戲效果：</strong> 當你在同一塊浮田上集齊「三姊妹」時，該次收穫檢定獲得 <strong>優勢 (Boon)</strong>，且產量 +1。</p>
@@ -176,108 +200,172 @@
   <div id="farm-plant" class="rule-content">
     <div class="rule-display-area">
       
-      <div class="rule-card" style="border-left-color: #3498db; background: rgba(10, 30, 50, 0.6);">
+      <div class="rule-card" style="border-left-color: #3498db; background: rgba(10, 30, 50, 0.6); margin-bottom:20px;">
         <h3 style="color:#3498db;">建造浮田 (Constructing Chinampa)</h3>
-        <p>擁有<strong>「浮田耕藝」</strong>英雄能力的農民，能在水域上創造耕地。</p>
         <div class="stat-block">
           <p><strong>先決條件：</strong> <span class="wp">求生 12</span> + <span class="wp">游泳 12</span> (需具備 浮田耕藝 能力)</p>
           <p><strong>消耗時間：</strong> 1 班 (Shift)</p>
-          <p><strong>效果：</strong> 在水域建造一座「小型浮田」。視為一塊標準耕地，具備自動灌溉功能。若無浮田，則只能在旱地種植（需額外澆水）。</p>
+          <p><strong>效果：</strong> 在水域建造一座「小型浮田」。視為一塊標準耕地，具備自動灌溉功能。</p>
         </div>
       </div>
 
-      <div class="rule-card highlight">
+      <div class="rule-card highlight" style="margin-bottom:20px;">
         <h3>種植循環 (Farming Cycle)</h3>
-        <p>擁有浮田後，你便開始了與自然的契約。所有農業檢定皆使用你的<strong>「浮田術 (Chinampa Craft)」</strong>技能。</p>
-        <ul style="line-height:1.8;">
-          <li><strong>1. 播種 (Sowing)：</strong> 花費 <strong>1 班</strong> 與 <strong>1 WP</strong> 進行 <strong>浮田術 (智力)</strong> 檢定。成功則種下作物。</li>
-          <li><strong>2. 成長 (Growth)：</strong> 等待作物成熟（見下表）。浮田會自動照顧作物。</li>
-          <li><strong>3. 收穫 (Harvest)：</strong> 成長期滿後，進行 <strong>浮田術 (智力)</strong> 檢定。
-            <ul>
-              <li><em>成功：</em> 獲得標準產量（收穫骰）。</li>
-              <li><em>大成功 (Nat 1)：</em> <span style="color:var(--gold);"><strong>奇蹟發生！</strong></span> 除了產量翻倍 (2×骰子)，你會額外獲得 <strong>1 份對應類型的「神奇作物」</strong>（見神奇作物分頁）。</li>
-              <li><em>失敗：</em> 產量減半（向下取整，最少 1 份）。</li>
-              <li><em>大失敗 (Nat 20)：</em> 作物全毀，擲災害表。</li>
-            </ul>
+        <p>所有農業檢定皆使用你的<strong>「浮田術 (Chinampa Craft)」</strong>技能。</p>
+        <ul style="line-height:1.8; padding-left: 20px;">
+          <li><strong>1. 播種 (Sowing)：</strong> 花費 1 班 與 1 WP 進行 浮田術 (智力) 檢定。</li>
+          <li><strong>2. 成長 (Growth)：</strong> 等待作物成熟。浮田會自動照顧作物。</li>
+          <li><strong>3. 收穫 (Harvest)：</strong> 成長期滿後，進行 浮田術 (智力) 檢定。<br>
+            <em>成功：</em>獲得標準產量。<br>
+            <em style="color:var(--gold);">大成功 (Nat 1)：</em>產量翻倍，並額外獲得 1 份對應類型的「神奇作物」。
           </li>
         </ul>
       </div>
 
-      <div class="rule-card">
-        <h3>作物一覽表</h3>
-        <p style="font-size:0.9rem; color:#aaa; margin-bottom:10px;">點擊作物名稱可查看詳細圖鑑與描述。</p>
-        <div class="table-scroll">
-          <table>
-            <thead>
-              <tr><th>作物</th><th>成長</th><th>收穫骰</th><th>備註</th></tr>
-            </thead>
-            <tbody>
-              <tr><td colspan="5" style="background:rgba(201,163,90,0.1); color:var(--gold); font-weight:bold; text-align:center;">--- 速成作物 (1班/一夜) ---</td></tr>
-              <tr>
-                <td class="popup-trigger" data-title="莧菜嫩芽" data-img="images/farmer/amaranth-sprout.png" data-desc="馬茲提卡最常見的速成糧，僅需一晝夜便可收穫。柔軟且富含能量。">莧菜嫩芽</td>
-                <td>1班</td><td>1d4</td><td>速食 (2份=1餐)</td>
-              </tr>
-              <tr>
-                <td class="popup-trigger" data-title="香草 (Epazote)" data-img="images/farmer/herb-epazote.png" data-desc="浮田邊緣易生長的野草，氣味濃烈，能驅蟲避邪。">香草 (Epazote)</td>
-                <td>1班</td><td>1d2+1</td><td>香料 (烹飪必備)</td>
-              </tr>
-              <tr>
-                <td class="popup-trigger" data-title="雨生苔菜" data-img="images/farmer/waterweed.png" data-desc="漂浮的細葉植物，富含水分與鹽分。需當日食用。">雨生苔菜</td>
-                <td>1班</td><td>2d4+2</td><td>水耕 (2份=1餐)</td>
-              </tr>
+      <h3 style="color:var(--gold); font-size: 1.4rem; margin-top:40px; border-bottom:1px solid rgba(201,163,90,0.3); padding-bottom:10px;">作物一覽表</h3>
 
-              <tr><td colspan="5" style="background:rgba(201,163,90,0.1); color:var(--gold); font-weight:bold; text-align:center;">--- 短期作物 (數日) ---</td></tr>
-              <tr>
-                <td class="popup-trigger" data-title="日榮果 (普通)" data-img="images/farmer/sunfruit.png" data-desc="傳說僅在黎明第一縷陽光照耀的浮田上出現。果實散發微光。">日榮果</td>
-                <td>1日</td><td>1d4</td><td>珍稀，恢復體力。</td>
-              </tr>
-              <tr>
-                <td class="popup-trigger" data-title="辣椒" data-img="images/farmer/chili.png" data-desc="火神的恩賜。能驅散寒冷、提振精神。">辣椒</td>
-                <td>2日</td><td>1d4</td><td>調味/武器 (致盲粉)</td>
-              </tr>
-              <tr>
-                <td class="popup-trigger" data-title="番茄" data-img="images/farmer/tomato.png" data-desc="多汁的紅色果實，是幾乎所有燉菜和醬料的基底。">番茄</td>
-                <td>3日</td><td>1d4+1</td><td>食材 (易腐)</td>
-              </tr>
-
-              <tr><td colspan="5" style="background:rgba(201,163,90,0.1); color:var(--gold); font-weight:bold; text-align:center;">--- 常規作物 (週/月) ---</td></tr>
-              <tr>
-                <td class="popup-trigger" data-title="豆類" data-img="images/farmer/beans.png" data-desc="三姊妹之一，富含蛋白質。乾燥後可長期保存。">豆類</td>
-                <td>1週</td><td>1d4+2</td><td>耐保存 (三姊妹)</td>
-              </tr>
-              <tr>
-                <td class="popup-trigger" data-title="香蕉/芭蕉" data-img="images/farmer/banana.png" data-desc="生長快速的熱帶果實，甜味是恢復心情的良藥。">香蕉</td>
-                <td>1週</td><td>1d6</td><td>甜食 (解壓力)</td>
-              </tr>
-              <tr>
-                <td class="popup-trigger" data-title="奇亞籽 (Chia)" data-img="images/farmer/chia.png" data-desc="戰士的能量來源。一小把種子泡水後形成的膠狀物足以支撐整日行軍。">奇亞籽</td>
-                <td>1週</td><td>1d4袋</td><td>能量 (解疲勞)</td>
-              </tr>
-              <tr>
-                <td class="popup-trigger" data-title="玉米" data-img="images/farmer/maize.png" data-desc="生命之源。可磨成粉製作玉米餅或蒸粽。">玉米</td>
-                <td>2週</td><td>1d6+1</td><td>主食 (三姊妹)</td>
-              </tr>
-              <tr>
-                <td class="popup-trigger" data-title="南瓜" data-img="images/farmer/squash.png" data-desc="果肉厚實，種子亦可食用。">南瓜</td>
-                <td>2週</td><td>1d3+1</td><td>食材 (三姊妹)</td>
-              </tr>
-              <tr>
-                <td class="popup-trigger" data-title="酪梨" data-img="images/farmer/avocado.png" data-desc="森林奶油。富含油脂，能讓料理變得濃郁飽足。">酪梨</td>
-                <td>2週</td><td>1d4</td><td>高級食材 (解飢餓)</td>
-              </tr>
-              <tr>
-                <td class="popup-trigger" data-title="可可" data-img="images/farmer/cacao.png" data-desc="黑色黃金。可可豆不僅是製作神聖飲料的原料，更是通用的貨幣。">可可</td>
-                <td>1月</td><td>D6x10G</td><td>經濟/貨幣</td>
-              </tr>
-              <tr>
-                <td class="popup-trigger" data-title="龍舌蘭" data-img="images/farmer/agave.png" data-desc="萬能植物。葉片取纖維製衣，汁液發酵成普逵酒，刺可做針。">龍舌蘭</td>
-                <td>特殊</td><td>1d4</td><td>纖維/酒汁/針刺</td>
-              </tr>
-            </tbody>
-          </table>
+      <h4 style="color: var(--jade); margin-top: 20px;">--- 速成作物 (1班/一夜) ---</h4>
+      <div class="rule-grid">
+        <div class="rule-card">
+          <h3>莧菜嫩芽</h3>
+          <div class="illus-container"><img src="images/farmer/amaranth-sprout.webp" alt="莧菜嫩芽"></div>
+          <div><span class="maz-badge">成長: 1 班</span><span class="maz-badge">收穫: 1d4</span></div>
+          <div class="stat-block"><strong>備註：</strong>可安全生吃，但需 2 份補足一日所需。不易保存，每天早上需擲骰 1D4 ，骰到 1 則腐敗無法食用。</div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">帶著淡淡土味的赤紅色嫩芽，水分飽滿。雖然味道平淡，但能迅速填飽肚子，是荒野中最可靠的救命蔬菜。</p>
         </div>
-        <div style="margin-top:15px; background:rgba(255,255,255,0.05); padding:10px; border-left:3px solid var(--jade); color:#ccc;">
-          <strong>💡 三姐妹套組：</strong>若區域內同時種植 玉米 + 豆類 + 南瓜，每次收穫量 +1，並獲得一次「收成失敗重擲」機會。
+        <div class="rule-card">
+          <h3>香菜</h3>
+          <div class="illus-container"><img src="images/farmer/herb-epazote.webp" alt="香菜"></div>
+          <div><span class="maz-badge">成長: 1 班</span><span class="maz-badge">收穫: 1d2+1</span></div>
+          <div class="stat-block"><strong>備註：</strong>通常不會單吃，用來幫助食物提味。</div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">邊緣呈鋸齒狀的深綠色葉片，散發著強烈的刺鼻香氣。加入豆類或肉類中燉煮能完美去除腥味，在黑市中也常被用來製作驅邪薰香。</p>
+        </div>
+        <div class="rule-card">
+          <h3>雨生苔菜</h3>
+          <div class="illus-container"><img src="images/farmer/waterweed.webp" alt="雨生苔菜"></div>
+          <div><span class="maz-badge">成長: 1 班</span><span class="maz-badge">收穫: 2d4+2</span></div>
+          <div class="stat-block"><strong>備註：</strong>可安全生吃，但需 4 份才能補足一日所需。無法保存，一天後就會腐敗。</div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">吸滿水分且散發微弱螢光的苔蘚。口感意外地清脆，直接生吃也能有效解渴，是水域浮田特有的恩賜。</p>
+        </div>
+      </div>
+
+      <h4 style="color: var(--jade); margin-top: 20px;">--- 短期作物 (數日) ---</h4>
+      <div class="rule-grid">
+        <div class="rule-card">
+          <h3>辣椒</h3>
+          <div class="illus-container"><img src="images/farmer/chili.webp" alt="辣椒"></div>
+          <div><span class="maz-badge">成長: 2 日</span><span class="maz-badge">收穫: 1d4</span></div>
+          <div class="stat-block"><strong>備註：</strong>馬茲提卡最主要的調味料。加工後也可以當作劇痛毒藥使用。</div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">表面佈滿皺褶的深紅色乾辣椒。僅需一小片就能讓整鍋湯沸騰起來，甚至可以用來製作刺激野獸的陷阱粉末。</p>
+        </div>
+        <div class="rule-card">
+          <h3>番茄</h3>
+          <div class="illus-container"><img src="images/farmer/tomato.webp" alt="番茄"></div>
+          <div><span class="maz-badge">成長: 3 日</span><span class="maz-badge">收穫: 1d4+1</span></div>
+          <div class="stat-block"><strong>備註：</strong>可安全生吃，但需 2 份補足一日所需。不易保存，每天早上需擲骰 1D6 ，骰到 1 則腐敗無法食用。</div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">紅潤飽滿的果實，切開後汁水四溢。它是馬茲提卡料理中最百搭的酸甜基底，可惜非常容易腐壞，必須盡快烹調。</p>
+        </div>
+        <div class="rule-card">
+          <h3>綠黏果</h3>
+          <div class="illus-container"><img src="images/farmer/tomatillo.webp" alt="綠黏果"></div>
+          <div><span class="maz-badge">成長: 3 日</span><span class="maz-badge">收穫: 1d4+1</span></div>
+          <div class="stat-block"><strong>備註：</strong>通常被用來製作莎莎醬。可安全生吃，但需 2 份補足一日所需。不易保存，每天早上需擲骰 1D6 ，骰到 1 則腐敗無法食用。</div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">被乾燥紙質外殼包裹的翠綠果實。味道比番茄更酸澀清爽，搗碎後製成的綠色莎莎醬，是搭配烤肉的無上極品。</p>
+        </div>
+        <div class="rule-card">
+          <h3>菸草植物</h3>
+          <div class="illus-container"><img src="images/farmer/tobacco.webp" alt="菸草"></div>
+          <div><span class="maz-badge">成長: 3 日</span><span class="maz-badge">收穫: 1d4</span></div>
+          <div class="stat-block"><strong>備註：</strong>不算食物，點燃吸食可大幅解壓。</div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">經過風乾處理的寬大棕色葉片，散發著令人沉醉的厚重香氣。點燃後吸食能讓緊繃的神經徹底放鬆。</p>
+        </div>
+      </div>
+
+      <h4 style="color: var(--jade); margin-top: 20px;">--- 常規作物 (週/月) ---</h4>
+      <div class="rule-grid">
+        <div class="rule-card">
+          <h3>黑豆</h3>
+          <div class="illus-container"><img src="images/farmer/beans.webp" alt="黑豆"></div>
+          <div><span class="maz-badge">成長: 1 週</span><span class="maz-badge">收穫: 1d4+2</span></div>
+          <div class="stat-block"><strong>備註：</strong>可安全生吃，但需 2 份補足一日所需。可長期保存。</div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">堅硬且帶有光澤的黑豆。煮熟後口感綿密且極具飽足感，是度過嚴冬與飢荒的生命線。</p>
+        </div>
+        <div class="rule-card">
+          <h3>香蕉</h3>
+          <div class="illus-container"><img src="images/farmer/banana.webp" alt="香蕉"></div>
+          <div><span class="maz-badge">成長: 1 週</span><span class="maz-badge">收穫: 1d6</span></div>
+          <div class="stat-block"><strong>備註：</strong>可安全生吃，但需 2 份補足一日所需。不易保存，每天早上需擲骰 1D6 ，骰到 1 則腐敗無法食用。</div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">外皮帶有少許熟成斑點的黃色果實。香甜的果肉能迅速補充體力，將其裹上蜂蜜烘烤更是營火旁的頂級享受。</p>
+        </div>
+        <div class="rule-card">
+          <h3>奇亞籽</h3>
+          <div class="illus-container"><img src="images/farmer/chia.webp" alt="奇亞籽"></div>
+          <div><span class="maz-badge">成長: 1 週</span><span class="maz-badge">收穫: 1d4袋</span></div>
+          <div class="stat-block"><strong>備註：</strong>無法直接單吃，需泡水或做成料理食用。</div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">只要抓一小把泡水喝下，就能讓戰士在叢林中狂奔一整天而不覺疲倦。</p>
+        </div>
+        <div class="rule-card">
+          <h3>甘薯</h3>
+          <div class="illus-container"><img src="images/farmer/sweetpotato.webp" alt="甘薯"></div>
+          <div><span class="maz-badge">成長: 1 週</span><span class="maz-badge">收穫: 1d6</span></div>
+          <div class="stat-block"><strong>備註：</strong>可安全生吃，但需 2 份補足一日所需。若烤熟，1 份能滿足 1 日所需。</div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">表皮呈現深紫色、沾滿泥土的沉重塊根。烤熟後會露出橘紅色的甜蜜內芯，熱騰騰地咬下一口，能驅散所有的寒意。</p>
+        </div>
+        <div class="rule-card">
+          <h3>地根</h3>
+          <div class="illus-container"><img src="images/farmer/root.webp" alt="地根"></div>
+          <div><span class="maz-badge">成長: 1 週</span><span class="maz-badge">收穫: 1d6</span></div>
+          <div class="stat-block"><strong>備註：</strong>可安全生吃，但需 2 份補足一日所需。若烤熟，1 份能滿足 1 日所需。</div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">長滿粗糙鬚根的橙色地根。雖然生吃有點費牙口，但它是熬煮任何高階燉鍋料理時，負責提供厚重底蘊的關鍵。</p>
+        </div>
+        <div class="rule-card">
+          <h3>梨瓜</h3>
+          <div class="illus-container"><img src="images/farmer/chayote.webp" alt="梨瓜"></div>
+          <div><span class="maz-badge">成長: 1 週</span><span class="maz-badge">收穫: 1d4+1</span></div>
+          <div class="stat-block"><strong>備註：</strong>可安全生吃，但需 2 份補足一日所需。若烤熟，1 份能滿足 1 日所需。</div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">外表佈滿淺淺皺褶的淡綠色瓜果。口感介於瓜類與梨子之間，切片後與肉類同炒，能吸收豐富的肉汁。</p>
+        </div>
+        <div class="rule-card">
+          <h3>香草豆莢</h3>
+          <div class="illus-container"><img src="images/farmer/vanilla.webp" alt="香草豆莢"></div>
+          <div><span class="maz-badge">成長: 1 週</span><span class="maz-badge">收穫: 1d2</span></div>
+          <div class="stat-block"><strong>備註：</strong>烹飪高級料理時常用的調味料。</div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">經過極其繁複的日曬與發酵工序後，烏黑油亮且散發出迷幻甜香的豆莢。只要一小截，就能讓整鍋可可升華為宮廷級的神飲。</p>
+        </div>
+        <div class="rule-card">
+          <h3>玉米</h3>
+          <div class="illus-container"><img src="images/farmer/maize.webp" alt="玉米"></div>
+          <div><span class="maz-badge">成長: 2 週</span><span class="maz-badge">收穫: 1d6+1</span></div>
+          <div class="stat-block"><strong>備註：</strong>可安全生吃，但需 2 份補足一日所需。若烤熟，1 份能滿足 1 日所需。</div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">剝開綠色苞葉後，露出金黃如寶石般排列整齊的玉米粒。它可以直接整根火烤，也可以剝粒後磨成萬用的「玉米粉」。</p>
+        </div>
+        <div class="rule-card">
+          <h3>南瓜</h3>
+          <div class="illus-container"><img src="images/farmer/squash.webp" alt="南瓜"></div>
+          <div><span class="maz-badge">成長: 2 週</span><span class="maz-badge">收穫: 1d3+1</span></div>
+          <div class="stat-block"><strong>備註：</strong>可安全生吃， 1 份就能補足一日所需。可長期保存不易腐壞。</div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">極其沉重的深綠色大南瓜。厚實的外皮讓它可以保存數個月之久，剖開後的果肉能煮成濃郁香甜的南瓜奶油湯。</p>
+        </div>
+        <div class="rule-card">
+          <h3>洋蔥</h3>
+          <div class="illus-container"><img src="images/farmer/onion.webp" alt="洋蔥"></div>
+          <div><span class="maz-badge">成長: 2 週</span><span class="maz-badge">收穫: 1d4</span></div>
+          <div class="stat-block"><strong>備註：</strong>生吃有一定的風險，通常用來做料理提味用。</div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">帶著乾燥紙質外皮的紫色球根。切開時散發出的辛辣氣味會讓人落淚，但它是所有燉肉料理爆香的絕對核心。</p>
+        </div>
+        <div class="rule-card">
+          <h3>酪梨</h3>
+          <div class="illus-container"><img src="images/farmer/avocado.webp" alt="酪梨"></div>
+          <div><span class="maz-badge">成長: 2 週</span><span class="maz-badge">收穫: 1d4</span></div>
+          <div class="stat-block"><strong>備註：</strong>可安全生吃， 1 份就能補足一日所需。</div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">切開深色卵狀外皮後，露出如翡翠般翠綠、如奶油般滑順的果肉。搗碎後加入香料，是沾烤肉或玉米餅的極品。</p>
+        </div>
+        <div class="rule-card">
+          <h3>龍舌蘭</h3>
+          <div class="illus-container"><img src="images/farmer/agave.webp" alt="龍舌蘭"></div>
+          <div><span class="maz-badge">成長: 特殊</span><span class="maz-badge">收穫: 1d4</span></div>
+          <div class="stat-block"><strong>備註：</strong>無法直接食用，可用來加工成奧克特力(龍舌蘭酒)或是糖漿原料。</div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">砍去帶刺葉片後，剩下的巨大如松果般的植物核心。經過地底悶烤後，會滴出極度甜美的焦糖糖漿，更是釀造烈酒的原料。</p>
         </div>
       </div>
     </div>
@@ -287,446 +375,906 @@
     <div class="rule-display-area">
       <div class="rule-card highlight" style="border-left-color:#9b59b6; background:linear-gradient(135deg, rgba(60, 20, 60, 0.6), rgba(20,20,25,0.8));">
         <h3 style="color:#e0aaff;">✧ 神奇作物 (Magical Crops)</h3>
-        <p>這些作物不存在於一般的種子店中，它們是大地的恩賜，或是神靈在凡間的玩笑。只有在最完美的種植條件下（收穫檢定大成功），它們才會混雜在普通作物中出現。</p>
-        <p><strong>規則：</strong> 食用神奇作物通常需要花費一個動作。其效果強大且帶有魔法性質。</p>
+        <p>這些作物不存在於一般的種子店中，它們是大地的恩賜，或是神靈在凡間的玩笑。只有在最完美的種植條件下（收穫檢定大成功），它們才會混雜在普通作物中出現。食用神奇作物通常需要花費一個動作。</p>
+        <p>若用來取代原型食材烹飪，會讓料理產生意想不到的效果。</p>
       </div>
 
-      <div class="rule-card">
-        <h3>稀有變異圖鑑</h3>
-        <div class="table-scroll">
-          <table>
-            <thead>
-              <tr><th width="25%">神奇作物</th><th width="15%">原型</th><th>食用/使用效果</th></tr>
-            </thead>
-            <tbody>
-              <tr class="magic-crop-row">
-                <td class="popup-trigger" data-title="日榮果 (神話)" data-img="images/farmer/sunfruit.png" data-desc="完全成熟的日榮果，外皮如黃金般發光，果肉溫熱。傳說是太陽神托納蒂烏滴下的汗水。">
-                  <span class="magic-badge">傳說</span>日榮果
-                </td>
-                <td>番茄/水果</td>
-                <td>
-                  <strong>【太陽恩賜】</strong> 食用後回復 2D6 HP，並移除所有 恐懼 與 寒冷 狀態。<br>
-                  且你的身體會發出半徑 10 米的明亮光照，持續一刻時間。
-                </td>
-              </tr>
-              <tr class="magic-crop-row">
-                <td class="popup-trigger" data-title="血玉蜀黍 (Blood-Maize)" data-img="images/farmer/blood-maize.png" data-desc="紫紅色的玉米粒，彷彿吸飽了鮮血。嚼碎時會感受到一股原始的怒氣與力量。">
-                  <span class="magic-badge">稀有</span>血玉蜀黍
-                </td>
-                <td>玉米</td>
-                <td>
-                  <strong>【狂戰士之糧】</strong> 食用後獲得 1D8 點 <strong>臨時 HP</strong>。<br>
-                  在一刻時間內，你的 力量 檢定獲得 1 個優勢，且免疫疼痛。
-                </td>
-              </tr>
-              <tr class="magic-crop-row">
-                <td class="popup-trigger" data-title="月淚百合 (Moon-Lily Bulb)" data-img="images/farmer/moon-lily.png" data-desc="只有在滿月之夜才會顯形的半透明球根。吃起來像脆梨，帶著淡淡的哀傷。">
-                  <span class="magic-badge">稀有</span>月淚球根
-                </td>
-                <td>洋蔥/根莖</td>
-                <td>
-                  <strong>【夜之隱匿】</strong> 食用後你的身形變得模糊半透明。<br>
-                  在一刻時間內，你的 隱匿 檢定獲得 1 個優勢，且獲得 夜視 能力。
-                </td>
-              </tr>
-              <tr class="magic-crop-row">
-                <td class="popup-trigger" data-title="冥界辣椒 (Ghost-Chili)" data-img="images/farmer/ghost-chili.png" data-desc="蒼白如骨的辣椒。入口瞬間極度冰冷，隨後爆發出靈魂深處的灼熱。">
-                  <span class="magic-badge">極稀有</span>冥界辣椒
-                </td>
-                <td>辣椒</td>
-                <td>
-                  <strong>【靈視與驅邪】</strong> 食用後需進行 體質 檢定（失敗則 暈眩 1 輪）。<br>
-                  成功後，你獲得 <strong>靈視</strong>（能看見隱形生物與靈體），且對死靈生物的攻擊造成雙倍傷害，持續一場戰鬥。
-                </td>
-              </tr>
-              <tr class="magic-crop-row">
-                <td class="popup-trigger" data-title="黑曜石瓜 (Obsidian Gourd)" data-img="images/farmer/obsidian-gourd.png" data-desc="外殼硬如岩石，敲擊有金石之聲。果肉堅硬苦澀，能強化皮膚。">
-                  <span class="magic-badge">稀有</span>黑曜石瓜
-                </td>
-                <td>南瓜</td>
-                <td>
-                  <strong>【岩石皮膚】</strong> 食用後皮膚硬化如石。<br>
-                  在一刻時間內，你的天生護甲值 +2（可與裝備疊加），但 敏捷 檢定獲得 1 個劣勢。
-                </td>
-              </tr>
-            </tbody>
-          </table>
+      <div class="rule-grid" style="margin-top: 30px;">
+        <div class="rule-card">
+          <h3><span class="magic-badge">特殊</span> 日榮果</h3>
+          <div class="illus-container"><img src="images/farmer/sunfruit.webp" alt="日榮果"></div>
+          <div class="stat-block">
+            <strong style="color:var(--gold);">原型：番茄、綠黏果</strong><br>
+            回復 2D6 HP，並移除 畏縮 與 寒冷 狀態。且身體會發出半徑 10 米的明亮光照，持續一刻時間。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">果皮如黃金般閃耀，拿在手中能感受到陽光般的溫暖。直接食用便能活化血脈、治癒傷痛，是神廟重金收購的聖果。</p>
+        </div>
+
+        <div class="rule-card">
+          <h3><span class="magic-badge">特殊</span> 血玉米</h3>
+          <div class="illus-container"><img src="images/farmer/blood-maize.webp" alt="血玉米"></div>
+          <div class="stat-block">
+            <strong style="color:var(--gold);">原型：玉米</strong><br>
+            在一刻時間內，你的 力量 檢定獲得 1 個優勢，近戰傷害加成 + 1D4。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">這些玉米粒呈現出宛如鮮血般的深紅瑪瑙色，觸摸時甚至能感受到微弱的脈搏跳動。傳說中它是吸收了古老戰場上勇士鮮血而生，蘊含著狂暴的生命力與戰意。</p>
+        </div>
+
+        <div class="rule-card">
+          <h3><span class="magic-badge">特殊</span> 月淚根</h3>
+          <div class="illus-container"><img src="images/farmer/moon-lily.webp" alt="月淚根"></div>
+          <div class="stat-block">
+            <strong style="color:var(--gold);">原型：地根、甘薯、洋蔥</strong><br>
+            食用後身體會變得輕盈。在一刻時間內，隱匿、體操、巧手、閃避 檢定獲得優勢，且處於 黑暗 或 目盲 時的 察覺 檢定具有優勢。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">外觀如同一滴晶瑩剔透的大型眼淚，表皮散發著柔和的銀藍色微光。傳說這是神明哀悼凡人苦難時落下的淚水，具有淨化靈魂的奇效。</p>
+        </div>
+
+        <div class="rule-card" style="border-left-color: #e74c3c;">
+          <h3><span class="magic-badge">特殊</span> 鬼椒</h3>
+          <div class="illus-container"><img src="images/farmer/ghost-chili.webp" alt="鬼椒"></div>
+          <div class="stat-block">
+            <strong style="color:var(--gold);">原型：辣椒</strong><br>
+            食用時視為強效劇痛毒藥。若成功抵抗則毒素不起作用，且一班時間內免疫 寒冷、虛弱 狀態，抵抗所有 毒素、疾病 效果時具有優勢。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">表皮呈現詭異的暗紫色，並不斷向外散發著若隱若現的幽綠色靈火與青煙。吃下它不僅需要極大的勇氣，據說那股直衝腦門的劇烈辣度，能讓人短暫跨越肉體的極限。</p>
+        </div>
+
+        <div class="rule-card">
+          <h3><span class="magic-badge">特殊</span> 黑曜瓜</h3>
+          <div class="illus-container"><img src="images/farmer/obsidian-gourd.webp" alt="黑曜石瓜"></div>
+          <div class="stat-block">
+            <strong style="color:var(--gold);">原型：南瓜、梨瓜、酪梨</strong><br>
+            食用後皮膚硬化如石。在一刻時間內，獲得 揮砍 和 穿刺 抗性（傷害減半），但 敏捷 檢定獲得 1 個劣勢。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">這種瓜的外殼如同黑曜石般堅硬且光滑，表面佈滿了散發著地底岩漿紅光的裂紋。一般刀劍極難將其剖開，但其果肉蘊含著強大的托納利，是非常頂級的料理素材。</p>
+        </div>
+
+        <div class="rule-card" style="border-left-color: #e74c3c;">
+          <h3><span class="magic-badge" style="background:#e74c3c;">特殊</span> 魔髮菜</h3>
+          <div class="illus-container"><img src="images/farmer/hair-mossi.webp" alt="魔髮菜"></div>
+          <div class="stat-block">
+            <strong style="color:var(--gold);">原型：雨生苔菜、莧菜嫩芽</strong><br>
+            食用後身上的毛髮會異常增加，持續一刻時間。在此狀態下進行 魅力 相關檢定時依據情況可獲得 優勢 或 劣勢。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">生長在魔力匯聚之處的變異苔蘚，宛如擁有自我意識的幽綠色長髮，在沒有微風的環境下依然會無風自動。它散發著迷幻的光暈，是調製高階變形與水下適應料理的絕佳觸媒。</p>
+        </div>
+        <div class="rule-card" style="border-left-color: #e74c3c;">
+          <h3><span class="magic-badge" style="background:#e74c3c;">特殊</span> 喚獸蕉</h3>
+          <div class="illus-container"><img src="images/farmer/ghost-chili.webp" alt="喚獸蕉"></div>
+          <div class="stat-block">
+            <strong style="color:var(--gold);">原型：香蕉</strong><br>
+            攜帶時，在野外遇到兇猛野獸的機率大幅提高。食用後，察覺 檢定獲得優勢；且針對動物進行的 魅力 相關檢定時依據情況可獲得 優勢 或 劣勢。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">這種罕見的香蕉皮上，佈滿了如同獵豹般的狂野斑紋，並散發著一股令野獸躁動的原始氣息。剝開食用後，能短暫激發體內的野性本能與敏銳感官。</p>
         </div>
       </div>
     </div>
   </div>
 
-<div id="farm-cook" class="rule-content">
+  <div id="farm-cook" class="rule-content">
     <div class="rule-display-area">
       
-      <div class="rule-card highlight">
+      <div class="rule-card highlight" style="margin-bottom: 20px;">
         <h3>🔥 烹飪規則與料理星級</h3>
-        <p>
-          烹飪不僅是生存技能，更是將大自然的恩惠轉化為力量的儀式。
-          玩家需消耗對應的<strong>食材</strong>與<strong>時間</strong>，並進行 <strong>廚藝 (Cooking)</strong> 檢定。
-          檢定成功與否決定了成品的品質；失敗可能導致食材浪費或產出「黑暗料理」。
-        </p>
-        <hr style="border-color:rgba(255,255,255,0.1); margin:15px 0;">
-        <ul style="list-style: none; padding-left: 0;">
-          <li style="margin-bottom: 12px;">
-            <strong style="color:#f1c40f;">★ 充飢便飯 (Simple)</strong>
-            <br><span style="color:#aaa; font-size:0.9rem;">耗時：1 刻 │ 難度：低</span>
-            <br>僅需簡單加熱或組裝。主要用於<strong>填飽肚子</strong>與<strong>基礎HP/WP回復</strong>，無特殊增益。
-          </li>
-          <li style="margin-bottom: 12px;">
-            <strong style="color:#f1c40f;">★★ 暖心家常 (Comfort)</strong>
-            <br><span style="color:#aaa; font-size:0.9rem;">耗時：2 刻 │ 難度：中</span>
-            <br>撫慰身心的熱食。除了回復量提升外，通常附帶<strong>解除輕微負面狀態</strong>（如力竭、畏縮、寒冷）的效果。
-          </li>
-          <li style="margin-bottom: 12px;">
-            <strong style="color:#f1c40f;">★★★ 精緻佳餚 (Delicacy)</strong>
-            <br><span style="color:#aaa; font-size:0.9rem;">耗時：1 小時 │ 難度：中高</span>
-            <br>講究火候與香料的搭配。能賦予角色<strong>屬性檢定優勢</strong>（如力量優勢、敏捷優勢），適合冒險前的準備。
-          </li>
-          <li style="margin-bottom: 12px;">
-            <strong style="color:#f1c40f;">★★★★ 宮廷饗宴 (Banquet)</strong>
-            <br><span style="color:#aaa; font-size:0.9rem;">耗時：1 小時+ │ 難度：高</span>
-            <br>使用珍稀肉類與繁複工序。提供<strong>大量回復</strong>以及<strong>環境抗性</strong>（如抗寒、抗毒），效果顯著。
-          </li>
-          <li>
-            <strong style="color:#f1c40f;">★★★★★ 神聖祭宴 (Divine Feast)</strong>
-            <br><span style="color:#aaa; font-size:0.9rem;">耗時：1 班 (約6小時) │ 難度：極高</span>
-            <br>傳說中的味道，足以獻祭給神靈。<strong>完全回復 (Full Heal)</strong> 所有HP/WP，移除所有負面狀態，並提供長效且強力的祝福。
-          </li>
+        <p>烹飪不僅是生存技能，更是將大自然的恩惠轉化為力量的儀式。需由擁有<strong> 大廚 </strong>英雄能力的冒險者來烹飪，消耗對應的<strong>食材</strong>與<strong>WP</strong>，等待烹調的時間結束後進行 <strong>廚藝</strong> 檢定。</p>
+        <ul style="list-style: none; padding-left: 0; margin-top:15px;">
+        <p><strong style="color:#f1c40f;">熱食：</strong>具有此標籤的菜餚，若於長休時食用，在整個紮營期間的第一次檢定具有<strong> 優勢 </strong>。</p>
+        <p><strong style="color:#f1c40f;">充飢：</strong>具有此標籤的菜餚，食用後可滿足一日所需的食物而不會感到飢餓。</p>
+        <p><strong style="color:#f1c40f;">全隊：</strong>具有此標籤的菜餚，一份就可提供全隊食物所需。</p>
+        <p><strong style="color:#f1c40f;">長期：</strong>具有此標籤的菜餚，不用馬上吃掉，能當作行軍口糧般攜帶而不會腐壞。</p>
+        <p><strong style="color:#f1c40f;">短期：</strong>具有此標籤的菜餚，不用馬上吃掉，能保存至多一班時間而不會腐壞。</p>
+        <ul style="list-style: none; padding-left: 0; margin-top:15px;">
+        <br>
+        <p><strong style="color:#f1c40f;">★ 級：</strong>代表料理的難易度與複雜度。★ 級愈高需要的 <strong> 廚藝 </strong>等級也愈高，且需要的食材複雜度也愈高。</p>
+          <li style="margin-bottom: 8px;"><strong style="color:#f1c40f;">★ 簡易料理： </strong>不限 <strong> 廚藝 </strong>等級皆可烹飪。</li>
+          <li style="margin-bottom: 8px;"><strong style="color:#f1c40f;">★★ 家常料理：</strong>不限<strong> 廚藝 </strong>等級皆可烹飪。若<strong> 廚藝 </strong>不足 10 ，檢定具有<strong> 劣勢 </strong>。</li>
+          <li style="margin-bottom: 8px;"><strong style="color:#f1c40f;">★★★ 精緻料理：</strong>不限<strong> 廚藝 </strong>等級皆可烹飪。若<strong> 廚藝 </strong>不足 14 ，檢定具有<strong> 劣勢 </strong>。</li>
+          <li style="margin-bottom: 8px;"><strong style="color:#f1c40f;">★★★★ 宮廷料理：</strong><strong> 廚藝 </strong>等級需達到 14 以上。若<strong> 廚藝 </strong>不足 16 ，檢定具有<strong> 劣勢 </strong>。</li>
+          <li><strong style="color:#f1c40f;">★★★★★ 祭儀料理：</strong><strong> 廚藝 </strong>等級需達到 16 以上。若<strong> 廚藝 </strong>不足 18 ，檢定具有劣勢。</li></li>
         </ul>
       </div>
 
-      <div class="rule-card">
-        <h3>🥕 常用食材參考</h3>
-        <div class="table-scroll">
-          <table>
-            <thead><tr><th>食材</th><th>類別</th><th>價格（◎）</th><th>備註</th></tr></thead>
-            <tbody>
-              <tr><td>玉米 / 玉米粉</td><td>穀物</td><td>0.25</td><td>主食，隨處可見</td></tr>
-              <tr><td>番茄 / 南瓜</td><td>蔬果</td><td>2~4</td><td>常見作物</td></tr>
-              <tr><td>香草 / 辣椒</td><td>香料</td><td>0.25</td><td>賦予料理靈魂的關鍵</td></tr>
-              <tr><td>蜂蜜 / 龍舌蘭漿</td><td>甜味</td><td>0.5</td><td>稀有的能量來源</td></tr>
-              <tr><td>可可豆</td><td>稀有</td><td>1G</td><td>貨幣兼神聖飲品材料</td></tr>
-              <tr><td>火雞 / 豬 / 牛肉</td><td>肉類</td><td>3</td><td>主要的蛋白質來源</td></tr>
-              <tr><td>河鮮魚 / 河蝦</td><td>河鮮</td><td>8</td><td>保存困難，需新鮮烹調</td></tr>
-              <tr><td>蜥肉 / 鱷魚肉</td><td>野味</td><td>20</td><td>口感強韌，祭典首選</td></tr>
-            </tbody>
-          </table>
+      <h3 style="color:var(--gold); font-size: 1.4rem; margin-top:40px; border-bottom:1px solid rgba(201,163,90,0.3); padding-bottom:10px;">📜 大廚食譜技能表（全 20 道）</h3>
+
+      <h4 style="color: #f1c40f; margin-top: 20px;">★ 簡易料理</h4>
+      <div class="rule-grid">
+        <div class="rule-card">
+          <h3>玉米餅</h3>
+          <div class="illus-container"><img src="images/farmer/tortilla.webp" alt="玉米餅"></div>
+          <div><span class="maz-badge">1刻</span><span class="maz-badge">WP:1</span><span class="maz-badge">3 ☾</span><span class="maz-badge">充飢</span><span class="maz-badge">長期</span></div>
+          <div class="stat-block">
+            <strong>食材：</strong> 玉米粉 X 2 或 玉米 X 1 + 白灰 X 1<br><strong>效果：</strong>可當食物充飢。可當行軍乾糧保存。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">以白灰浸泡過的玉米粉揉捏烘烤而成。散發著質樸的炭烤穀物香氣，雖然簡單，卻是馬茲提卡一切美味的靈魂載體。</p>
+        </div>
+        <div class="rule-card">
+          <h3>酪梨醬</h3>
+          <div class="illus-container"><img src="images/farmer/guacamole.webp" alt="酪梨醬"></div>
+          <div><span class="maz-badge">1刻</span><span class="maz-badge">WP:1</span><span class="maz-badge">5 ☾</span></div>
+          <div class="stat-block">
+            <strong>食材：</strong> 酪梨 X 1 + 番茄 X 1 + 鹽 X 1 + <br><strong>效果：</strong>通常用來增添其他食物的風味。直接食用可回復 1 WP。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">將熟透的酪梨搗成如奶油般滑順的泥狀，拌入鮮甜番茄丁與鹽。口感清爽解膩，能迅速補充冒險流失的體力。</p>
+        </div>
+        <div class="rule-card">
+          <h3>香菜羹</h3>
+          <div class="illus-container"><img src="images/farmer/tortillacilantrosuop.webp" alt="香菜羹"></div>
+          <div><span class="maz-badge">1刻</span><span class="maz-badge">WP:1</span><span class="maz-badge">8 ☾</span><span class="maz-badge">熱食</span></div>
+          <div class="stat-block">
+            <strong>食材：</strong> 玉米粉/南瓜籽粉 X 1 + 番茄 或 綠黏果 X 1 + 香菜 X 1<br><strong>效果：</strong>直接食用可回復 2 WP。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">以番茄與香菜熬煮的開胃清湯，撒入少許玉米粉或南瓜籽粉增添濃郁口感。喝下一口，清新的草本香氣能溫暖疲憊的身心。</p>
+        </div>
+        <div class="rule-card">
+          <h3>莧菜蜂蜜塊</h3>
+          <div class="illus-container"><img src="images/farmer/amaranth-honey.webp" alt="莧菜蜂蜜塊"></div>
+          <div><span class="maz-badge">2刻</span><span class="maz-badge">WP:1</span><span class="maz-badge">5 ☾</span><span class="maz-badge">充飢</span><span class="maz-badge">長期</span></div>
+          <div class="stat-block">
+            <strong>食材：</strong> 莧菜籽/奇亞籽 X 10 + 蜂蜜 X 1 + 玉米粉 X 1<br><strong>效果：</strong>食用後可消除 力竭、暈眩、虛弱 其中一種狀態。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">膨化莧菜與蜂蜜混合壓製而成的隨身口糧。香甜酥脆，極易保存，是長途行軍與深入地城時的救命之物。</p>
+        </div>
+        <div class="rule-card">
+          <h3>玉米熱飲</h3>
+          <div class="illus-container"><img src="images/farmer/atole.webp" alt="玉米熱飲"></div>
+          <div><span class="maz-badge">1刻</span><span class="maz-badge">WP:1</span><span class="maz-badge">8 ☾</span><span class="maz-badge">熱食</span></div>
+          <div class="stat-block">
+            <strong>食材：</strong> 玉米粉/南瓜籽粉 X 1 + 蜂蜜 X 1<br><strong>效果：</strong>食用可回復 1 HP，並消除 寒冷 狀態。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">濃鬱的熱玉米奶漿，加入蜂蜜調味。口感溫潤厚實，在寒冷的營地夜晚喝上一杯，暖意會從胃裡一直蔓延到指尖。</p>
+        </div>
+        <div class="rule-card">
+          <h3>荒野香煎蛋</h3>
+          <div class="illus-container"><img src="images/farmer/egg-fried-white-yellow.webp" alt="荒野香煎蛋"></div>
+          <div><span class="maz-badge">1刻</span><span class="maz-badge">WP:1</span><span class="maz-badge">8 ☾</span><span class="maz-badge">熱食</span><span class="maz-badge">充飢</span></div>
+          <div class="stat-block">
+            <strong>食材：</strong> 雞蛋/鳥蛋/蛇蛋 X 2 + 香菜/乾燥酪梨葉 X 1 + 鹽/龍舌蘭蟲鹽 X 1 + 動物油脂/酪梨油 X 1<br><strong>效果：</strong>可當食物充飢。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">將剛掏來的新鮮鳥蛋或爬蟲蛋，以高溫油煎至邊緣酥脆，撒上香菜提味。做法粗獷，卻充滿了狂野的生命力。</p>
+        </div>
+        <div class="rule-card">
+          <h3>荒野烤肉串</h3>
+          <div class="illus-container"><img src="images/farmer/skewer-meat-red.webp" alt="荒野烤肉串"></div>
+          <div><span class="maz-badge">1刻</span><span class="maz-badge">WP:1</span><span class="maz-badge">8 ☾</span><span class="maz-badge">熱食</span><span class="maz-badge">充飢</span></div>
+          <div class="stat-block">
+            <strong>食材：</strong> 兔肉/地鼠肉/鳥肉/浣熊肉/犰狳肉/蛇肉/蛙肉/雞肉/水豚肉 X 2 + 辣椒/胭脂樹紅籽/鹽/龍舌蘭蟲鹽 X 1<br><strong>效果：</strong>熱食。可當食物充飢。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">將最常見的小型獸類切塊，串在樹枝上撒點辣椒或鹽來火烤。雖然肉質較乾，但那是冒險者最熟悉的滋味。</p>
+        </div>
+        <div class="rule-card">
+          <h3>索科特爾（熱可可飲）</h3>
+          <div class="illus-container"><img src="images/farmer/xocolatl.webp" alt="索科特爾（熱可可飲）"></div>
+          <div><span class="maz-badge">1刻</span><span class="maz-badge">WP:1</span><span class="maz-badge">8 ☾</span><span class="maz-badge">熱食</span></div>
+          <div class="stat-block">
+            <strong>食材：</strong> 可可豆 X 10 + 辣椒 X 1 + 蜂蜜 X 1<br><strong>效果：</strong>食用可回復 1 WP 並消除 寒冷 狀態。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">馬茲提卡傳統的提神飲品。將可可豆磨碎，與辣椒、蜂蜜一同攪拌至起泡。辛辣與苦甜交織的獨特風味，能瞬間喚醒感官。</p>
+        </div>
+        <div class="rule-card">
+          <h3>脆烤辣味蝗蟲</h3>
+          <div class="illus-container"><img src="images/farmer/spicylocusts.webp" alt="脆烤辣味蝗蟲"></div>
+          <div><span class="maz-badge">1刻</span><span class="maz-badge">WP:1</span><span class="maz-badge">5 ☾</span><span class="maz-badge">短期</span></div>
+          <div class="stat-block">
+            <strong>食材：</strong> 蝗蟲 X 2 + 辣椒 X 1 + 鹽/龍舌蘭蟲鹽/胭脂樹紅籽 X 1<br><strong>效果：</strong>食用後 1 班內對抗 毒素 或 疾病 檢定獲得 優勢。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">將蝗蟲去翅後，與辣椒、鹽一起在鐵板上乾炒至極度酥脆。這是蛙人與沼澤獵手最愛的隨身零嘴，吃起來有種類似堅果的焦香。</p>
+        </div>
+        <div class="rule-card">
+          <h3>酥炸肥蟲</h3>
+          <div class="illus-container"><img src="images/farmer/meat-maggot-brown.webp" alt="酥炸肥蟲"></div>
+          <div><span class="maz-badge">1刻</span><span class="maz-badge">WP:1</span><span class="maz-badge">5 ☾</span><span class="maz-badge">短期</span></div>
+          <div class="stat-block">
+            <strong>食材：</strong> 瑪奎肥蟲 X 3 + 動物油脂/酪梨油 X 1<br><strong>效果：</strong>食用可回復 1 HP。若處於 疾病 狀態，食用後對抗疾病的 體質 檢定具有優勢。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">將採集而來的肥美幼蟲，投入滾燙的動物油脂中炸至外皮金黃酥脆、內裡澎潤。高溫去除了蟲類的腥味，轉化為濃郁的油脂香氣與淡淡的堅果芬芳。這是在荒野中最奢華、能量最滿的簡易蛋白質來源。</p>
+        </div>
+        <div class="rule-card">
+          <h3>火烤河蚌</h3>
+          <div class="illus-container"><img src="images/farmer/clam-shell-blue.webp" alt="火烤河蚌"></div>
+          <div><span class="maz-badge">1刻</span><span class="maz-badge">WP:1</span><span class="maz-badge">5 ☾</span><span class="maz-badge">短期</span></div>
+          <div class="stat-block">
+            <strong>食材：</strong> 河蚌 X 2 + 綠黏果/辣椒 X 1<br><strong>效果：</strong>食用可回復 1 HP。且一班時間內的 意志 檢定具有優勢。若在長休前食用，睡醒時需擲 1D4 ，若擲到 1 則沒有睡好而睡眠不足。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">剛從河底泥沙中摸出的鮮活河蚌，不加任何繁瑣處理，直接扔進篝火的灰燼中烘烤。直到蚌殼「啪」一聲受熱彈開，滴上幾滴酸澀的綠黏果汁或撒上少許辣椒，就是河畔紮營時最唾手可得的鮮美滋味。</p>
+        </div>
+        <div class="rule-card">
+          <h3>冰鎮奇亞酸果飲</h3>
+          <div class="illus-container"><img src="images/farmer/cup-water-green.webp" alt="冰鎮奇亞酸果飲"></div>
+          <div><span class="maz-badge">1刻</span><span class="maz-badge">WP:1</span><span class="maz-badge">8 ☾</span></div>
+          <div class="stat-block">
+            <strong>食材：</strong> 奇亞籽 X 10 + 綠黏果/番茄 X 2 + 蜂蜜 X 1 <br><strong>效果：</strong>食用後回復 1 WP，並消除 酷熱 狀態。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">將奇亞籽浸泡在甘甜的井水中，擠入綠黏果的酸澀果汁並以蜂蜜調味。奇亞籽吸水後形成的滑順薄膜能極大程度地鎖住水分。大口灌下，清涼的酸甜滋味能瞬間帶走叢林跋涉的燥熱與口渴。</p>
         </div>
       </div>
-<div class="rule-card">
-        <h3>📜 大廚食譜技能表（20 道｜由簡至難）</h3>
-        <p style="font-size:0.9rem; color:#aaa; margin-bottom:10px;">點擊料理名稱可查看詳細描述與圖片。</p>
-        
-        <div class="table-scroll">
-          <table>
-            <thead>
-              <tr>
-                <th width="40">★</th>
-                <th>料理名稱</th>
-                <th>食材需求</th>
-                <th>時間</th>
-                <th>WP</th>
-                <th>效果</th>
-                <th width="50">價格</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>★</td>
-                <td class="popup-trigger"
-                    data-title="酪梨醬 Guacamole"
-                    data-img="images/farmer/Guacamole.png"
-                    data-desc="將成熟的酪梨切半，去核，然後將果肉舀入碗中。用叉子搗碎，直至達到您想要的濃稠度。拌入切碎番茄丁和新鮮切碎的香菜。如果您喜歡辣味，可以用鹽、胡椒和辣椒粉調味。將所有材料混合均勻，盛入碗中即可享用。">
-                    酪梨醬
-                </td>
-                <td>酪梨×1、番茄×1、香草×1</td>
-                <td>1刻</td>
-                <td>1</td>
-                <td>食用可回復 1 WP</td>
-                <td>5G</td>
-              </tr>
-              <tr>
-                <td>★</td>
-                <td class="popup-trigger"
-                    data-title="玉米餅 Tortilla"
-                    data-img="images/farmer/Tortilla.png"
-                    data-desc="在一個大碗中，將玉米粉和鹽混合。逐漸加入溫水，並充分揉捏麵團，直至光滑柔軟。如果麵團感覺太乾，可以加一點植物油。將麵團分成適當的份數，並將每份揉成球狀。輕輕按壓，使其變薄、均勻，形成一個形狀良好的玉米餅。用中火預熱煎鍋，將每個玉米餅兩面各煎約30秒，直至略呈金黃色。">
-                    玉米餅
-                </td>
-                <td>玉米粉×2</td>
-                <td>1刻</td>
-                <td>1</td>
-                <td>可保存，產出 1d4 份</td>
-                <td>6G</td>
-              </tr>
-              <tr>
-                <td>★</td>
-                <td class="popup-trigger"
-                    data-title="玉米香草羹 Tortilla Cilantro Soup"
-                    data-img="images/farmer/TortillaCilantroSuop.png"
-                    data-desc="湯底：將番茄、洋蔥、大蒜、歐芹、辣椒和鹽混合，攪拌均勻。在鍋中用少量油翻炒番茄混合物，直至呈現濃鬱的紅色。然後倒入新鮮的玉米粉和熱水，蓋上鍋蓋，小火慢燉約15分鐘。上菜時，可加入新鮮的配料，例如辣椒丁、起司絲、酪梨丁。">
-                    玉米香草羹
-                </td>
-                <td>玉米粉×1、番茄×1、香草×1</td>
-                <td>2刻</td>
-                <td>1</td>
-                <td>食用可回復 2 HP</td>
-                <td>6G</td>
-              </tr>
-              <tr>
-                <td>★</td>
-                <td class="popup-trigger"
-                    data-title="莧菜蜂蜜塊 Amaranth-Honey Clusters"
-                    data-img="images/farmer/Amaranth-Honey.png"
-                    data-desc="將蜂蜜微微加熱至液體狀。然後拌入膨化莧菜。（可選）添加食用花卉、仙人掌碎、燕麥、乾果或堅果。將混合物壓在鋪有玉米皮的烤盤上。待其冷卻後，切成小塊。適合長途行軍攜帶。">
-                    莧菜蜂蜜塊
-                </td>
-                <td>莧菜籽×1、蜂蜜×1</td>
-                <td>2刻</td>
-                <td>1</td>
-                <td>可保存，解除 力竭/暈眩/虛弱</td>
-                <td>7G</td>
-              </tr>
-              <tr>
-                <td>★</td>
-                <td class="popup-trigger"
-                    data-title="玉米熱飲 Atole"
-                    data-img="images/farmer/Atole.png"
-                    data-desc="將玉米粉和少量冷水混合，直至順滑無顆粒。在鍋中，將剩餘的水和肉桂棒一起煮沸。慢慢倒入玉米粉混合物，以中火加熱，不斷攪拌，直到飲料變稠（約10-15分鐘）。加入糖或蜂蜜，充分攪拌至完全溶解。趁熱享用。">
-                    玉米熱飲
-                </td>
-                <td>玉米粉×1、蜂蜜×1</td>
-                <td>2刻</td>
-                <td>1</td>
-                <td>回復 1 HP，驅散寒冷</td>
-                <td>8G</td>
-              </tr>
 
-              <tr>
-                <td>★★</td>
-                <td class="popup-trigger"
-                    data-title="南瓜奶油湯 Pumpkin Cream Soup"
-                    data-img="images/farmer/PumpkinCreamSoup.png"
-                    data-desc="將南瓜切成兩半，去籽切塊。在大鍋中以中火加熱橄欖油，翻炒洋蔥與大蒜。加入南瓜塊、蔬菜湯、辣椒碎和孜然。將所有材料煮沸，慢燉約20分鐘，直到南瓜變軟。調低火候，拌入椰奶，將湯打至順滑細膩。最後撒上南瓜籽和新鮮香菜即可享用。">
-                    南瓜奶油湯
-                </td>
-                <td>南瓜×1、辣椒×1、香草×1</td>
-                <td>2刻</td>
-                <td>2</td>
-                <td>驅散寒冷，1班內抗寒優勢</td>
-                <td>10G</td>
-              </tr>
-              <tr>
-                <td>★★</td>
-                <td class="popup-trigger"
-                    data-title="玉米粥 Corn Mash"
-                    data-img="images/farmer/CornMash.png"
-                    data-desc="將乾玉米粒用足量的水浸泡一夜。第二天瀝乾，用清水和少許鹽煮約30分鐘。將洋蔥和大蒜切碎翻炒至半透明。將煮熟的玉米粒和洋蔥混合物攪拌至順滑。倒回鍋中，用葛縷子粉和切碎的香菜葉調味，略微加熱。">
-                    玉米粥
-                </td>
-                <td>玉米×2、洋蔥×1、香草×1</td>
-                <td>1時</td>
-                <td>2</td>
-                <td>回復 2 HP，解除虛弱</td>
-                <td>8G</td>
-              </tr>
-              <tr>
-                <td>★★</td>
-                <td class="popup-trigger"
-                    data-title="辣味焦糖蕉 Spicy Caramel Plantains"
-                    data-img="images/farmer/Plantains.png"
-                    data-desc="將芭蕉去皮切半。在鍋中用中火融化奶油，放入芭蕉煎至金黃酥脆。在小碗中將糖和水混合，倒入鍋中煮沸溶解。加入切碎的辣椒，小火慢燉至略微焦糖化。將辣椒焦糖均勻地淋在芭蕉上，撒上少許鹽。">
-                    辣味焦糖蕉
-                </td>
-                <td>蕉×1、蜂蜜×1、辣椒×1</td>
-                <td>1刻</td>
-                <td>2</td>
-                <td>解除 畏縮/沮喪</td>
-                <td>10G</td>
-              </tr>
-              <tr>
-                <td>★★</td>
-                <td class="popup-trigger"
-                    data-title="奇亞鮮奶布丁 Chia Milk Pudding"
-                    data-img="images/farmer/Pudding.png"
-                    data-desc="在碗中將奇亞籽、鮮奶、蜂蜜攪拌均勻。蓋上蓋子密封，放入冰水中冷藏至少4小時或過夜，讓奇亞籽充分浸泡形成凝膠。食用前充分攪拌，可放上新鮮水果點綴。">
-                    奇亞鮮奶布丁
-                </td>
-                <td>奇亞籽×1、椰奶×1、蜂蜜×1</td>
-                <td>1班</td>
-                <td>2</td>
-                <td>回復 1d4 WP，解憤怒</td>
-                <td>12G</td>
-              </tr>
-              <tr>
-                <td>★★</td>
-                <td class="popup-trigger"
-                    data-title="莧菜餅乾 Amaranth Cookies"
-                    data-img="images/farmer/cookies.png"
-                    data-desc="將軟化的奶油和紅糖打至順滑，加入雞蛋和香草。另取碗混合莧菜粉、鹽、小荳蔻和肉桂粉。將兩者混合揉成麵團。分成小塊放在烤盤上，烘烤5分鐘至呈金黃色。冷卻後口感酥脆。">
-                    莧菜餅乾
-                </td>
-                <td>莧菜籽×1、麵粉×1、蜂蜜×1</td>
-                <td>2刻</td>
-                <td>2</td>
-                <td>可保存，食用回復 1 HP</td>
-                <td>10G</td>
-              </tr>
-
-              <tr>
-                <td>★★★</td>
-                <td class="popup-trigger"
-                    data-title="豆餡玉米粽 Bean-Filled Tamales"
-                    data-img="images/farmer/Tamales.png"
-                    data-desc="以玉米粉團包裹豆餡後蒸製而成，是馬茲提卡地區常見的節慶與日常主食。香氣濃郁、口感紮實，豆餡甜鹹皆宜，象徵土地與勞作的豐饒恩賜。">
-                    豆餡玉米粽
-                </td>
-                <td>玉米粉×1、黑豆×1、玉米殼×1</td>
-                <td>1時</td>
-                <td>2</td>
-                <td>可保存，1班內體質檢定優勢</td>
-                <td>12G</td>
-              </tr>
-              <tr>
-                <td>★★★</td>
-                <td class="popup-trigger"
-                    data-title="奇亞籽醬 Chia Jam"
-                    data-img="images/farmer/ChiaJam.png"
-                    data-desc="將新鮮水果切碎，以小火加熱至軟爛。加入蜂蜜調味，攪拌均勻。倒入奇亞籽，小火續煮2–3分鐘後關火。靜置冷卻約20分鐘，奇亞籽會吸收水分並使果醬自然變稠。放入罐中密封冷藏。">
-                    奇亞籽醬
-                </td>
-                <td>奇亞籽×1、番茄×1、蜂蜜×1</td>
-                <td>1刻</td>
-                <td>2</td>
-                <td>解 憤怒/畏縮/沮喪，魅力優勢</td>
-                <td>12G</td>
-              </tr>
-              <tr>
-                <td>★★★</td>
-                <td class="popup-trigger"
-                    data-title="索科特爾 Xocolatl"
-                    data-img="images/farmer/Xocolatl.png"
-                    data-desc="將鍋中的水燒開。同時，將可可粉與香草、肉桂和辣椒混合。加入少量熱水，攪拌成順滑的糊狀。將糊狀物倒入沸水中，攪拌均勻。用小火慢煮 5-10 分鐘。如有需要，可以加入龍舌蘭糖漿調味，趁熱享用。">
-                    索科特爾
-                </td>
-                <td>可可豆×1、辣椒×1、香料×1</td>
-                <td>1刻</td>
-                <td>2</td>
-                <td>回復 1d4 WP，意志優勢</td>
-                <td>15G</td>
-              </tr>
-              <tr>
-                <td>★★★</td>
-                <td class="popup-trigger"
-                    data-title="香料豬肉串 Spiced Pork Skewers"
-                    data-img="images/farmer/PorkSkewers.png"
-                    data-desc="將豬肉切成方塊，以鹽、胡椒、孜然、辣椒粉、蒜末調味。靜置醃製約30分鐘至1小時。將豬肉串在竹籤上，可間隔穿插洋蔥與甜椒。以中火烤至金黃焦脆，邊刷油邊翻面。起鍋後可灑上少許香菜或辣椒碎。">
-                    香料豬肉串
-                </td>
-                <td>豬肉×1、辣椒×1、香草×1</td>
-                <td>2刻</td>
-                <td>2</td>
-                <td>回復 1d4 HP，力量優勢</td>
-                <td>12G</td>
-              </tr>
-              <tr>
-                <td>★★★</td>
-                <td class="popup-trigger"
-                    data-title="香煎河鮮魚 Pan-Seared River Fish"
-                    data-img="images/farmer/RiverFish.png"
-                    data-desc="將新鮮河魚清洗乾淨，擦乾水分。用鹽、檸檬汁與少許辣椒粉醃製10分鐘。平底鍋中倒入少許油，以中火加熱。放入魚身，煎至雙面金黃酥脆（每面約3-5分鐘）。起鍋後可擠上檸檬汁，灑上香菜或辣椒碎增香。">
-                    香煎河鮮魚
-                </td>
-                <td>河魚×1、香草×1、酸果×1</td>
-                <td>2刻</td>
-                <td>2</td>
-                <td>回復 1d4 HP，敏捷優勢</td>
-                <td>15G</td>
-              </tr>
-
-              <tr>
-                <td>★★★★</td>
-                <td class="popup-trigger"
-                    data-title="可可辣醬火雞肉 Turkey Mole"
-                    data-img="images/farmer/TurkeyMole.png"
-                    data-desc="將辣椒烤至表皮變黑後去皮切開。洋蔥蒜末炒香。混合奶油乳酪、孜然、辣椒粉、青檸汁製成醬料。將雞胸肉橫切，塞入醬料與烤辣椒。放入鍋中烘烤約30分鐘至熟透。Mole醬汁層次豐富，是款待貴客的佳餚。">
-                    可可辣醬火雞
-                </td>
-                <td>火雞×1、玉米×1、辣椒×1、可可×1</td>
-                <td>1時</td>
-                <td>3</td>
-                <td>解除任一狀態，1班內抗寒優勢</td>
-                <td>25G</td>
-              </tr>
-              <tr>
-                <td>★★★★</td>
-                <td class="popup-trigger"
-                    data-title="香草燉羊肉 Cilantro Stewed Lamb"
-                    data-img="images/farmer/StewedLamb.png"
-                    data-desc="將羊肉切塊，用鹽、黑胡椒、水芹與檸檬汁略醃。鍋中加少許油，將羊肉煎至表面金黃。加入洋蔥、大蒜與香草，翻炒至出香。倒入少量酒，小火燉煮1至1.5小時。起鍋前加入少許香菜與辣椒片增香。">
-                    香草燉羊肉
-                </td>
-                <td>羊肉×1、香草×1、洋蔥×1</td>
-                <td>1時</td>
-                <td>3</td>
-                <td>回復 1d4 HP+1d4 WP，體質優勢</td>
-                <td>22G</td>
-              </tr>
-              <tr>
-                <td>★★★★</td>
-                <td class="popup-trigger"
-                    data-title="牛肉玉米燉鍋 Beef and Corn Stew"
-                    data-img="images/farmer/StewedLamb.png"
-                    data-desc="將牛肉切塊，用鹽、黑胡椒和孜然粉略醃。鍋中加油，煎至牛肉表面金黃。加入洋蔥、番茄丁、蒜末與玉米粒，翻炒出香氣。倒入高湯與少量辣椒粉，小火燉煮約1小時。湯汁香甜濃厚，融合穀物與肉香的溫暖風味。">
-                    牛肉玉米燉鍋
-                </td>
-                <td>牛肉×1、玉米×1、番茄×1、辣椒×1</td>
-                <td>1時</td>
-                <td>3</td>
-                <td>回復 2d4 HP，體質優勢</td>
-                <td>20G</td>
-              </tr>
-              <tr>
-                <td>★★★★</td>
-                <td class="popup-trigger"
-                    data-title="香辣河蝦 Spicy River Shrimp"
-                    data-img="images/farmer/SpicyRiverShrimp.png"
-                    data-desc="將新鮮河蝦剪去長鬚，用烈酒與鹽略醃。鍋中熱油，爆香大量的乾辣椒、花椒與蒜片。倒入河蝦大火快炒，鎖住鮮味。起鍋前淋入檸檬汁與撒上香菜。蝦殼酥脆可食，肉質彈牙，香辣刺激，能瞬間驅散寒意與疲憊。">
-                    香辣河蝦
-                </td>
-                <td>河蝦×1、辣椒×1、香草×1</td>
-                <td>2刻</td>
-                <td>2</td>
-                <td>回復 2d4 WP，驅散寒冷，解畏縮</td>
-                <td>14G</td>
-              </tr>
-
-              <tr>
-                <td>★★★★★</td>
-                <td class="popup-trigger"
-                    data-title="香草蜥肉湯 Cilantro Lizard Soup"
-                    data-img="images/farmer/lizardSoup.png"
-                    data-desc="以巨蜥肉和香草慢燉，湯色清亮、風味濃郁。據傳能補氣養身、強健筋骨，常作為部族儀式或長途狩獵後的滋補佳餚。將蜥肉洗淨切塊，用鹽、檸檬汁與薑片略醃去腥。鍋中加水，放入蜥肉煮沸。加入香草（如水芹、香菜、月桂葉）與大蒜、辣椒同燉。小火熬煮約1.5小時，湯汁變濃、肉質軟嫩。">
-                    香草蜥肉湯
-                </td>
-                <td>蜥肉/鱷魚肉×1、玉米×1、香草×1</td>
-                <td>1時</td>
-                <td>3</td>
-                <td>回復 2d6 HP，解 力竭/暈眩/虛弱</td>
-                <td>25G</td>
-              </tr>
-            </tbody>
-          </table>
+      <h4 style="color: #f1c40f; margin-top: 20px;">★★ 家常料理</h4>
+      <div class="rule-grid">
+        <div class="rule-card">
+          <h3>南瓜濃湯</h3>
+          <div class="illus-container"><img src="images/farmer/pumpkincreamsoup.webp" alt="南瓜濃湯"></div>
+          <div><span class="maz-badge">1時</span><span class="maz-badge">WP:2</span><span class="maz-badge">12 ☾</span><span class="maz-badge">熱食</span><span class="maz-badge">充飢</span></div>
+          <div class="stat-block">
+            <strong>食材：</strong> 南瓜 X 1 + 椰奶/牛奶/羊奶 X 1 + 南瓜籽粉/玉米粉 X 1 + 香菜/辣椒 X 1<br><strong>效果：</strong>食用可立即消除 寒冷 狀態，且 1 班時間內抵抗寒冷的檢定有優勢。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">慢火熬煮的南瓜泥與鮮奶完美融合，點綴少許辣椒與南瓜籽粉。口感絲滑、奶香濃郁，是驅散寒意的絕佳選擇。</p>
+        </div>
+        <div class="rule-card">
+          <h3>玉米粥</h3>
+          <div class="illus-container"><img src="images/farmer/cornmash.webp" alt="玉米粥"></div>
+          <div><span class="maz-badge">2刻</span><span class="maz-badge">WP:2</span><span class="maz-badge">10 ☾</span><span class="maz-badge">熱食</span><span class="maz-badge">充飢</span></div>
+          <div class="stat-block">
+            <strong>食材：</strong> 玉米/玉米粉 X 2 + 洋蔥/香草 X 1 + 玉米粉/南瓜籽粉 X 1<br><strong>效果：</strong>食用可立即回復 2 HP，並消除 虛弱 狀態。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">飽滿的玉米粒熬煮至軟爛，加入洋蔥與香菜拌勻。每一口都能嘗到大地最純粹的甘甜，能溫和地撫平虛弱的身體。</p>
+        </div>
+        <div class="rule-card">
+          <h3>辣味焦糖蕉</h3>
+          <div class="illus-container"><img src="images/farmer/plantains.webp" alt="辣味焦糖蕉"></div>
+          <div><span class="maz-badge">1刻</span><span class="maz-badge">WP:2</span><span class="maz-badge">15 ☾</span></div>
+          <div class="stat-block">
+            <strong>食材：</strong> 香蕉 X 2 + 蜂蜜 X 1 + 辣椒 X 1 + 動物油脂/酪梨油 X 1 <br><strong>效果：</strong> 食用可立即消除一個 畏縮 或 沮喪 狀態。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">將香蕉以蜂蜜煎至表面焦糖化，再撒上辛辣的紅辣椒粉。甜與辣在舌尖激烈碰撞，能一掃心中的陰霾與沮喪。</p>
+        </div>
+        <div class="rule-card">
+          <h3>奇亞鮮奶布丁</h3>
+          <div class="illus-container"><img src="images/farmer/pudding.webp" alt="奇亞鮮奶布丁"></div>
+          <div><span class="maz-badge">1班</span><span class="maz-badge">WP:2</span><span class="maz-badge">20 ☾</span><span class="maz-badge">短期</span></div>
+          <div class="stat-block">
+            <strong>食材：</strong> 奇亞籽/莧菜籽 X 10 + 牛奶/羊奶/椰奶 X 1 + 蜂蜜 X 1 <br><strong>效果：</strong>食用後可回復 1d4 WP，且立即消除一個 憤怒 或 沮喪 狀態。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">浸泡在鮮奶與蜂蜜中的奇亞籽，膨脹成滑順的凝膠狀甜品。冰涼清甜的口感，能有效平息內心的憤怒與焦躁。</p>
+        </div>
+        <div class="rule-card">
+          <h3>甲殼厚湯</h3>
+          <div class="illus-container"><img src="images/farmer/bowl-soup-brown.webp" alt="甲殼厚湯"></div>
+          <div><span class="maz-badge">1小時</span><span class="maz-badge">WP:2</span><span class="maz-badge">25 ☾</span><span class="maz-badge">熱食</span><span class="maz-badge">充飢</span></div>
+          <div class="stat-block">
+            <strong>食材：</strong> 犰狳肉/龜肉 X 1 + 地根/甘薯 X 1 + 洋蔥 X 1<br><strong>效果：</strong>回復 1D4 HP，且 1 班內對抗 寒冷 的檢定具有優勢。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">以犰狳或巨龜連殼帶肉與地根慢燉。厚實的膠質完全溶入湯中，風味醇厚，據說喝下後能讓人獲得如甲殼般抵禦嚴寒的體質。</p>
+        </div>
+        <div class="rule-card">
+          <h3>莎莎醬烤肉</h3>
+          <div class="illus-container"><img src="images/farmer/meat-snake-roasted-green.webp" alt="莎莎醬烤肉"></div>
+          <div><span class="maz-badge">1刻</span><span class="maz-badge">WP:2</span><span class="maz-badge">18 ☾</span><span class="maz-badge">熱食</span><span class="maz-badge">充飢</span></div>
+          <div class="stat-block">
+            <strong>食材：</strong> 兔肉/地鼠肉/鳥肉/浣熊肉/犰狳肉/蛇肉/蛙肉/雞肉/水豚肉/羊肉/豬肉/狼肉/熊肉/蜥肉 X 2 + 綠黏果/番茄/酪梨醬 X 1 + 辣椒/胭脂樹紅籽/鹽/龍舌蘭蟲鹽 X 1<br><strong>效果：</strong>食用後立刻回復 1HP + 1WP，並消除 沮喪 狀態。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">火烤至外酥內嫩的野獸肉，淋上由綠黏果與番茄搗碎製成的酸辣莎莎醬。酸爽的醬汁完美中和了肉類的油膩，令人食指大動。</p>
+        </div>
+        <div class="rule-card">
+          <h3>蛙肉苔菜羹</h3>
+          <div class="illus-container"><img src="images/farmer/mossstew.webp" alt="蛙肉苔菜羹"></div>
+          <div><span class="maz-badge">2刻</span><span class="maz-badge">WP:2</span><span class="maz-badge">15 ☾</span><span class="maz-badge">熱食</span><span class="maz-badge">充飢</span></div>
+          <div class="stat-block">
+            <strong>食材：</strong> 蛙肉/蛇肉/蜥肉 X 2 + 綠黏果/番茄/酪梨醬 X 1 + 雨生苔菜 X 4<br><strong>效果：</strong>食用後立刻回復 1 HP + 1 WP，並消除 憤怒 狀態。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">使用大量雨生苔菜與綠黏果熬煮成螢綠色的濃稠羹湯，再加入鮮嫩的蛙腿肉。雖然賣相宛如泥沼般濃稠，但口感意外地清甜爽滑，是沼澤地帶的傳統菜餚。</p>
+        </div>
+        <div class="rule-card">
+          <h3>脆蟲酪梨玉米捲</h3>
+          <div class="illus-container"><img src="images/farmer/wrap-leaf-yellow.webp" alt="脆蟲酪梨玉米捲"></div>
+          <div><span class="maz-badge">1刻</span><span class="maz-badge">WP:2</span><span class="maz-badge">20 ☾</span><span class="maz-badge">充飢</span><span class="maz-badge">短期</span></div>
+          <div class="stat-block">
+            <strong>食材：</strong> 瑪奎肥蟲/蝗蟲 X 4 + 酪梨/酪梨醬 X 1 + 玉米粉 X 2 + 辣椒/香菜 X 1<br><strong>效果：</strong>食用可回復 1D4 HP，並立即消除 虛弱 狀態。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">將炸至極度酥脆的瑪奎肥蟲或蝗蟲，豪邁地鋪在剛烤好的微焦玉米餅上，再抹上一層厚厚的鮮搗酪梨泥。咬下時，蟲體的酥脆脂香與酪梨的濃郁滑順在口中完美交織，最後是辣椒帶來的微辣尾韻。這道充滿層次感的叢林小吃，能讓人瞬間忘卻荒野的艱辛。</p>
+        </div>
+        <div class="rule-card">
+          <h3>鮮脆仙人掌沙拉</h3>
+          <div class="illus-container"><img src="images/farmer/bowl-stew-green.webp" alt="鮮脆仙人掌沙拉"></div>
+          <div><span class="maz-badge">1刻</span><span class="maz-badge">WP:2</span><span class="maz-badge">23 ☾</span><span class="maz-badge">充飢</span></div>
+          <div class="stat-block">
+            <strong>食材：</strong> 仙人掌掌片 X 1 + 綠黏果/番茄/酪梨醬 X 1 + 洋蔥 X 1 + 鹽/龍舌蘭蟲鹽 X 1<br><strong>效果：</strong>食用後回復 2 WP，並消除 酷熱 狀態。 1 班內抵抗 酷熱 檢定獲得優勢。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">將新鮮採摘的仙人掌掌片仔細去刺、切成細條，搭配切碎的番茄與洋蔥，最後拌入少許鹽。仙人掌自帶的微酸與黏液口感不僅極度清爽，還能有效降低體溫，是當地獵人在烈日下的最愛。</p>
         </div>
       </div>
+
+      <h4 style="color: #f1c40f; margin-top: 20px;">★★★ 精緻料理</h4>
+      <div class="rule-grid">
+        <div class="rule-card">
+          <h3>黑豆鮮肉玉米粽</h3>
+          <div class="illus-container"><img src="images/farmer/tamales.webp" alt="黑豆鮮肉玉米粽"></div>
+          <div><span class="maz-badge">1時</span><span class="maz-badge">WP:2</span><span class="maz-badge">25 ☾</span><span class="maz-badge">熱食</span><span class="maz-badge">充飢</span><span class="maz-badge">短期</span></div>
+          <div class="stat-block">
+            <strong>食材：</strong> 玉米粉 X 2 + 黑豆 X 1 + 兔肉/地鼠肉/鳥肉/浣熊肉/犰狳肉/蛇肉/蛙肉/雞肉/水豚肉/羊肉/豬肉 X 1 + 乾燥酪梨葉 X 1<br><strong>效果：</strong>食用後可立刻消除 虛弱 狀態，且一刻鐘內 體質 檢定具有優勢。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">以厚實的玉米泥包裹黑豆與燉肉，外層用玉米苞葉或乾燥酪梨葉綁緊後隔水蒸熟。扒開苞葉的瞬間熱氣騰騰，是節慶祭典上的靈魂主食。</p>
+        </div>
+        <div class="rule-card">
+          <h3>奇亞籽果醬</h3>
+          <div class="illus-container"><img src="images/farmer/chiajam.webp" alt="奇亞籽果醬"></div>
+          <div><span class="maz-badge">2刻</span><span class="maz-badge">WP:2</span><span class="maz-badge">32 ☾</span><span class="maz-badge">短期</span></div>
+          <div class="stat-block">
+            <strong>食材：</strong> 奇亞籽 X 10 + 番茄/綠黏果 X 2 + 蜂蜜 X 1 <br><strong>效果：</strong>食用後可消除一個 憤怒 或 沮喪 狀態。且一刻鐘內 魅力 相關檢定具有優勢。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">將新鮮綠黏果或番茄熬煮，利用奇亞籽天然的膠質凝結成如果凍般的鮮紅果醬。酸甜交織，塗抹在剛烤好的玉米餅上簡直是絕配。</p>
+        </div>
+        <div class="rule-card">
+          <h3>香料厚肉串</h3>
+          <div class="illus-container"><img src="images/farmer/skewer-meat-red2.webp" alt="香料厚肉串"></div>
+          <div><span class="maz-badge">1刻</span><span class="maz-badge">WP:2</span><span class="maz-badge">30 ☾</span><span class="maz-badge">熱食</span><span class="maz-badge">充飢</span></div>
+          <div class="stat-block">
+            <strong>食材：</strong> 豬肉/羊肉/鹿肉/狼肉/熊肉/蜥肉 X 2 + 胭脂樹紅籽 X 1 + 鹽/龍舌蘭蟲鹽 X 1 + 辣椒 X 1 <br><strong>效果：</strong> 食用後立刻回復 1D4 HP 並 消除 力竭 狀態。此外， 1 班時間內的下一次 力量 檢定 具有優勢。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">深挑選帶有完美油花的厚切肉塊，塗滿胭脂樹紅籽與多種香料製成的艷紅泥膏。大火炙烤鎖住肉汁，帶有濃烈且迷人的香氣。</p>
+        </div>
+        <div class="rule-card">
+          <h3>森林三鮮串</h3>
+          <div class="illus-container"><img src="images/farmer/skewer-meat-mixed.webp" alt="森林三鮮串"></div>
+          <div><span class="maz-badge">2刻</span><span class="maz-badge">WP:2</span><span class="maz-badge">40 ☾</span><span class="maz-badge">熱食</span><span class="maz-badge">充飢</span></div>
+          <div class="stat-block">
+            <strong>食材：</strong> 兔肉/地鼠肉/鳥肉/浣熊肉/犰狳肉/蛇肉/蛙肉/雞肉/水豚肉/羊肉/豬肉/狼肉/熊肉/蜥肉 X 3 + 胭脂樹紅籽/鹽/龍舌蘭蟲鹽 X 1 + 辣椒/香菜 X 1 <br><strong>效果： 食用後立刻回復 1D4 HP 並 消除一個 力竭/暈眩/虛弱 狀態。此外， 1 班時間內的下一次 力量/敏捷/體質 檢定 具有優勢。</strong> 
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">精選三種不同肉質的野味交錯串烤，佐以極具「旨味」的龍舌蘭蟲鹽。讓你一次品嚐三種截然不同的荒野風情。</p>
+        </div>
+        <div class="rule-card">
+          <h3>綠莎莎香煎河魚</h3>
+          <div class="illus-container"><img src="images/farmer/riverfish.webp" alt="綠莎莎香煎河魚"></div>
+          <div><span class="maz-badge">2刻</span><span class="maz-badge">WP:3</span><span class="maz-badge">36 ☾</span><span class="maz-badge">熱食</span><span class="maz-badge">充飢</span></div>
+          <div class="stat-block">
+            <strong>食材：</strong> 河魚 X 1 + 綠黏果/酪梨醬 X 1 + 乾燥酪梨葉 X 1 + 鹽/龍舌蘭蟲鹽 X 1 + 動物油脂/酪梨油 X 1: 1<br><strong>效果：</strong> 食用後立刻回復 1D4 HP 並 消除 暈眩 狀態。此外， 1 班時間內的下一次 敏捷 檢定 具有優勢。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">鮮捕河魚裹上乾燥酪梨葉去腥，猛火煎至魚皮金黃酥脆，最後淋上酸爽微辣的綠黏果醬汁，極致的鮮味在口中瞬間爆發。</p>
+        </div>
+        <div class="rule-card">
+          <h3>石板龜蛋煎</h3>
+          <div class="illus-container"><img src="images/farmer/eggyellow.webp" alt="石板龜蛋煎"></div>
+          <div><span class="maz-badge">2刻</span><span class="maz-badge">WP:3</span><span class="maz-badge">6 ◎</span><span class="maz-badge">熱食</span><span class="maz-badge">充飢</span></div>
+          <div class="stat-block">
+            <strong>食材：</strong> 龜蛋/蛇蛋 X 2 + 玉米粉 X 2 + 辣椒/香菜 X 1 + 鹽/龍舌蘭蟲鹽 X 1 + 動物油脂/酪梨油 X 1<br><strong>效果：</strong> 食用後回復 1D6 WP 並 消除 虛弱 狀態。 1班 時間內的下一次 體質 檢定 具有優勢。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">珍貴的龜蛋在燒熱的石板上打散，拌入玉米粉與辣椒。口感比一般煎蛋更加扎實Ｑ彈，帶有淡淡的礦物焦香。</p>
+        </div>
+        <div class="rule-card">
+          <h3>龍舌蘭蜜烤肉排</h3>
+          <div class="illus-container"><img src="images/farmer/meat-rack-roasted-brown.webp" alt="龍舌蘭蜜烤肉排"></div>
+          <div><span class="maz-badge">1小時</span><span class="maz-badge">WP:3</span><span class="maz-badge">36 ☾</span><span class="maz-badge">熱食</span><span class="maz-badge">充飢</span></div>
+          <div class="stat-block">
+            <strong>食材：</strong> 羊肉/鹿肉/豬肉/狼肉/熊肉 X 1 + 龍舌蘭心 X 1 + 香草豆莢/乾燥酪梨葉 X 1 + 鹽/龍舌蘭蟲鹽 X 1<br><strong>效果：</strong> 食用後立刻回復 1D4 HP + 1D4 WP 並 消除一個 憤怒/畏縮/沮喪 狀態。此外， 1 班時間內的下一次 智力/意志/魅力 具有優勢。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">頂級帶骨肉排抹上厚厚的龍舌蘭糖漿與香草莢慢火烘烤。外層呈現誘人的亮面焦糖色，肉質軟嫩多汁，輕輕一咬便骨肉分離。</p>
+        </div>
+        <div class="rule-card">
+          <h3>叢林青檸生醃魚</h3>
+          <div class="illus-container"><img src="images/farmer/plate-fish-raw.webp" alt="叢林青檸生醃魚"></div>
+          <div><span class="maz-badge">2刻</span><span class="maz-badge">WP:3</span><span class="maz-badge">45 ☾</span><span class="maz-badge">充飢</span></div>
+          <div class="stat-block">
+            <strong>食材：</strong> 河魚 X 1 + 綠黏果/番茄 X 2 + 香菜/乾燥酪梨葉 X 1 + 辣椒 X 1 + 鹽/龍舌蘭蟲鹽 X 1<br><strong>效果：</strong> 食用後立即回復 1d4 WP，並消除 酷熱 狀態。 1 班內抵抗 酷熱 檢定獲得優勢。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">不生火的極致料理。將剛捕獲的肥美河魚切成薄片，完全浸泡在大量綠黏果汁與香菜中。強烈的天然果酸會將魚肉「醃熟」，肉質緊實彈牙。點綴的辣椒不僅提鮮，更會逼出體內的悶熱汗水，讓人大呼過癮。</p>
+        </div>
+        <div class="rule-card">
+          <h3>沙蠍兩吃</h3>
+          <div class="illus-container"><img src="images/farmer/scorpiontwoways.webp" alt="沙蠍兩吃"></div>
+          <div><span class="maz-badge">2刻</span><span class="maz-badge">WP:3</span><span class="maz-badge">45 ☾</span><span class="maz-badge">充飢</span></div>
+          <div class="stat-block">
+            <strong>食材：</strong> 蠍子肉 X 2 + 動物油脂/酪梨油 X 1 + 仙人掌掌片/綠黏果 X 1 + 辣椒 X 1 <br><strong>效果：</strong> 食用可回復 1d6 HP，解除 沮喪/畏縮 狀態，且 1 班時間內對抗 毒素 相關的檢定獲得優勢。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">展現大廚極致刀工的荒野高級料理。將沙蠍精準拆解：肉質緊實的巨大雙鉗塗滿油脂與香料進行「烈火炭烤」，吃的是粗獷的甲殼焦香；而柔軟雪白的腹部肉則切成薄片，浸泡在微酸的仙人掌黏液與辣椒中「生醃涼拌」。一盤雙享，高溫的酥脆與冰涼的鮮嫩在舌尖激烈交替。這道極致的美味能徹底驅散沙漠帶來的疲憊，並賦予食用者百毒不侵的強韌。</p>
+        </div>
+      </div>
+
+      <h4 style="color: #f1c40f; margin-top: 20px;">★★★★ 宮廷料理</h4>
+      <div class="rule-grid">
+        <div class="rule-card">
+          <h3>可可辣醬雞丁</h3>
+          <div class="illus-container"><img src="images/farmer/turkeymole.webp" alt="可可辣醬雞丁"></div>
+          <div><span class="maz-badge">1時</span><span class="maz-badge">WP:4</span><span class="maz-badge">7 ◎</span><span class="maz-badge">熱食</span><span class="maz-badge">充飢</span></div>
+          <div class="stat-block">
+            <strong>食材：</strong> 雞肉/鳥肉 X 2 + 辣椒 X 2 + 索科特爾 X 2 + 洋蔥 X 1 + 玉米粉/南瓜籽粉 X 1<br><strong>效果：</strong> 食用後可消除一個 力竭/暈眩/虛弱/憤怒/畏縮/沮喪 狀態，且 1 班內 體質 檢定具有優勢。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">以數十種香料、辣椒與可可豆熬製成深邃濃郁的黑醬，完美包裹柔嫩的肉丁，味道深不可測且層次極端豐富。</p>
+        </div>
+        <div class="rule-card">
+          <h3>地根香菜燉肉</h3>
+          <div class="illus-container"><img src="images/farmer/stewedlamb.webp" alt="地根香菜燉肉"></div>
+          <div><span class="maz-badge">1時</span><span class="maz-badge">WP:4</span><span class="maz-badge">10 ◎</span><span class="maz-badge">熱食</span><span class="maz-badge">充飢</span><span class="maz-badge">全隊</span></div>
+          <div class="stat-block">
+            <strong>食材：</strong> 羊肉/鹿肉/豬肉/狼肉/熊肉 X 2 + 地根/甘薯 X 2 + 香菜 X 2 + 洋蔥 X 1 + 南瓜/梨瓜 X 1<br><strong>效果：</strong> 食用後立刻回復 1d6 HP，且 1 班內 體質 檢定具有優勢。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">將獸肉與地根同燉，地根等蔬菜吸收了所有肉汁精華，香菜則提亮了整鍋湯的層次。肉質入口即化，湯汁溫潤厚重。</p>
+        </div>
+        <div class="rule-card">
+          <h3>牛肉玉米濃燉鍋</h3>
+          <div class="illus-container"><img src="images/farmer/pot-stew-meat-red.webp" alt="牛肉玉米濃燉鍋"></div>
+          <div><span class="maz-badge">1時</span><span class="maz-badge">WP:4</span><span class="maz-badge">12 ◎</span><span class="maz-badge">熱食</span><span class="maz-badge">充飢</span><span class="maz-badge">全隊</span></div>
+          <div class="stat-block">
+            <strong>食材：</strong> 牛肉/水豚肉 X 2 + 玉米 X 2 + 番茄/綠黏果 X 2 + 辣椒 X 2 + 鹽/龍舌蘭蟲鹽 X 1<br><strong>效果：</strong> 食用後立刻回復 2d4 HP，並消除一個 力竭/暈眩/虛弱 狀態，且 1 班內 體質 檢定具有優勢。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">豐盛的厚切肉塊與鮮甜玉米、番茄在鐵鍋中交融。蟲鹽的鮮味與辣椒的刺激讓這道濃湯香氣四溢，是犒賞精銳勇士的頂級佳餚。</p>
+        </div>
+        <div class="rule-card">
+          <h3>蟲鹽香辣河蝦</h3>
+          <div class="illus-container"><img src="images/farmer/spicyrivershrimp.webp" alt="蟲鹽香辣河蝦"></div>
+          <div><span class="maz-badge">2刻</span><span class="maz-badge">WP:4</span><span class="maz-badge">8 ◎</span><span class="maz-badge">熱食</span><span class="maz-badge">充飢</span></div>
+          <div class="stat-block">
+            <strong>食材：</strong> 河蝦 X 4 + 辣椒 X 2 + 鹽/龍舌蘭蟲鹽 X 1 + 番茄/綠黏果/香菜 X 1<br><strong>效果：</strong> 食用後立刻回復 2d4 WP，並消除 寒冷 和任一個 力竭/暈眩/虛弱/畏縮/沮喪 狀態，且 1 班內抵抗 寒冷 的檢定具有優勢。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">河蝦剝殼後，以大量辣椒與龍舌蘭蟲鹽大火猛烈爆炒。蝦肉極度彈牙，辣味直衝腦門，能瞬間喚醒所有遲鈍的感官。</p>
+        </div>
+        <div class="rule-card">
+          <h3>貴族黑金鹿肉</h3>
+          <div class="illus-container"><img src="images/farmer/meat-steak-roasted-brown.webp" alt="貴族黑金鹿肉"></div>
+          <div><span class="maz-badge">1小時</span><span class="maz-badge">WP:5</span><span class="maz-badge">15 ◎</span><span class="maz-badge">熱食</span><span class="maz-badge">充飢</span></div>
+          <div class="stat-block">
+            <strong>食材：</strong> 鹿肉/羊肉 X 2 + 索科特爾 X 2 + 香草豆莢 X 2 + 鹽/龍舌蘭蟲鹽 X 1<br><strong>效果：</strong> 食用後立刻回復 2D6 WP，並消除 沮喪 與 畏縮 狀態，且 1 班內 魅力 檢定具有優勢。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">將極其珍貴的可可豆磨碎製成濃稠苦甜的醬汁，淋在柔軟的鹿肉排上。香草莢的幽香讓這道料理成為了權力的象徵。</p>
+        </div>
+        <div class="rule-card">
+          <h3>熊掌燉鍋</h3>
+          <div class="illus-container"><img src="images/farmer/pot-stew-meat-dark.webp" alt="熊掌燉鍋"></div>
+          <div><span class="maz-badge">1小時</span><span class="maz-badge">WP:5</span><span class="maz-badge">15 ◎</span><span class="maz-badge">熱食</span><span class="maz-badge">充飢</span><span class="maz-badge">全隊</span></div>
+          <div class="stat-block">
+            <strong>食材：</strong> 熊肉/貘肉 X 2 + 辣椒 X 2 + 洋蔥 X 2 + 地根/甘藷 X 2 + 香菜 X 2<br><strong>效果：</strong> 食用後立刻回復 2D6 HP，並消除任兩個 力竭/暈眩/虛弱/憤怒/畏縮/沮喪 狀態。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">取厚實的熊掌或巨獸肉，輔以大量洋蔥與辣椒長時間燜燉。滿滿的膠原蛋白讓湯汁濃稠黏唇，每一口都充滿了震撼人心的野性力量。</p>
+        </div>
+        <div class="rule-card">
+          <h3>神聖索科特爾</h3>
+          <div class="illus-container"><img src="images/farmer/chalice-gold-liquid-brown.webp" alt="神聖索科特爾"></div>
+          <div><span class="maz-badge">1刻</span><span class="maz-badge">WP:5</span><span class="maz-badge">8 ◎</span><span class="maz-badge">熱食</span></div>
+          <div class="stat-block">
+            <strong>食材：</strong> 可可豆 X 20 + 香草豆莢 X 1 + 蜂蜜 X 1 + 胭脂樹紅籽 X 1<br><strong>效果：</strong> 食用後立刻回復 3D6 WP，且 1 班內 智力 與 意志 檢定具有優勢。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">高階祭司專屬的儀式聖飲。以頂級可可豆搭配蜂蜜與珍貴香草豆莢，加入胭脂樹紅籽染成如神明之血般的艷紅色，能極大程度地昇華飲用者的靈魂。</p>
+        </div>
+        <div class="rule-card">
+          <h3>沁涼梨瓜露</h3>
+          <div class="illus-container"><img src="images/farmer/chayoteice.webp" alt="沁涼梨瓜露"></div>
+          <div><span class="maz-badge">1小時</span><span class="maz-badge">WP:5</span><span class="maz-badge">12 ◎</span><span class="maz-badge">短期</span></div>
+          <div class="stat-block">
+            <strong>食材：</strong> 梨瓜 X 2 + 香草豆莢 X 2 + 蜂蜜 X 2<br><strong>效果：</strong> 食用後立刻回復 3D4 WP，並立刻消除 酷熱 狀態 和 憤怒/沮喪 狀態。 1 班內抵抗 酷熱 檢定獲得優勢。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">宮廷用來招待重要賓客的消暑珍品。將水分飽滿的梨瓜與高地香草搗碎成冰涼的冰沙狀果泥，佐以頂級蜂蜜。入口時猶如吞下一口高山初雪，能徹底熄滅五臟六腑的火氣。</p>
+        </div>
+        <div class="rule-card">
+          <h3>沼澤大雜燴</h3>
+          <div class="illus-container"><img src="images/farmer/swamp.webp" alt="沼澤大雜燴"></div>
+          <div><span class="maz-badge">1小時</span><span class="maz-badge">WP:5</span><span class="maz-badge">16 ◎</span><span class="maz-badge">熱食</span><span class="maz-badge">充飢</span><span class="maz-badge">全隊</span></div>
+          <div class="stat-block">
+            <strong>食材：</strong> 鱷魚肉/蜥肉/龜肉 X 2 + 蛙肉/蛇肉 X 2 + 河蚌/河蝦/河魚 X 2 + 辣椒 X 2 + 雨生苔菜 X 4<br><strong>效果：</strong> 食用後立刻回復 2D6 HP，且 1 班時間內抵抗 毒素 或 疾病 的檢定時獲得優勢。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">展現荒野求生極致的大鍋燉菜。將沼澤中捕獲的獵物切大塊墊底，鋪上滑嫩的蛇段與蛙腿，最後倒入整簍鮮甜的河鮮。利用大量烈焰辣椒與雨生苔菜的強烈風味壓制泥腥味。湯汁濃稠、呈現狂野的暗紅色，每一勺都能撈到截然不同的肉質口感。這鍋熱騰騰的野味不僅能一次餵飽整個營地，吃完後全身發熱，能讓人在瘴氣瀰漫的沼澤中如履平地。</p>
+        </div>
+      </div>
+
+      <h4 style="color: #f1c40f; margin-top: 20px;">★★★★★ 祭儀料理</h4>
+      <div class="rule-grid">
+        <div class="rule-card" style="border-left-color:#f1c40f;">
+          <h3>香草蜥肉湯</h3>
+          <div class="illus-container"><img src="images/farmer/bowl-soup.webp" alt="香草蜥肉湯"></div>
+          <div><span class="maz-badge">1班</span><span class="maz-badge">WP:5</span><span class="maz-badge">45 ◎</span><span class="maz-badge">熱食</span><span class="maz-badge">充飢</span><span class="maz-badge">全隊</span></div>
+          <div class="stat-block">
+            <strong>食材：</strong> 蜥肉/鱷魚肉 X 2 + 玉米 X 2 + 地根/甘藷 X 2 +蜂蜜 X 2 + 香草豆莢 X 2 <br><strong>效果：</strong> 食用後立刻回復 3D4 HP，並消除 力竭/暈眩/虛弱 狀態。且一班時間內 體質 檢定具有優勢。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">將獸肉慢燉一整夜，讓地根徹底吸收了腥味，蜂蜜則提煉出肉中的生命力。湯色清澈，卻蘊含著無比霸道的滋補能量。</p>
+        </div>
+        <div class="rule-card" style="border-left-color:#f1c40f;">
+          <h3>回春奇蹟湯</h3>
+          <div class="illus-container"><img src="images/farmer/bowl-soup-glowing-green.webp" alt="回春奇蹟湯"></div>
+          <div><span class="maz-badge">1班</span><span class="maz-badge">WP:6</span><span class="maz-badge">50 ◎</span><span class="maz-badge">熱食</span><span class="maz-badge">充飢</span></div>
+          <div class="stat-block">
+            <strong>食材：</strong> 貘肉/熊肉/豹肉 X 2 + 龜蛋/蛇蛋 X 2 + 日榮果 X 2 + 蜂蜜 X 1 + 菸草 X 1 <br><strong>效果：</strong> 食用後一班時間內所有檢定具有優勢。除了受到即死傷害外，服用者不會死亡（始終吊著一口氣）。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">唯有受神靈眷顧的大廚才能完成的奇蹟。頂級野獸肉、充滿生命力的龜蛋與發光的傳說日榮果同煮，最後佐以神聖菸草薰香。喝下它，宛如經歷了一場肉體與靈魂的重塑。</p>
+        </div>
+        <div class="rule-card" style="border-left-color:#f1c40f;">
+          <h3>叢林之王聖宴</h3>
+          <div class="illus-container"><img src="images/farmer/platter-meat-glowing.webp" alt="叢林之王聖宴"></div>
+          <div><span class="maz-badge">1班</span><span class="maz-badge">WP:6</span><span class="maz-badge">50 ◎</span><span class="maz-badge">熱食</span><span class="maz-badge">充飢</span><span class="maz-badge">全隊</span></div>
+          <div class="stat-block">
+            <strong>食材：</strong> 豹肉 X 2 + 日榮果 X 2 + 香草豆莢 X 2 + 地根/甘藷 X 1 + 鹽/龍舌蘭蟲鹽 X 1<br><strong>效果：</strong> 食用後立刻回復 2D6 HP 和 2D6 WP。一班時間內 敏捷 檢定具有優勢，且免疫目盲狀態。
+          </div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1;">將叢林之王的豹肉與發光的日榮果同煮。這道菜散發出的光芒能穿透黑暗，食用者將獲得如神靈降臨般的感知力與敏捷。</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="farm-ingredients" class="rule-content">
+    <div class="rule-display-area">
+      
+      <div class="rule-card highlight" style="margin-bottom: 30px;">
+        <h3>🥕 馬茲提卡食材圖鑑</h3>
+        <p style="font-size: 0.9rem; color: #aaa;">從浮田收穫的鮮果到狩獵得來的野味，這些是大廚們將自然恩賜轉化為力量的基礎。</p>
+      </div>
+
+      <h4 class="section-title" style="color:var(--jade); border-bottom: 1px solid rgba(201,163,90,0.3); padding-bottom: 5px;">--- 蔬果類 ---</h4>
+      <div class="rule-grid">
+        <div class="rule-card">
+          <h3>玉米</h3>
+          <div class="illus-container"><img src="images/farmer/maize.webp" alt="玉米"></div>
+          <div><span class="maz-badge">蔬果</span><span class="maz-badge">價格: 6 ☾</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">剝開綠色苞葉後，露出金黃如寶石般排列整齊的玉米粒。它可以直接整根火烤，也可以剝粒後磨成萬用的「玉米粉」。</p>
+        </div>
+        <div class="rule-card">
+          <h3>番茄</h3>
+          <div class="illus-container"><img src="images/farmer/tomato.webp" alt="番茄"></div>
+          <div><span class="maz-badge">蔬果</span><span class="maz-badge">價格: 8 ☾</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">紅潤飽滿的果實，切開後汁水四溢。它是馬茲提卡料理中最百搭的酸甜基底，可惜非常容易腐壞，必須盡快烹調。</p>
+        </div>
+        <div class="rule-card">
+          <h3>南瓜</h3>
+          <div class="illus-container"><img src="images/farmer/squash.webp" alt="南瓜"></div>
+          <div><span class="maz-badge">蔬果</span><span class="maz-badge">價格: 15 ☾</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">極其沉重的深綠色大南瓜。厚實的外皮讓它可以保存數個月之久，剖開後的果肉能煮成濃郁香甜的南瓜湯。</p>
+        </div>
+        <div class="rule-card">
+          <h3>地根</h3>
+          <div class="illus-container"><img src="images/farmer/root.webp" alt="地根"></div>
+          <div><span class="maz-badge">蔬果</span><span class="maz-badge">價格: 6 ☾</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">長滿粗糙鬚根的橙色地根。雖然生吃有點費牙口，但它是熬煮任何高階燉鍋料理時，負責提供厚重底蘊的關鍵。</p>
+        </div>
+        <div class="rule-card">
+          <h3>甘薯</h3>
+          <div class="illus-container"><img src="images/farmer/sweetpotato.webp" alt="甘薯"></div>
+          <div><span class="maz-badge">蔬果</span><span class="maz-badge">價格: 8 ☾</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">表皮呈現深紫色、沾滿泥土的沉重塊根。烤熟後會露出橘紅色的甜蜜內芯，熱騰騰地咬下一口，能驅散所有的寒意。</p>
+        </div>
+        <div class="rule-card">
+          <h3>洋蔥</h3>
+          <div class="illus-container"><img src="images/farmer/onion.webp" alt="洋蔥"></div>
+          <div><span class="maz-badge">蔬果</span><span class="maz-badge">價格: 8 ☾</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">帶著乾燥紙質外皮的紫色球根。切開時散發出的辛辣氣味會讓人落淚，但它是所有燉肉料理爆香的絕對核心。</p>
+        </div>
+        <div class="rule-card">
+          <h3>梨瓜</h3>
+          <div class="illus-container"><img src="images/farmer/chayote.webp" alt="梨瓜"></div>
+          <div><span class="maz-badge">蔬果</span><span class="maz-badge">價格: 8 ☾</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">外表佈滿淺淺皺褶的淡綠色瓜果。口感介於瓜類與梨子之間，切片後與肉類同炒，能吸收豐富的肉汁。</p>
+        </div>
+        <div class="rule-card">
+          <h3>酪梨</h3>
+          <div class="illus-container"><img src="images/farmer/avocado.webp" alt="酪梨"></div>
+          <div><span class="maz-badge">蔬果</span><span class="maz-badge">價格: 4 ◎</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">切開深色卵狀外皮後，露出如翡翠般翠綠、如奶油般滑順的果肉。搗碎後加入香料，是沾烤肉或玉米餅的極品。</p>
+        </div>
+        <div class="rule-card">
+          <h3>綠黏果</h3>
+          <div class="illus-container"><img src="images/farmer/tomatillo.webp" alt="綠黏果"></div>
+          <div><span class="maz-badge">蔬果</span><span class="maz-badge">價格: 6 ☾</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">被乾燥紙質外殼包裹的翠綠果實。味道比番茄更酸澀清爽，搗碎後製成的綠色莎莎醬，是搭配烤肉的無上極品。</p>
+        </div>
+        <div class="rule-card">
+          <h3>香蕉</h3>
+          <div class="illus-container"><img src="images/farmer/banana.webp" alt="香蕉"></div>
+          <div><span class="maz-badge">蔬果</span><span class="maz-badge">價格: 1 ◎</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">外皮帶有少許熟成斑點的黃色果實。香甜的果肉能迅速補充體力，將其裹上蜂蜜烘烤更是營火旁的頂級享受。</p>
+        </div>
+        <div class="rule-card">
+          <h3>黑豆</h3>
+          <div class="illus-container"><img src="images/farmer/beans.webp" alt="黑豆"></div>
+          <div><span class="maz-badge">蔬果</span><span class="maz-badge">價格: 5 ☾</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">堅硬且帶有光澤的黑豆。煮熟後口感綿密且極具飽足感，是度過嚴冬與飢荒的生命線。</p>
+        </div>
+        <div class="rule-card">
+          <h3>仙人掌果肉</h3>
+          <div class="illus-container"><img src="images/farmer/cactus.webp" alt="仙人掌果肉"></div>
+          <div><span class="maz-badge">蔬果</span><span class="maz-badge">價格: 12 ☾</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">已經去除尖刺的厚實掌片，以及鮮紅欲滴的仙人掌果實。富含黏液與清甜的水分，是橫越沙漠時的救贖。</p>
+        </div>
+      </div>
+
+      <h4 class="section-title" style="color:#e74c3c; border-bottom: 1px solid rgba(201,163,90,0.3); padding-bottom: 5px;">--- 肉質類 ---</h4>
+      <div class="rule-grid">
+        <div class="rule-card">
+          <h3>水豚肉</h3>
+          <div class="illus-container"><img src="images/farmer/capybara.webp" alt="水豚肉"></div>
+          <div><span class="maz-badge">肉類</span><span class="maz-badge">價格: 10 ☾</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">水陸兩棲的巨大鼠類，肉質帶有淡淡的魚腥味與大量油脂，被祭司認定為「能在水中行走」的純淨肉類。</p>
+        </div>
+        <div class="rule-card">
+          <h3>雞肉</h3>
+          <div class="illus-container"><img src="images/farmer/chicken.webp" alt="雞肉"></div>
+          <div><span class="maz-badge">肉類</span><span class="maz-badge">價格: 8 ☾</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">肉質呈現淡粉色，幾乎沒有多餘的油脂。打獵獲得的雞肉帶有一股獨特的叢林野味。</p>
+        </div>
+        <div class="rule-card">
+          <h3>鳥肉</h3>
+          <div class="illus-container"><img src="images/farmer/bird.webp" alt="鳥肉"></div>
+          <div><span class="maz-badge">肉類</span><span class="maz-badge">價格: 5 ☾</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">肉質呈現淡粉色，幾乎沒有多餘的油脂。打獵獲得的雞肉帶有一股獨特的叢林野味。</p>
+        </div>
+        <div class="rule-card">
+          <h3>地鼠肉</h3>
+          <div class="illus-container"><img src="images/farmer/gopher.webp" alt="地鼠肉"></div>
+          <div><span class="maz-badge">肉類</span><span class="maz-badge">價格: 5 ☾</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">雖然名字不好聽，但剝皮後的肉質意外地軟嫩，帶有一種濃郁的泥土香氣。</p>
+        </div>
+        <div class="rule-card">
+          <h3>豬肉</h3>
+          <div class="illus-container"><img src="images/farmer/pork.webp" alt="豬肉"></div>
+          <div><span class="maz-badge">肉類</span><span class="maz-badge">價格: 3 ◎</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">連皮帶油的肥美豬肉。加熱後油脂爆裂的香氣能極大程度地提升料理的美味。</p>
+        </div>
+        <div class="rule-card">
+          <h3>犰狳肉</h3>
+          <div class="illus-container"><img src="images/farmer/armadillo.webp" alt="犰狳肉"></div>
+          <div><span class="maz-badge">肉類</span><span class="maz-badge">價格: 15 ☾</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">被稱為「帶殼的豬肉」，口感介於雞肉與豬肉之間，其骨頭與外殼還能用來熬製強身健體的濃湯。</p>
+        </div>
+        <div class="rule-card">
+          <h3>牛肉</h3>
+          <div class="illus-container"><img src="images/farmer/beef.webp" alt="牛肉"></div>
+          <div><span class="maz-badge">肉類</span><span class="maz-badge">價格: 3 ◎</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">肉質堅實、油花分布均勻的牛肉。雖然比起豬肉更難獲得，但它在長時間燉煮後能釋放出濃郁的肉汁。</p>
+        </div>
+        <div class="rule-card">
+          <h3>羊肉</h3>
+          <div class="illus-container"><img src="images/farmer/lamb.webp" alt="羊肉"></div>
+          <div><span class="maz-badge">肉類</span><span class="maz-badge">價格: 22 ☾</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">來自高原地區的厚重肉類，帶有強烈的羶味，只有加入大量香草與辣椒後才能展現其真味。</p>
+        </div>
+        <div class="rule-card">
+          <h3>浣熊肉</h3>
+          <div class="illus-container"><img src="images/farmer/raccoon.webp" alt="浣熊肉"></div>
+          <div><span class="maz-badge">肉類</span><span class="maz-badge">價格: 1 ◎</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">油脂豐富且帶有獨特的甜味，是用來對抗寒冷夜晚的首選食材。</p>
+        </div>
+        <div class="rule-card">
+          <h3>狼肉</h3>
+          <div class="illus-container"><img src="images/farmer/wolf.webp" alt="狼肉"></div>
+          <div><span class="maz-badge">肉類</span><span class="maz-badge">價格: 12 ☾</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">肉質極其乾硬且帶有濃郁的酸味。除非飢寒交迫，否則大多數獵人寧可將其棄置。</p>
+        </div>
+        <div class="rule-card">
+          <h3>豹肉</h3>
+          <div class="illus-container"><img src="images/farmer/leopard.webp" alt="豹肉"></div>
+          <div><span class="maz-badge">肉類</span><span class="maz-badge">價格: 8 ◎</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">叢林之王的肉。食用後據說能讓雙眼在黑夜中閃閃發光，只有最英勇的戰士才配享用。</p>
+        </div>
+        <div class="rule-card">
+          <h3>貘肉</h3>
+          <div class="illus-container"><img src="images/farmer/tapir.webp" alt="貘肉"></div>
+          <div><span class="maz-badge">肉類</span><span class="maz-badge">價格: 3 ◎</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">叢林中的巨獸，肉質極其厚實且充滿彈性。一頭貘足以讓整個營地飽餐多日。</p>
+        </div>
+        <div class="rule-card">
+          <h3>熊肉</h3>
+          <div class="illus-container"><img src="images/farmer/bear.webp" alt="熊肉"></div>
+          <div><span class="maz-badge">肉類</span><span class="maz-badge">價格: 2 ◎</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">極其沉重的深紫色肉塊，蘊含著恐怖的爆發力與厚實脂肪。</p>
+        </div>
+        <div class="rule-card">
+          <h3>蛇肉</h3>
+          <div class="illus-container"><img src="images/farmer/snake.webp" alt="蛇肉"></div>
+          <div><span class="maz-badge">肉類</span><span class="maz-badge">價格: 12 ☾</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">去皮後呈現雪白的肉質，口感介於河魚與雞肉之間，是馬茲提卡最受歡迎的日常肉類。</p>
+        </div>
+        <div class="rule-card">
+          <h3>蛙肉</h3>
+          <div class="illus-container"><img src="images/farmer/forg.webp" alt="蛙肉"></div>
+          <div><span class="maz-badge">肉類</span><span class="maz-badge">價格: 5 ☾</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">細小的腿肉極其鮮嫩。在潮濕季節的浮田附近隨處可見。</p>
+        </div>
+        <div class="rule-card">
+          <h3>河魚</h3>
+          <div class="illus-container"><img src="images/farmer/fish.webp" alt="河魚"></div>
+          <div><span class="maz-badge">河鮮</span><span class="maz-badge">價格: 5 ☾</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">剛從清澈河流中捕獲的整條河魚。鱗片還閃爍著光澤，肉質雪白細緻。</p>
+        </div>
+        <div class="rule-card">
+          <h3>河蝦</h3>
+          <div class="illus-container"><img src="images/farmer/shrimp.webp" alt="河蝦"></div>
+          <div><span class="maz-badge">河鮮</span><span class="maz-badge">價格: 5 ☾</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">體型碩大、外殼呈現青藍色的河蝦。捕捉它們需要極大的耐心與技巧。</p>
+        </div>
+        <div class="rule-card">
+          <h3>河蚌</h3>
+          <div class="illus-container"><img src="images/farmer/mussel.webp" alt="河蚌"></div>
+          <div><span class="maz-badge">河鮮</span><span class="maz-badge">價格: 2 ☾</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">潛伏在河川與沼澤底部的雙殼貝類。堅硬的黑褐色外殼上帶有淡淡的翠綠色水波紋理。只要水質乾淨，其肉質便會極度鮮甜且肥厚，輕輕一烤就能爆出滿滿的鮮美湯汁，是河畔紮營時不可多得的美味。</p>
+        </div>
+        <div class="rule-card">
+          <h3>蜥肉</h3>
+          <div class="illus-container"><img src="images/farmer/lizard.webp" alt="蜥肉"></div>
+          <div><span class="maz-badge">肉類</span><span class="maz-badge">價格: 8 ◎</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">剝去堅硬鱗片後的蜥蜴肉，紋理清晰。口感強韌且帶有野性的腥香。雖然需要長時間燉煮才能入口，但它蘊含著來自遠古的生命能量。</p>
+        </div>
+        <div class="rule-card">
+          <h3>鱷魚肉</h3>
+          <div class="illus-container"><img src="images/farmer/crocodile.webp" alt="鱷魚肉"></div>
+          <div><span class="maz-badge">肉類</span><span class="maz-badge">價格: 8 ◎</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">從水中巨獸身上取下的雪白肉條。口感極度堅韌，生吃幾乎無法咀嚼。</p>
+        </div>
+        <div class="rule-card">
+          <h3>龜肉</h3>
+          <div class="illus-container"><img src="images/farmer/turtle.webp" alt="龜肉"></div>
+          <div><span class="maz-badge">肉類</span><span class="maz-badge">價格: 25 ☾</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">藏在硬殼下的珍寶，肉質鮮甜多汁，是熬製長壽濃湯的頂級食材。</p>
+        </div>
+        <div class="rule-card">
+          <h3>瑪奎肥蟲</h3>
+          <div class="illus-container"><img src="images/farmer/grub.webp" alt="瑪奎肥蟲"></div>
+          <div><span class="maz-badge">蟲類</span><span class="maz-badge">價格: 5 ∴</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">主要寄生在龍舌蘭根部或雨林腐木中的拇指大幼蟲。雖然活著的時候看起來白白胖胖、不斷蠕動令人作嘔，但它體內蘊含著極高純度的蛋白質與天然油脂。只要稍微受熱，就會散發出猶如烤堅果般的迷人香氣，是荒野求生者的頂級補給品。</p>
+        </div>
+        <div class="rule-card">
+          <h3>蝗蟲</h3>
+          <div class="illus-container"><img src="images/farmer/locust.webp" alt="蝗蟲"></div>
+          <div><span class="maz-badge">蟲類</span><span class="maz-badge">價格: 2 ☾</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">曬乾後的蝗蟲是完美的行軍零嘴，磨成粉後能增加料理的酥脆感。</p>
+        </div>
+        <div class="rule-card">
+          <h3>蠍子肉</h3>
+          <div class="illus-container"><img src="images/farmer/scorpion.webp" alt="蠍子肉"></div>
+          <div><span class="maz-badge">蟲類</span><span class="maz-badge">價格: 4 ☾</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">去除毒腺後的尾部肌肉，烤熟後外脆內軟，帶有一種類似河蝦的鮮甜感。</p>
+        </div>
+      </div>
+
+      <h4 class="section-title" style="color:#f1c40f; border-bottom: 1px solid rgba(201,163,90,0.3); padding-bottom: 5px;">--- 配料類 ---</h4>
+      <div class="rule-grid">
+        <div class="rule-card">
+          <h3>雞蛋</h3>
+          <div class="illus-container"><img src="images/farmer/egg02.webp" alt="雞蛋"></div>
+          <div><span class="maz-badge">蛋類</span><span class="maz-badge">價格: 2 ∴</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">隨處可見的基礎食材，是營火早餐的靈魂。</p>
+        </div>
+        <div class="rule-card">
+          <h3>鳥蛋</h3>
+          <div class="illus-container"><img src="images/farmer/egg01.webp" alt="鳥蛋"></div>
+          <div><span class="maz-badge">蛋類</span><span class="maz-badge">價格: 3 ∴</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">帶有藍色或褐色斑點，味道比雞蛋更濃郁。</p>
+        </div>
+        <div class="rule-card">
+          <h3>蛇蛋</h3>
+          <div class="illus-container"><img src="images/farmer/egg03.webp" alt="蛇蛋"></div>
+          <div><span class="maz-badge">蛋類</span><span class="maz-badge">價格: 1 ☾</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">外皮呈現皮革質感的長橢圓形蛋。據說食用能增強對毒素的抗性。</p>
+        </div>
+        <div class="rule-card">
+          <h3>龜蛋</h3>
+          <div class="illus-container"><img src="images/farmer/egg04.webp" alt="龜蛋"></div>
+          <div><span class="maz-badge">蛋類</span><span class="maz-badge">價格: 2 ☾</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">外殼如羊皮紙般柔軟，蛋黃比例極高且風味厚重，是貴族喜愛的珍味。</p>
+        </div>
+        <div class="rule-card">
+          <h3>香菜</h3>
+          <div class="illus-container"><img src="images/farmer/herb-epazote.webp" alt="香菜"></div>
+          <div><span class="maz-badge">香料</span><span class="maz-badge">價格: 5 ☾</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">邊緣呈鋸齒狀的深綠色葉片，散發著強烈的刺鼻香氣。加入豆類或肉類中燉煮能完美去除腥味，在黑市中也常被用來製作驅邪薰香。</p>
+        </div>
+        <div class="rule-card">
+          <h3>辣椒</h3>
+          <div class="illus-container"><img src="images/farmer/chili.webp" alt="辣椒"></div>
+          <div><span class="maz-badge">香料</span><span class="maz-badge">價格: 12 ☾</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">表面佈滿皺褶的深紅色乾辣椒。僅需一小片就能讓整鍋湯沸騰起來，甚至可以用來製作刺激野獸的陷阱粉末。</p>
+        </div>
+        <div class="rule-card">
+          <h3>香草豆莢</h3>
+          <div class="illus-container"><img src="images/farmer/vanilla.webp" alt="香草豆莢"></div>
+          <div><span class="maz-badge">香料</span><span class="maz-badge">價格: 10 ◎</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">經過極其繁複的日曬與發酵工序後，烏黑油亮且散發出迷幻甜香的豆莢。只要一小截，就能讓整鍋可可升華為宮廷級的神飲。</p>
+        </div>
+        <div class="rule-card">
+          <h3>乾燥酪梨葉</h3>
+          <div class="illus-container"><img src="images/farmer/avocadoleaves.webp" alt="乾燥酪梨葉"></div>
+          <div><span class="maz-badge">香料</span><span class="maz-badge">價格: 2 ☾</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">經過營火微微烘烤的乾燥葉片，散發出類似八角與榛果的幽香。在燉煮豆類或用葉片包裹肉類烘烤時放入幾片，能賦予料理難以言喻的深邃層次。</p>
+        </div>
+        <div class="rule-card">
+          <h3>龍舌蘭心</h3>
+          <div class="illus-container"><img src="images/farmer/agave.webp" alt="龍舌蘭心"></div>
+          <div><span class="maz-badge">香料</span><span class="maz-badge">價格: 6 ◎</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">砍去帶刺葉片後，剩下的巨大如松果般的植物核心。經過地底悶烤後，會滴出極度甜美的焦糖糖漿，更是釀造烈酒的原料。</p>
+        </div>
+        <div class="rule-card">
+          <h3>鹽</h3>
+          <div class="illus-container"><img src="images/farmer/salt.webp" alt="鹽"></div>
+          <div><span class="maz-badge">調料</span><span class="maz-badge">價格: 3 ☾</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">呈現微黃色的粗大結晶鹽，採集自即將乾涸的內陸鹽湖。它帶有一種特殊的礦物氣息與微弱的土味。除了用來提升鮮味，用它醃製的肉類保存期限能大幅延長。</p>
+        </div>
+        <div class="rule-card">
+          <h3>龍舌蘭蟲鹽</h3>
+          <div class="illus-container"><img src="images/farmer/insectsalt.webp" alt="龍舌蘭蟲鹽"></div>
+          <div><span class="maz-badge">調料</span><span class="maz-badge">價格: 8 ☾</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">將寄生在龍舌蘭裡的紅色肥蟲烘烤至極度酥脆，混合湖鹽與烈焰辣椒磨碎而成的特製調味料。帶有極強的旨味（鮮味），是搭配烤肉與龍舌蘭烈酒的無上極品。</p>
+        </div>
+        <div class="rule-card">
+          <h3>胭脂樹紅籽</h3>
+          <div class="illus-container"><img src="images/farmer/annatto.webp" alt="胭脂樹紅籽"></div>
+          <div><span class="maz-badge">調料</span><span class="maz-badge">價格: 6 ☾</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">鮮紅色的堅硬小種子，帶有泥土與微弱的辛香。將其加水磨成紅色的泥膏塗抹在肉類上火烤，不僅能賦予食物如同夕陽般的艷麗色澤，還能完美鎖住肉汁。</p>
+        </div>
+        <div class="rule-card">
+          <h3>烘乾菸葉</h3>
+          <div class="illus-container"><img src="images/farmer/tobacco.webp" alt="烘乾菸葉"></div>
+          <div><span class="maz-badge">菸草</span><span class="maz-badge">價格: 4 ◎</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">經過風乾處理的寬大棕色葉片，散發著令人沉醉的厚重香氣。點燃後吸食能讓緊繃的神經徹底放鬆。</p>
+        </div>
+        <div class="rule-card">
+          <h3>莧菜籽</h3>
+          <div class="illus-container"><img src="images/farmer/amaranth.webp" alt="莧菜籽"></div>
+          <div><span class="maz-badge">配料</span><span class="maz-badge">價格: 12 ∴</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">細小如沙的赤紅色種子。在充沛的水分下，只要一夜之間就能長成可食用的嫩芽，是旅人與軍隊最可靠的應急口糧。</p>
+        </div>
+        <div class="rule-card">
+          <h3>奇亞籽</h3>
+          <div class="illus-container"><img src="images/farmer/chia.webp" alt="奇亞籽"></div>
+          <div><span class="maz-badge">配料</span><span class="maz-badge">價格: 8 ☾</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">裝在小布袋裡的細小斑駁種子。遇水會膨脹成充滿能量的凝膠，是戰士們急行軍時最愛的解乏聖品。</p>
+        </div>
+        <div class="rule-card">
+          <h3>白灰</h3>
+          <div class="illus-container"><img src="images/farmer/soda.webp" alt="白灰"></div>
+          <div><span class="maz-badge">配料</span><span class="maz-badge">價格: 1 ☾</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">焚燒貝殼或高地石灰岩得到的純白粉末。它本身不能直接食用，但將其溶於水後用來浸泡玉米（這個古老工序被稱為「鹼化 」），能徹底釋放玉米的全部營養與黏性。沒有它，就做不出完美的玉米餅。</p>
+        </div>
+        <div class="rule-card">
+          <h3>玉米粉</h3>
+          <div class="illus-container"><img src="images/farmer/cornmeal.webp" alt="玉米粉"></div>
+          <div><span class="maz-badge">配料</span><span class="maz-badge">價格: 2 ☾</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">經過神聖白灰（鹼水）浸泡、去皮並曬乾後，用石磨手工輾碎的淡黃色細粉。這是馬茲提卡文明的絕對基石，加水揉捏後即可製成賴以為生的「玉米餅」與「玉米粽」。</p>
+        </div>
+        <div class="rule-card">
+          <h3>南瓜籽粉</h3>
+          <div class="illus-container"><img src="images/farmer/pumpkinseed.webp" alt="南瓜籽粉"></div>
+          <div><span class="maz-badge">配料</span><span class="maz-badge">價格: 4 ☾</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">將南瓜籽去殼、烘烤後磨成的細緻粉末。帶有濃郁厚實的堅果香氣。在馬茲提卡，大廚們不用麵粉勾芡，而是灑入大把的南瓜籽粉，讓清湯瞬間變成濃郁滑順的「皮皮安」濃醬。</p>
+        </div>
+        <div class="rule-card">
+          <h3>蜂蜜</h3>
+          <div class="illus-container"><img src="images/farmer/honey.webp" alt="蜂蜜"></div>
+          <div><span class="maz-badge">配料</span><span class="maz-badge">價格: 4 ☾</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">採集自叢林邊緣常見野蜂的蜂蜜。是營地中最受歡迎的甜味來源。呈現濃稠的金黃色，只需一小勺就能讓苦澀的草藥茶變得難以抗拒。</p>
+        </div>
+        <div class="rule-card">
+          <h3>酪梨油</h3>
+          <div class="illus-container"><img src="images/farmer/avocadooil.webp" alt="酪梨油"></div>
+          <div><span class="maz-badge">油類</span><span class="maz-badge">價格: 1 ☾</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">從熟透的酪梨果肉中冷壓提煉而成的植物油。呈現清澈透亮的祖母綠色，帶有淡淡的奶油與草本香氣。它的發煙點極高，且不易蓋過食材原味，是大廚們進行高溫酥炸或煎烤料理時的必備之物。</p>
+        </div>
+        <div class="rule-card">
+          <h3>動物油脂</h3>
+          <div class="illus-container"><img src="images/farmer/beastfat.webp" alt="動物油脂"></div>
+          <div><span class="maz-badge">油類</span><span class="maz-badge">價格: 8 ∴</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">將動物皮下脂肪切塊並用慢火熬煮提煉而成的純白凝脂。冷卻後呈現固態，帶有濃烈的油香。它是叢林中極佳的熱量與防寒來源，在烹飪時能賦予料理極致的酥脆感與飽足感。</p>
+        </div>
+        <div class="rule-card">
+          <h3>牛奶</h3>
+          <div class="illus-container"><img src="images/farmer/milk.webp" alt="牛奶"></div>
+          <div><span class="maz-badge">奶類</span><span class="maz-badge">價格: 5 ☾</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">富含極高的動物脂肪與乳香。加入燉鍋中能讓肉質變得無比軟嫩。</p>
+        </div>
+        <div class="rule-card">
+          <h3>羊奶</h3>
+          <div class="illus-container"><img src="images/farmer/milk.webp" alt="羊奶"></div>
+          <div><span class="maz-badge">奶類</span><span class="maz-badge">價格: 4 ☾</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">比牛奶更為濃稠，且帶有一股強烈的青草羶味。雖然不是所有人都能接受這個味道，但它的營養價值極高，常被用來為虛弱的傷患補充體力。</p>
+        </div>
+        <div class="rule-card">
+          <h3>椰奶</h3>
+          <div class="illus-container"><img src="images/farmer/coconutmilk.webp" alt="椰奶"></div>
+          <div><span class="maz-badge">奶類</span><span class="maz-badge">價格: 4 ☾</span></div>
+          <p style="font-size: 0.85rem; color: #aaa; flex-grow: 1; margin-top: 10px;">剖開堅硬的棕色毛殼後，從厚實白色果肉中壓榨出的濃郁汁液。帶有強烈的熱帶脂香，不僅能完美中和烈焰辣椒的霸道辣味，更是製作高級海鮮濃湯的絕佳湯底。</p>
+        </div>
+      </div>
+
     </div>
   </div>
 
 </main>
 
 <script>
-// 備用彈窗腳本 (確保獨立預覽時正常運作)
+// 切換分頁腳本
+document.querySelectorAll('.epoch-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.epoch-btn').forEach(b => b.classList.remove('active-tab'));
+    document.querySelectorAll('.rule-content').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active-tab');
+    document.getElementById(btn.dataset.target).classList.add('active');
+  });
+});
+
+// 備用彈窗腳本
 window.addEventListener('load', () => {
   if (typeof initGlobalPopups !== 'function') {
     const GOLD = getComputedStyle(document.documentElement).getPropertyValue('--gold')?.trim() || '#c9a35a';
@@ -806,5 +1354,4 @@ window.addEventListener('load', () => {
 </script>
 
 </body>
-
 </html>
