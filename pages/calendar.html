@@ -4350,7 +4350,24 @@
   }  // 夜犬 Evening Guide
 ];
 
-// 2. 定義查詢功能 (已修正邏輯與簡化顯示)
+  // 1. 定義我們設計的 13 階段與 20 日符短名
+  const states = ["啟", "生", "長", "耀", "盛", "巔", "轉", "落", "隱", "冥", "寂", "孕", "圓"];
+  const symbols = ["日輪", "風羽", "綠蔓", "雨紋", "玉環", "花心", "羽蛇", "血爪", "豹影", "鷹紋", "星煙", "山母", "骨冠", "蛇裙", "蝰印", "黑蝶", "酒兔", "合一", "雨蛇", "夜犬"];
+
+  // 2. 自動將 DB 內的 id 轉換為新的史詩格式 (例如: "001日 日輪．啟")
+  DB.forEach((day, index) => {
+    const paddedNum = String(index + 1).padStart(3, '0'); // 將 1 變成 001
+    const symbol = symbols[index % 20];
+    const state = states[index % 13];
+    
+    // 將原本的數字 ID 保存到新的屬性，供占卜搜尋時使用
+    day.day_num = day.id; 
+    
+    // 覆寫 id 為新的完整名稱格式
+    day.id = `${paddedNum}日 ${symbol}．${state}`;
+  });
+
+// 定義查詢功能
   function runDivination() {
     const inputEl = document.getElementById('day-input');
     const resultArea = document.getElementById('calendar-result-area');
@@ -4363,8 +4380,8 @@
       return;
     }
 
-    // ★ 修正：搜尋 d.id 而非 d.num，確保能找到第 14 天之後的資料
-    const data = DB.find(d => d.id === val);
+    // ★ 修正：改用我們剛剛保留的 day_num 進行數字搜尋
+    const data = DB.find(d => d.day_num === val);
 
     if (data) {
       // 設定吉凶顏色
@@ -4380,27 +4397,24 @@
         themesHtml = '<span style="color:#888;">無資料</span>';
       }
 
-      // ★ 簡化版顯示：只顯示代表事項與吉凶
+      // ★ 顯示更新為新的史詩名稱
       resultArea.innerHTML = `
         <div class="rule-card" style="border-left: 4px solid ${luckColor}; animation: fadeIn 0.3s ease;">
           
           <div style="border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px; margin-bottom:15px;">
-            <span style="color:#888; font-size:0.9rem; letter-spacing:1px; display:block;">DAY ${data.id} / TONE ${data.num}</span>
-            <span style="font-size:1.6rem; font-weight:bold; color:var(--gold);">${data.symbol}</span>
+            <span style="color:#888; font-size:0.9rem; letter-spacing:1px; display:block;">神聖曆 Tonalpohualli</span>
+            <span style="font-size:1.6rem; font-weight:bold; color:var(--gold);">${data.id}</span>
           </div>
 
           <div style="display: flex; align-items: center; justify-content: space-between; gap: 20px;">
-            
             <div style="flex: 1;">
               <div style="font-size:0.85rem; color:#aaa; margin-bottom:8px; text-transform:uppercase;">代表事項 THEMES</div>
               <div style="line-height:1.8;">${themesHtml}</div>
             </div>
-
             <div style="text-align:center; padding-left: 20px; border-left: 1px solid rgba(255,255,255,0.1); min-width: 80px;">
               <div style="font-size:0.85rem; color:#aaa; margin-bottom:5px; text-transform:uppercase;">吉凶 LUCK</div>
               <div style="font-size:2.5rem; font-weight:bold; color:${luckColor};">${data.luck}</div>
             </div>
-
           </div>
         </div>
       `;
@@ -4409,7 +4423,7 @@
     }
   }
 
-  // 3. 定義表格生成功能
+  // 定義表格生成功能
   function renderCalendarTable() {
     const tbody = document.getElementById('calendar-list-body');
     if (!tbody) return;
@@ -4424,7 +4438,7 @@
 
       htmlBuilder += `
         <tr>
-          <td style="text-align:center; color:#888;">${item.id}</td>
+          <td style="text-align:center; color:#f1c40f; font-weight:bold; white-space:nowrap;">${item.id}</td>
           <td style="font-weight:bold; color:${luckColor};">${item.symbol}</td>
           <td style="font-size:0.9rem; color:#aaa; font-style:italic;">${item.imagery}</td>
           <td>
@@ -4460,4 +4474,5 @@
   renderCalendarTable();
 
 })();
+
 </script>
