@@ -27,15 +27,34 @@
     .index-links button:nth-last-child(-n+2) { grid-column: auto / span 1; }
   }
 
-  .illus-container img {
+/* 插圖容器 */
+.illus-container {
   width: 100%; 
-  height: 150px; /* 👉 1. 固定高度 (您可以依喜好調整，通常 150px~200px 最適合卡片) */
-  object-fit: cover; /* 👉 2. 讓圖片自動維持比例填滿畫框，絕對不會被壓扁變形！ */
-  object-position: center 20%; /* 👉 3. 畫面重心稍微靠上，這樣人物立繪的頭部/臉部才不會被裁掉 */
+  aspect-ratio: 1 / 1; /* ✅ 強制容器變成 1:1 的正方形 */
+  margin: 10px 0 15px 0;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 8px; 
+  overflow: hidden; /* 超出的部分自動隱藏 */
+  box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+  position: relative;
+  background: #000;
+}
+
+.illus-container img {
+  width: 100%; 
+  height: 100%; /* ✅ 高度也要設定 100% 填滿容器 */
+  object-fit: cover; /* ✅ 關鍵！讓圖片按比例放大填滿，超出正方形的部分自動裁切不變形 */
+  object-position: center; /* 讓裁切以圖片正中央為基準 */
   display: block;
   opacity: 0.85; 
   transition: 0.3s;
   filter: sepia(0.2);
+}
+
+.illus-container:hover img { 
+  opacity: 1; 
+  transform: scale(1.05); 
+  filter: sepia(0); 
 }
 </style>
 
@@ -1170,6 +1189,7 @@
 
 
 </main>
+
 
 
 
