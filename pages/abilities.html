@@ -136,6 +136,8 @@
   #ab-chinampa:checked ~ .sect-gen label[for="ab-chinampa"],
   #ab-aquatic:checked ~ .sect-gen label[for="ab-aquatic"],
   #ab-polymath:checked ~ .sect-gen label[for="ab-polymath"],
+  #ab-quicksel:checked ~ .sect-gen label[for="ab-quicksel"],
+  #ab-prepared:checked ~ .sect-gen label[for="ab-prepared"],
   #ab-hymnheroes:checked ~ .sect-gen label[for="ab-hymnheroes"] { 
     background: var(--h-gold); color: #000; box-shadow: 0 0 15px rgba(201, 163, 90, 0.5); 
   }
@@ -288,6 +290,8 @@
   #ab-chinampa:checked ~ .sect-gen .detail-chinampa,
   #ab-aquatic:checked ~ .sect-gen .detail-aquatic,
   #ab-polymath:checked ~ .sect-gen .detail-polymath,
+  #ab-quicksel:checked ~ .sect-gen .detail-quicksel,
+  #ab-prepared:checked ~ .sect-gen .detail-prepared,
   #ab-hymnheroes:checked ~ .sect-gen .detail-hymnheroes { display: block; }
 
   /* 戰鬥 */
@@ -423,6 +427,8 @@
   <input type="radio" name="h-gen" id="ab-aquatic" hidden>
   <input type="radio" name="h-gen" id="ab-hymnheroes" hidden>
   <input type="radio" name="h-gen" id="ab-polymath" hidden>
+  <input type="radio" name="h-gen" id="ab-quicksel" hidden>
+  <input type="radio" name="h-gen" id="ab-prepared" hidden>
 
   <input type="radio" name="h-com" id="ab-veteran" checked hidden>
   <input type="radio" name="h-com" id="ab-musician" hidden>
@@ -539,6 +545,8 @@
       <label for="ab-aquatic" class="ab-btn">水獵巧技</label>
       <label for="ab-hymnheroes" class="ab-btn">英雄讚歌</label>
       <label for="ab-polymath" class="ab-btn">博學多聞</label>
+      <label for="ab-quicksel" class="ab-btn">隨手變賣</label>
+      <label for="ab-prepared" class="ab-btn">早有準備</label>
     </div>
 
     <div class="ability-detail-box">
@@ -729,6 +737,18 @@
         <p><strong>消耗WP：</strong> 2</p>
         <p>你熟記歷史上所有偉大英雄的事蹟，並能在關鍵時刻透過詩歌喚醒他人的勇氣。當你目睹一名盟友進行檢定失敗時，你可以發動此能力(無須動作)。</p>
         <p>你吟誦一段相關的英雄史詩，激發該盟友內在的潛能。該盟友可以立即重骰該次檢定，並必須接受重骰的結果。</p>
+      </div>
+
+      <div class="detail-content detail-quicksel">
+        <h3 style="color:var(--h-gold)">隨手變賣 Quick Sell <span class="maz-badge">馬茲提卡/One 設計</span> </h3>
+        <p><strong>先決條件：</strong> 交易 14</p> <p><strong>消耗WP：</strong> 2</p>
+        <p>你具有識人識貨的能力，可以看出手邊的物品適合賣給誰。在有聚落或商販出面的地點時，你可以發動此能力，不用進行交易檢定，直接將該物品以高於市場售價 <strong>10%</strong> 的價格賣出。</p>
+      </div>
+
+      <div class="detail-content detail-prepared">
+        <h3 style="color:var(--h-gold)">早有準備 Always Prepared <span class="maz-badge">馬茲提卡/One 設計</span> </h3>
+        <p><strong>先決條件：</strong> 求生 14</p> <p><strong>消耗WP：</strong> 3</p>
+        <p>你行事縝密，總是會預先準備你認為派得上用場的物品。當你身上的負重與金錢足夠時，可以發動此能力來獲得一個【裝備與物品】章節內列出的物品（不能是服務、動物、交通），你需失去等同該物品售價的金錢，若你要使用載具的負重則該載具必須在身邊。</p>
       </div>
       
       <div class="detail-content detail-polymath">
