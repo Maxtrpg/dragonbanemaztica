@@ -10,7 +10,10 @@
     --h-red: #a85754;
     --h-green: #3b8b5a;
     --h-blue: #5277c1;
+    --h-ord: #9b59b6; /* 新增騎士團紫色 */
     --bg-dark: rgba(15, 15, 20, 0.6);
+    --border-gold: rgba(201, 163, 90, 0.5);
+    --text-dim: #aaa;
     width: 100%;
     padding-bottom: 60px;
   }
@@ -51,6 +54,7 @@
   #tab-com:checked ~ .hero-main-nav label[for="tab-com"] { background: var(--h-red); color: #fff; border-color: var(--h-red); box-shadow: 0 -5px 15px rgba(168, 87, 84, 0.3); }
   #tab-exp:checked ~ .hero-main-nav label[for="tab-exp"] { background: var(--h-green); color: #fff; border-color: var(--h-green); box-shadow: 0 -5px 15px rgba(59, 139, 90, 0.3); }
   #tab-soc:checked ~ .hero-main-nav label[for="tab-soc"] { background: var(--h-blue); color: #fff; border-color: var(--h-blue); box-shadow: 0 -5px 15px rgba(82, 119, 193, 0.3); }
+  #tab-ord:checked ~ .hero-main-nav label[for="tab-ord"] { background: var(--h-ord); color: #fff; border-color: var(--h-ord); box-shadow: 0 -5px 15px rgba(155, 89, 182, 0.3); }
 
   /* === 內容顯示控制 === */
   .hero-section { display: none; animation: fadeIn 0.4s ease; }
@@ -58,7 +62,8 @@
   #tab-gen:checked ~ .sect-gen,
   #tab-com:checked ~ .sect-com,
   #tab-exp:checked ~ .sect-exp,
-  #tab-soc:checked ~ .sect-soc {
+  #tab-soc:checked ~ .sect-soc,
+  #tab-ord:checked ~ .sect-ord {
     display: block;
   }
 
@@ -91,90 +96,24 @@
 
   .ab-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 10px rgba(0,0,0,0.3); color: #fff; }
 
-/* 1. 在 .hero-page-container 內新增紫色變數 */
-.hero-page-container {
-  /* ...既有的變數... */
-  --h-ord: #9b59b6; /* 新增騎士團紫色 */
-}
-
-/* 2. 新增分頁激活樣式 (加入到主分頁導覽區塊) */
-#tab-ord:checked ~ .hero-main-nav label[for="tab-ord"] { 
-  background: var(--h-ord); color: #fff; border-color: var(--h-ord); box-shadow: 0 -5px 15px rgba(155, 89, 182, 0.3); 
-}
-
-/* 3. 新增內容顯示控制 */
-#tab-ord:checked ~ .sect-ord { display: block; }
-
-/* 4. 新增騎士團按鈕樣式 */
-.sect-ord .ab-btn { border-color: var(--h-ord); color: var(--h-ord); }
-.sect-ord .ab-btn:hover { background: rgba(155, 89, 182, 0.15); }
-
-/* 5. 騎士團標題樣式 (鷹與豹的分隔線) */
-.order-header {
-  margin: 30px 0 15px 0;
-  padding-bottom: 10px;
-  font-size: 1.2rem;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-/* 6. 個別按鈕激活邏輯 - 騎士團 (包含鷹騎士與豹騎士) */
-/* 鷹騎士 (Eagle) & 豹騎士 (Jaguar) 按鈕變色 */
-#ab-raptordive:checked ~ .sect-ord label[for="ab-raptordive"],
-#ab-sunradiance:checked ~ .sect-ord label[for="ab-sunradiance"],
-#ab-plumashield:checked ~ .sect-ord label[for="ab-plumashield"],
-#ab-captor:checked ~ .sect-ord label[for="ab-captor"],
-#ab-windchild:checked ~ .sect-ord label[for="ab-windchild"],
-#ab-sunpierce:checked ~ .sect-ord label[for="ab-sunpierce"],
-#ab-shornvow:checked ~ .sect-ord label[for="ab-shornvow"],
-#ab-jaguarclaw:checked ~ .sect-ord label[for="ab-jaguarclaw"],
-#ab-grapple:checked ~ .sect-ord label[for="ab-grapple"],
-#ab-execution:checked ~ .sect-ord label[for="ab-execution"],
-#ab-shadowcamo:checked ~ .sect-ord label[for="ab-shadowcamo"],
-#ab-bloodscent:checked ~ .sect-ord label[for="ab-bloodscent"],
-#ab-deathscream:checked ~ .sect-ord label[for="ab-deathscream"],
-#ab-zaltecfeast:checked ~ .sect-ord label[for="ab-zaltecfeast"] {
-  background: var(--h-ord); color: #fff; box-shadow: 0 0 15px rgba(155, 89, 182, 0.5);
-}
-
-/* 7. 內容顯示邏輯 - 騎士團 */
-#ab-raptordive:checked ~ .sect-ord .detail-raptordive,
-#ab-sunradiance:checked ~ .sect-ord .detail-sunradiance,
-#ab-plumashield:checked ~ .sect-ord .detail-plumashield,
-#ab-captor:checked ~ .sect-ord .detail-captor,
-#ab-windchild:checked ~ .sect-ord .detail-windchild,
-#ab-sunpierce:checked ~ .sect-ord .detail-sunpierce,
-#ab-shornvow:checked ~ .sect-ord .detail-shornvow,
-#ab-jaguarclaw:checked ~ .sect-ord .detail-jaguarclaw,
-#ab-grapple:checked ~ .sect-ord .detail-grapple,
-#ab-execution:checked ~ .sect-ord .detail-execution,
-#ab-shadowcamo:checked ~ .sect-ord .detail-shadowcamo,
-#ab-bloodscent:checked ~ .sect-ord .detail-bloodscent,
-#ab-deathscream:checked ~ .sect-ord .detail-deathscream,
-#ab-zaltecfeast:checked ~ .sect-ord .detail-zaltecfeast {
-  display: block;
-}
-
-  /* === 能力按鈕激活狀態 === */
-  /* 通用 (金色) */
+  /* === 能力按鈕一般狀態樣式 === */
   .sect-gen .ab-btn { border-color: var(--h-gold); color: var(--h-gold); }
   .sect-gen .ab-btn:hover { background: rgba(201, 163, 90, 0.15); }
   
-  /* 戰鬥 (紅色) */
   .sect-com .ab-btn { border-color: var(--h-red); color: var(--h-red); }
   .sect-com .ab-btn:hover { background: rgba(168, 87, 84, 0.15); }
 
-  /* 探索 (綠色) */
   .sect-exp .ab-btn { border-color: var(--h-green); color: var(--h-green); }
   .sect-exp .ab-btn:hover { background: rgba(59, 139, 90, 0.15); }
 
-  /* 社交 (藍色) */
   .sect-soc .ab-btn { border-color: var(--h-blue); color: var(--h-blue); }
   .sect-soc .ab-btn:hover { background: rgba(82, 119, 193, 0.15); }
 
-  /* 個別按鈕激活邏輯 - 通用 */
+  .sect-ord .ab-btn { border-color: var(--h-ord); color: var(--h-ord); }
+  .sect-ord .ab-btn:hover { background: rgba(155, 89, 182, 0.15); }
+
+  /* === 個別按鈕激活邏輯 === */
+  /* 通用 */
   #ab-fasthealer:checked ~ .sect-gen label[for="ab-fasthealer"],
   #ab-fearless:checked ~ .sect-gen label[for="ab-fearless"],
   #ab-focused:checked ~ .sect-gen label[for="ab-focused"],
@@ -196,13 +135,12 @@
   #ab-broker:checked ~ .sect-gen label[for="ab-broker"],
   #ab-chinampa:checked ~ .sect-gen label[for="ab-chinampa"],
   #ab-aquatic:checked ~ .sect-gen label[for="ab-aquatic"],
-#ab-polymath:checked ~ .sect-gen label[for="ab-polymath"],
-#ab-hymnheroes:checked ~ .sect-gen label[for="ab-hymnheroes"] { background: var(--h-gold); color: #000; box-shadow: 0 0 15px rgba(201, 163, 90, 0.5); }
+  #ab-polymath:checked ~ .sect-gen label[for="ab-polymath"],
+  #ab-hymnheroes:checked ~ .sect-gen label[for="ab-hymnheroes"] { 
+    background: var(--h-gold); color: #000; box-shadow: 0 0 15px rgba(201, 163, 90, 0.5); 
+  }
 
-
-
-
-  /* 個別按鈕激活邏輯 - 戰鬥 */
+  /* 戰鬥 */
   #ab-veteran:checked ~ .sect-com label[for="ab-veteran"],
   #ab-musician:checked ~ .sect-com label[for="ab-musician"],
   #ab-berserker:checked ~ .sect-com label[for="ab-berserker"],
@@ -228,27 +166,27 @@
   #ab-viper:checked ~ .sect-com label[for="ab-viper"],
   #ab-hummingbird:checked ~ .sect-com label[for="ab-hummingbird"],
   #ab-focusedhunt:checked ~ .sect-com label[for="ab-focusedhunt"],
-#ab-obsidian:checked ~ .sect-com label[for="ab-obsidian"],
-#ab-armorbreak:checked ~ .sect-com label[for="ab-armorbreak"],
-#ab-undying:checked ~ .sect-com label[for="ab-undying"],
-#ab-bonecrusher:checked ~ .sect-com label[for="ab-bonecrusher"],
-#ab-copperhook:checked ~ .sect-com label[for="ab-copperhook"],
-#ab-spearwall:checked ~ .sect-com label[for="ab-spearwall"],
-#ab-hummingstone:checked ~ .sect-com label[for="ab-hummingstone"],
-#ab-skypiercer:checked ~ .sect-com label[for="ab-skypiercer"],
-#ab-surgery:checked ~ .sect-com label[for="ab-surgery"],
-#ab-warning:checked ~ .sect-com label[for="ab-warning"],
-#ab-bounty:checked ~ .sect-com label[for="ab-bounty"],
-#ab-dirtytrick:checked ~ .sect-com label[for="ab-dirtytrick"],
-#ab-combattheft:checked ~ .sect-com label[for="ab-combattheft"],
+  #ab-obsidian:checked ~ .sect-com label[for="ab-obsidian"],
+  #ab-armorbreak:checked ~ .sect-com label[for="ab-armorbreak"],
+  #ab-undying:checked ~ .sect-com label[for="ab-undying"],
+  #ab-bonecrusher:checked ~ .sect-com label[for="ab-bonecrusher"],
+  #ab-copperhook:checked ~ .sect-com label[for="ab-copperhook"],
+  #ab-spearwall:checked ~ .sect-com label[for="ab-spearwall"],
+  #ab-hummingstone:checked ~ .sect-com label[for="ab-hummingstone"],
+  #ab-skypiercer:checked ~ .sect-com label[for="ab-skypiercer"],
+  #ab-surgery:checked ~ .sect-com label[for="ab-surgery"],
+  #ab-warning:checked ~ .sect-com label[for="ab-warning"],
+  #ab-bounty:checked ~ .sect-com label[for="ab-bounty"],
+  #ab-dirtytrick:checked ~ .sect-com label[for="ab-dirtytrick"],
+  #ab-combattheft:checked ~ .sect-com label[for="ab-combattheft"],
   #ab-quickpoison:checked ~ .sect-com label[for="ab-quickpoison"],
-#ab-harvest:checked ~ .sect-com label[for="ab-harvest"],
-#ab-weathered:checked ~ .sect-com label[for="ab-weathered"],
-#ab-roots:checked ~ .sect-com label[for="ab-roots"] {
+  #ab-harvest:checked ~ .sect-com label[for="ab-harvest"],
+  #ab-weathered:checked ~ .sect-com label[for="ab-weathered"],
+  #ab-roots:checked ~ .sect-com label[for="ab-roots"] {
     background: var(--h-red); color: #fff; box-shadow: 0 0 15px rgba(168, 87, 84, 0.5);
   }
 
-  /* 個別按鈕激活邏輯 - 探索 */
+  /* 探索 */
   #ab-contortion:checked ~ .sect-exp label[for="ab-contortion"],
   #ab-lonewolf:checked ~ .sect-exp label[for="ab-lonewolf"],
   #ab-monster:checked ~ .sect-exp label[for="ab-monster"],
@@ -259,23 +197,53 @@
   #ab-gather:checked ~ .sect-exp label[for="ab-gather"],
   #ab-trap:checked ~ .sect-exp label[for="ab-trap"],
   #ab-caravan:checked ~ .sect-exp label[for="ab-caravan"], 
-#ab-ruinwalker:checked ~ .sect-exp label[for="ab-ruinwalker"],
-#ab-poisonsense:checked ~ .sect-exp label[for="ab-poisonsense"] {
-  background: var(--h-green); color: #fff; box-shadow: 0 0 15px rgba(59, 139, 90, 0.5);
-}
+  #ab-ruinwalker:checked ~ .sect-exp label[for="ab-ruinwalker"],
+  #ab-poisonsense:checked ~ .sect-exp label[for="ab-poisonsense"] {
+    background: var(--h-green); color: #fff; box-shadow: 0 0 15px rgba(59, 139, 90, 0.5);
+  }
 
-  /* 個別按鈕激活邏輯 - 社交 */
+  /* 社交 */
   #ab-disguise:checked ~ .sect-soc label[for="ab-disguise"],
   #ab-insight:checked ~ .sect-soc label[for="ab-insight"],
-#ab-intimidate:checked ~ .sect-soc label[for="ab-intimidate"],
-#ab-orator:checked ~ .sect-soc label[for="ab-orator"],
-#ab-proclaim:checked ~ .sect-soc label[for="ab-proclaim"],
-#ab-calpulli:checked ~ .sect-soc label[for="ab-calpulli"],
-#ab-bloodoath:checked ~ .sect-soc label[for="ab-bloodoath"],
-#ab-bribery:checked ~ .sect-soc label[for="ab-bribery"],
-#ab-pochteca:checked ~ .sect-soc label[for="ab-pochteca"],
-#ab-royalpresence:checked ~ .sect-soc label[for="ab-royalpresence"] { background: var(--h-blue); color: #fff; box-shadow: 0 0 15px rgba(82, 119, 193, 0.5); }
+  #ab-intimidate:checked ~ .sect-soc label[for="ab-intimidate"],
+  #ab-orator:checked ~ .sect-soc label[for="ab-orator"],
+  #ab-proclaim:checked ~ .sect-soc label[for="ab-proclaim"],
+  #ab-calpulli:checked ~ .sect-soc label[for="ab-calpulli"],
+  #ab-bloodoath:checked ~ .sect-soc label[for="ab-bloodoath"],
+  #ab-bribery:checked ~ .sect-soc label[for="ab-bribery"],
+  #ab-pochteca:checked ~ .sect-soc label[for="ab-pochteca"],
+  #ab-royalpresence:checked ~ .sect-soc label[for="ab-royalpresence"] { 
+    background: var(--h-blue); color: #fff; box-shadow: 0 0 15px rgba(82, 119, 193, 0.5); 
+  }
 
+  /* 騎士團 */
+  #ab-raptordive:checked ~ .sect-ord label[for="ab-raptordive"],
+  #ab-sunradiance:checked ~ .sect-ord label[for="ab-sunradiance"],
+  #ab-plumashield:checked ~ .sect-ord label[for="ab-plumashield"],
+  #ab-captor:checked ~ .sect-ord label[for="ab-captor"],
+  #ab-windchild:checked ~ .sect-ord label[for="ab-windchild"],
+  #ab-sunpierce:checked ~ .sect-ord label[for="ab-sunpierce"],
+  #ab-shornvow:checked ~ .sect-ord label[for="ab-shornvow"],
+  #ab-jaguarclaw:checked ~ .sect-ord label[for="ab-jaguarclaw"],
+  #ab-grapple:checked ~ .sect-ord label[for="ab-grapple"],
+  #ab-execution:checked ~ .sect-ord label[for="ab-execution"],
+  #ab-shadowcamo:checked ~ .sect-ord label[for="ab-shadowcamo"],
+  #ab-bloodscent:checked ~ .sect-ord label[for="ab-bloodscent"],
+  #ab-deathscream:checked ~ .sect-ord label[for="ab-deathscream"],
+  #ab-zaltecfeast:checked ~ .sect-ord label[for="ab-zaltecfeast"] {
+    background: var(--h-ord); color: #fff; box-shadow: 0 0 15px rgba(155, 89, 182, 0.5);
+  }
+
+  /* === 騎士團標題樣式 (鷹與豹的分隔線) === */
+  .order-header {
+    margin: 30px 0 15px 0;
+    padding-bottom: 10px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
 
   /* === 詳情面板樣式 === */
   .ability-detail-box {
@@ -296,7 +264,7 @@
   .detail-content li { margin-bottom: 6px; }
   .detail-content strong { color: #fff; }
 
-  /* 顯示對應內容 */
+  /* === 顯示對應內容 === */
   /* 通用 */
   #ab-fasthealer:checked ~ .sect-gen .detail-fasthealer,
   #ab-fearless:checked ~ .sect-gen .detail-fearless,
@@ -319,8 +287,8 @@
   #ab-broker:checked ~ .sect-gen .detail-broker,
   #ab-chinampa:checked ~ .sect-gen .detail-chinampa,
   #ab-aquatic:checked ~ .sect-gen .detail-aquatic,
-#ab-polymath:checked ~ .sect-gen .detail-polymath,
-#ab-hymnheroes:checked ~ .sect-gen .detail-hymnheroes { display: block; }
+  #ab-polymath:checked ~ .sect-gen .detail-polymath,
+  #ab-hymnheroes:checked ~ .sect-gen .detail-hymnheroes { display: block; }
 
   /* 戰鬥 */
   #ab-veteran:checked ~ .sect-com .detail-veteran,
@@ -345,29 +313,26 @@
   #ab-twin:checked ~ .sect-com .detail-twin,
   #ab-weasel:checked ~ .sect-com .detail-weasel,
   #ab-mastercast:checked ~ .sect-com .detail-mastercast,
-  /* 新增的獵人能力顯示 */
   #ab-viper:checked ~ .sect-com .detail-viper,
   #ab-hummingbird:checked ~ .sect-com .detail-hummingbird,
   #ab-focusedhunt:checked ~ .sect-com .detail-focusedhunt,
-#ab-obsidian:checked ~ .sect-com .detail-obsidian,
-#ab-armorbreak:checked ~ .sect-com .detail-armorbreak,
-#ab-undying:checked ~ .sect-com .detail-undying,
-#ab-bonecrusher:checked ~ .sect-com .detail-bonecrusher,
-#ab-copperhook:checked ~ .sect-com .detail-copperhook,
-#ab-spearwall:checked ~ .sect-com .detail-spearwall,
-#ab-hummingstone:checked ~ .sect-com .detail-hummingstone,
-#ab-skypiercer:checked ~ .sect-com .detail-skypiercer,
-#ab-surgery:checked ~ .sect-com .detail-surgery,
-#ab-warning:checked ~ .sect-com .detail-warning,
-#ab-dirtytrick:checked ~ .sect-com .detail-dirtytrick,
-#ab-combattheft:checked ~ .sect-com .detail-combattheft,
-#ab-bounty:checked ~ .sect-com .detail-bounty,
-#ab-harvest:checked ~ .sect-com .detail-harvest,
-#ab-weathered:checked ~ .sect-com .detail-weathered,
-#ab-roots:checked ~ .sect-com .detail-roots,
-  #ab-quickpoison:checked ~ .sect-com .detail-quickpoison {
-    display: block;
-  }
+  #ab-obsidian:checked ~ .sect-com .detail-obsidian,
+  #ab-armorbreak:checked ~ .sect-com .detail-armorbreak,
+  #ab-undying:checked ~ .sect-com .detail-undying,
+  #ab-bonecrusher:checked ~ .sect-com .detail-bonecrusher,
+  #ab-copperhook:checked ~ .sect-com .detail-copperhook,
+  #ab-spearwall:checked ~ .sect-com .detail-spearwall,
+  #ab-hummingstone:checked ~ .sect-com .detail-hummingstone,
+  #ab-skypiercer:checked ~ .sect-com .detail-skypiercer,
+  #ab-surgery:checked ~ .sect-com .detail-surgery,
+  #ab-warning:checked ~ .sect-com .detail-warning,
+  #ab-dirtytrick:checked ~ .sect-com .detail-dirtytrick,
+  #ab-combattheft:checked ~ .sect-com .detail-combattheft,
+  #ab-bounty:checked ~ .sect-com .detail-bounty,
+  #ab-harvest:checked ~ .sect-com .detail-harvest,
+  #ab-weathered:checked ~ .sect-com .detail-weathered,
+  #ab-roots:checked ~ .sect-com .detail-roots,
+  #ab-quickpoison:checked ~ .sect-com .detail-quickpoison { display: block; }
 
   /* 探索 */
   #ab-contortion:checked ~ .sect-exp .detail-contortion,
@@ -380,22 +345,36 @@
   #ab-gather:checked ~ .sect-exp .detail-gather,
   #ab-trap:checked ~ .sect-exp .detail-trap,
   #ab-caravan:checked ~ .sect-exp .detail-caravan,
-#ab-ruinwalker:checked ~ .sect-exp .detail-ruinwalker,
-#ab-poisonsense:checked ~ .sect-exp .detail-poisonsense {
-  display: block;
-}
+  #ab-ruinwalker:checked ~ .sect-exp .detail-ruinwalker,
+  #ab-poisonsense:checked ~ .sect-exp .detail-poisonsense { display: block; }
 
   /* 社交 */
   #ab-disguise:checked ~ .sect-soc .detail-disguise,
   #ab-insight:checked ~ .sect-soc .detail-insight,
-#ab-intimidate:checked ~ .sect-soc .detail-intimidate,
-#ab-orator:checked ~ .sect-soc .detail-orator,
-#ab-proclaim:checked ~ .sect-soc .detail-proclaim,
-#ab-calpulli:checked ~ .sect-soc .detail-calpulli,
-#ab-bloodoath:checked ~ .sect-soc .detail-bloodoath,
-#ab-bribery:checked ~ .sect-soc .detail-bribery,
-#ab-pochteca:checked ~ .sect-soc .detail-pochteca,
-#ab-royalpresence:checked ~ .sect-soc .detail-royalpresence { display: block; }
+  #ab-intimidate:checked ~ .sect-soc .detail-intimidate,
+  #ab-orator:checked ~ .sect-soc .detail-orator,
+  #ab-proclaim:checked ~ .sect-soc .detail-proclaim,
+  #ab-calpulli:checked ~ .sect-soc .detail-calpulli,
+  #ab-bloodoath:checked ~ .sect-soc .detail-bloodoath,
+  #ab-bribery:checked ~ .sect-soc .detail-bribery,
+  #ab-pochteca:checked ~ .sect-soc .detail-pochteca,
+  #ab-royalpresence:checked ~ .sect-soc .detail-royalpresence { display: block; }
+
+  /* 騎士團 */
+  #ab-raptordive:checked ~ .sect-ord .detail-raptordive,
+  #ab-sunradiance:checked ~ .sect-ord .detail-sunradiance,
+  #ab-plumashield:checked ~ .sect-ord .detail-plumashield,
+  #ab-captor:checked ~ .sect-ord .detail-captor,
+  #ab-windchild:checked ~ .sect-ord .detail-windchild,
+  #ab-sunpierce:checked ~ .sect-ord .detail-sunpierce,
+  #ab-shornvow:checked ~ .sect-ord .detail-shornvow,
+  #ab-jaguarclaw:checked ~ .sect-ord .detail-jaguarclaw,
+  #ab-grapple:checked ~ .sect-ord .detail-grapple,
+  #ab-execution:checked ~ .sect-ord .detail-execution,
+  #ab-shadowcamo:checked ~ .sect-ord .detail-shadowcamo,
+  #ab-bloodscent:checked ~ .sect-ord .detail-bloodscent,
+  #ab-deathscream:checked ~ .sect-ord .detail-deathscream,
+  #ab-zaltecfeast:checked ~ .sect-ord .detail-zaltecfeast { display: block; }
 
   @keyframes slideUp { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -419,6 +398,7 @@
   <input type="radio" name="h-tab" id="tab-com" hidden>
   <input type="radio" name="h-tab" id="tab-exp" hidden>
   <input type="radio" name="h-tab" id="tab-soc" hidden>
+  <input type="radio" name="h-tab" id="tab-ord" hidden>
 
   <input type="radio" name="h-gen" id="ab-fasthealer" checked hidden>
   <input type="radio" name="h-gen" id="ab-fearless" hidden>
@@ -441,9 +421,8 @@
   <input type="radio" name="h-gen" id="ab-broker" hidden>
   <input type="radio" name="h-gen" id="ab-chinampa" hidden>
   <input type="radio" name="h-gen" id="ab-aquatic" hidden>
-<input type="radio" name="h-gen" id="ab-hymnheroes" hidden>
-<input type="radio" name="h-gen" id="ab-polymath" hidden>
-
+  <input type="radio" name="h-gen" id="ab-hymnheroes" hidden>
+  <input type="radio" name="h-gen" id="ab-polymath" hidden>
 
   <input type="radio" name="h-com" id="ab-veteran" checked hidden>
   <input type="radio" name="h-com" id="ab-musician" hidden>
@@ -471,23 +450,22 @@
   <input type="radio" name="h-com" id="ab-hummingbird" hidden>
   <input type="radio" name="h-com" id="ab-focusedhunt" hidden>
   <input type="radio" name="h-com" id="ab-quickpoison" hidden>
-<input type="radio" name="h-com" id="ab-obsidian" hidden>
-<input type="radio" name="h-com" id="ab-armorbreak" hidden>
-<input type="radio" name="h-com" id="ab-undying" hidden>
-<input type="radio" name="h-com" id="ab-bonecrusher" hidden>
-<input type="radio" name="h-com" id="ab-copperhook" hidden>
-<input type="radio" name="h-com" id="ab-spearwall" hidden>
-<input type="radio" name="h-com" id="ab-hummingstone" hidden>
-<input type="radio" name="h-com" id="ab-skypiercer" hidden>
-<input type="radio" name="h-com" id="ab-surgery" hidden>
-<input type="radio" name="h-com" id="ab-warning" hidden>
-<input type="radio" name="h-com" id="ab-bounty" hidden>
-<input type="radio" name="h-com" id="ab-dirtytrick" hidden>
-<input type="radio" name="h-com" id="ab-combattheft" hidden>
-<input type="radio" name="h-com" id="ab-harvest" hidden>
-<input type="radio" name="h-com" id="ab-weathered" hidden>
-<input type="radio" name="h-com" id="ab-roots" hidden>
-
+  <input type="radio" name="h-com" id="ab-obsidian" hidden>
+  <input type="radio" name="h-com" id="ab-armorbreak" hidden>
+  <input type="radio" name="h-com" id="ab-undying" hidden>
+  <input type="radio" name="h-com" id="ab-bonecrusher" hidden>
+  <input type="radio" name="h-com" id="ab-copperhook" hidden>
+  <input type="radio" name="h-com" id="ab-spearwall" hidden>
+  <input type="radio" name="h-com" id="ab-hummingstone" hidden>
+  <input type="radio" name="h-com" id="ab-skypiercer" hidden>
+  <input type="radio" name="h-com" id="ab-surgery" hidden>
+  <input type="radio" name="h-com" id="ab-warning" hidden>
+  <input type="radio" name="h-com" id="ab-bounty" hidden>
+  <input type="radio" name="h-com" id="ab-dirtytrick" hidden>
+  <input type="radio" name="h-com" id="ab-combattheft" hidden>
+  <input type="radio" name="h-com" id="ab-harvest" hidden>
+  <input type="radio" name="h-com" id="ab-weathered" hidden>
+  <input type="radio" name="h-com" id="ab-roots" hidden>
 
   <input type="radio" name="h-exp" id="ab-contortion" checked hidden>
   <input type="radio" name="h-exp" id="ab-lonewolf" hidden>
@@ -499,45 +477,41 @@
   <input type="radio" name="h-exp" id="ab-gather" hidden>
   <input type="radio" name="h-exp" id="ab-trap" hidden>
   <input type="radio" name="h-exp" id="ab-caravan" hidden>
-<input type="radio" name="h-exp" id="ab-poisonsense" hidden>
-<input type="radio" name="h-exp" id="ab-ruinwalker" hidden>
+  <input type="radio" name="h-exp" id="ab-poisonsense" hidden>
+  <input type="radio" name="h-exp" id="ab-ruinwalker" hidden>
 
   <input type="radio" name="h-soc" id="ab-disguise" checked hidden>
   <input type="radio" name="h-soc" id="ab-insight" hidden>
-<input type="radio" name="h-soc" id="ab-royalpresence" hidden>
-<input type="radio" name="h-soc" id="ab-intimidate" hidden>
-<input type="radio" name="h-soc" id="ab-orator" hidden>
-<input type="radio" name="h-soc" id="ab-proclaim" hidden>
-<input type="radio" name="h-soc" id="ab-calpulli" hidden>
-<input type="radio" name="h-soc" id="ab-bloodoath" hidden>
-<input type="radio" name="h-soc" id="ab-bribery" hidden>
-<input type="radio" name="h-soc" id="ab-pochteca" hidden>
+  <input type="radio" name="h-soc" id="ab-royalpresence" hidden>
+  <input type="radio" name="h-soc" id="ab-intimidate" hidden>
+  <input type="radio" name="h-soc" id="ab-orator" hidden>
+  <input type="radio" name="h-soc" id="ab-proclaim" hidden>
+  <input type="radio" name="h-soc" id="ab-calpulli" hidden>
+  <input type="radio" name="h-soc" id="ab-bloodoath" hidden>
+  <input type="radio" name="h-soc" id="ab-bribery" hidden>
+  <input type="radio" name="h-soc" id="ab-pochteca" hidden>
 
-<input type="radio" name="h-tab" id="tab-ord" hidden>
-
-<input type="radio" name="h-ord" id="ab-raptordive" hidden>
-<input type="radio" name="h-ord" id="ab-sunradiance" hidden>
-<input type="radio" name="h-ord" id="ab-plumashield" hidden>
-<input type="radio" name="h-ord" id="ab-captor" hidden>
-<input type="radio" name="h-ord" id="ab-windchild" hidden>
-<input type="radio" name="h-ord" id="ab-sunpierce" hidden>
-<input type="radio" name="h-ord" id="ab-shornvow" hidden>
-
-<input type="radio" name="h-ord" id="ab-jaguarclaw" hidden>
-<input type="radio" name="h-ord" id="ab-grapple" hidden>
-<input type="radio" name="h-ord" id="ab-execution" hidden>
-<input type="radio" name="h-ord" id="ab-shadowcamo" hidden>
-<input type="radio" name="h-ord" id="ab-bloodscent" hidden>
-<input type="radio" name="h-ord" id="ab-deathscream" hidden>
-<input type="radio" name="h-ord" id="ab-zaltecfeast" hidden>
-
+  <input type="radio" name="h-ord" id="ab-raptordive" hidden>
+  <input type="radio" name="h-ord" id="ab-sunradiance" hidden>
+  <input type="radio" name="h-ord" id="ab-plumashield" hidden>
+  <input type="radio" name="h-ord" id="ab-captor" hidden>
+  <input type="radio" name="h-ord" id="ab-windchild" hidden>
+  <input type="radio" name="h-ord" id="ab-sunpierce" hidden>
+  <input type="radio" name="h-ord" id="ab-shornvow" hidden>
+  <input type="radio" name="h-ord" id="ab-jaguarclaw" hidden>
+  <input type="radio" name="h-ord" id="ab-grapple" hidden>
+  <input type="radio" name="h-ord" id="ab-execution" hidden>
+  <input type="radio" name="h-ord" id="ab-shadowcamo" hidden>
+  <input type="radio" name="h-ord" id="ab-bloodscent" hidden>
+  <input type="radio" name="h-ord" id="ab-deathscream" hidden>
+  <input type="radio" name="h-ord" id="ab-zaltecfeast" hidden>
 
   <div class="hero-main-nav">
     <label for="tab-gen" class="main-tab-btn">通用</label>
     <label for="tab-com" class="main-tab-btn">戰鬥</label>
     <label for="tab-exp" class="main-tab-btn">探索</label>
     <label for="tab-soc" class="main-tab-btn">社交</label>
-<label for="tab-ord" class="main-tab-btn">騎士團</label>
+    <label for="tab-ord" class="main-tab-btn">騎士團</label>
   </div>
 
   <div class="hero-section sect-gen">
@@ -563,14 +537,12 @@
       <label for="ab-broker" class="ab-btn">情報掮客</label>
       <label for="ab-chinampa" class="ab-btn">浮田耕藝</label>
       <label for="ab-aquatic" class="ab-btn">水獵巧技</label>
-<label for="ab-hymnheroes" class="ab-btn">英雄讚歌</label>
-<label for="ab-polymath" class="ab-btn">博學多聞</label>
+      <label for="ab-hymnheroes" class="ab-btn">英雄讚歌</label>
+      <label for="ab-polymath" class="ab-btn">博學多聞</label>
     </div>
 
     <div class="ability-detail-box">
-      <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #555; pointer-events: none; z-index: 0;">
-
-      </div>
+      <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #555; pointer-events: none; z-index: 0;"></div>
 
       <div class="detail-content detail-fasthealer">
         <h3 style="color:var(--h-gold)">快速恢復 Fast Healer</h3>
@@ -750,14 +722,16 @@
           <li>你在水中受到攻擊時，你可以發動此能力使用游泳來取代閃避檢定。</li>
         </ul>
       </div>
-<div class="detail-content detail-hymnheroes">
-  <h3 style="color:var(--h-gold)">英雄讚歌 Hymn of Heroes <span class="maz-badge">馬茲提卡</span> </h3>
-  <p><strong>先決條件：</strong> 祕聞傳說 12 + 表演 12</p>
-  <p><strong>消耗WP：</strong> 2</p>
-  <p>你熟記歷史上所有偉大英雄的事蹟，並能在關鍵時刻透過詩歌喚醒他人的勇氣。當你目睹一名盟友進行檢定失敗時，你可以發動此能力(無須動作)。</p>
-  <p>你吟誦一段相關的英雄史詩，激發該盟友內在的潛能。該盟友可以立即重骰該次檢定，並必須接受重骰的結果。</p>
-</div>
-<div class="detail-content detail-polymath">
+      
+      <div class="detail-content detail-hymnheroes">
+        <h3 style="color:var(--h-gold)">英雄讚歌 Hymn of Heroes <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> 祕聞傳說 12 + 表演 12</p>
+        <p><strong>消耗WP：</strong> 2</p>
+        <p>你熟記歷史上所有偉大英雄的事蹟，並能在關鍵時刻透過詩歌喚醒他人的勇氣。當你目睹一名盟友進行檢定失敗時，你可以發動此能力(無須動作)。</p>
+        <p>你吟誦一段相關的英雄史詩，激發該盟友內在的潛能。該盟友可以立即重骰該次檢定，並必須接受重骰的結果。</p>
+      </div>
+      
+      <div class="detail-content detail-polymath">
         <h3 style="color:var(--h-gold)">博學多聞 Polymath <span class="maz-badge">馬茲提卡</span> </h3>
         <p><strong>先決條件：</strong> 祕聞傳說 12</p>
         <p><strong>消耗WP：</strong> 2</p>
@@ -795,28 +769,26 @@
       <label for="ab-hummingbird" class="ab-btn">蜂鳥迴身</label>
       <label for="ab-focusedhunt" class="ab-btn">專注追獵</label>
       <label for="ab-quickpoison" class="ab-btn">快速塗毒</label>
-<label for="ab-obsidian" class="ab-btn">鋸裂處刑</label>
-<label for="ab-armorbreak" class="ab-btn">破甲強襲</label>
-<label for="ab-undying" class="ab-btn">不屈意志</label>
-<label for="ab-bonecrusher" class="ab-btn">碎骨重擊</label>
-<label for="ab-copperhook" class="ab-btn">銅斧鉤殺</label>
-<label for="ab-spearwall" class="ab-btn">守衛矛陣</label>
-<label for="ab-hummingstone" class="ab-btn">蜂鳴飛石</label>
-<label for="ab-skypiercer" class="ab-btn">穿雲長擲</label>
-<label for="ab-surgery" class="ab-btn">戰地手術</label>
-<label for="ab-warning" class="ab-btn">預判警示</label>
-<label for="ab-bounty" class="ab-btn">散財誘敵</label>
-<label for="ab-dirtytrick" class="ab-btn">卑鄙手段</label>
-<label for="ab-combattheft" class="ab-btn">妙手空空</label>
-<label for="ab-harvest" class="ab-btn">收割橫掃</label>
-<label for="ab-weathered" class="ab-btn">忍耐之軀</label>
-<label for="ab-roots" class="ab-btn">下盤穩固</label>
+      <label for="ab-obsidian" class="ab-btn">鋸裂處刑</label>
+      <label for="ab-armorbreak" class="ab-btn">破甲強襲</label>
+      <label for="ab-undying" class="ab-btn">不屈意志</label>
+      <label for="ab-bonecrusher" class="ab-btn">碎骨重擊</label>
+      <label for="ab-copperhook" class="ab-btn">銅斧鉤殺</label>
+      <label for="ab-spearwall" class="ab-btn">守衛矛陣</label>
+      <label for="ab-hummingstone" class="ab-btn">蜂鳴飛石</label>
+      <label for="ab-skypiercer" class="ab-btn">穿雲長擲</label>
+      <label for="ab-surgery" class="ab-btn">戰地手術</label>
+      <label for="ab-warning" class="ab-btn">預判警示</label>
+      <label for="ab-bounty" class="ab-btn">散財誘敵</label>
+      <label for="ab-dirtytrick" class="ab-btn">卑鄙手段</label>
+      <label for="ab-combattheft" class="ab-btn">妙手空空</label>
+      <label for="ab-harvest" class="ab-btn">收割橫掃</label>
+      <label for="ab-weathered" class="ab-btn">忍耐之軀</label>
+      <label for="ab-roots" class="ab-btn">下盤穩固</label>
     </div>
 
     <div class="ability-detail-box">
-      <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #555; pointer-events: none; z-index: 0;">
-
-      </div>
+      <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #555; pointer-events: none; z-index: 0;"></div>
 
       <div class="detail-content detail-veteran">
         <h3 style="color:var(--h-red)">老兵 Veteran <span class="maz-badge">房規調整</span> </h3>
@@ -1022,7 +994,7 @@
         <p>你可以用一個流暢的動作將塗毒與攻擊結合（不需額外花費動作塗毒）。</p>
       </div>
 
-<div class="detail-content detail-obsidian">
+      <div class="detail-content detail-obsidian">
         <h3 style="color:var(--h-red)">鋸裂處刑 Obsidian Laceration <span class="maz-badge">馬茲提卡</span> </h3>
         <p><strong>先決條件：</strong> 斧、矛、或劍 12 </p>
         <p><strong>消耗WP：</strong> 2</p>
@@ -1046,7 +1018,7 @@
         <p>進行一次體質檢定，若成功你不會立刻昏迷，視為鼓舞檢定成功，可繼續戰鬥。</p>
       </div>
 
-<div class="detail-content detail-bonecrusher">
+      <div class="detail-content detail-bonecrusher">
         <h3 style="color:var(--h-red)">碎骨重擊 Bone Crusher <span class="maz-badge">馬茲提卡</span> </h3>
         <p><strong>先決條件：</strong> 棍棒 12</p>
         <p><strong>消耗WP：</strong> 3</p>
@@ -1090,7 +1062,7 @@
           <p>若目標位於直線上，你的投射標槍具有「貫穿」效果。對第一個目標結算攻擊後，若傷害殺死目標，標槍會穿透並繼續攻擊（正常檢定）後方直線射程範圍內的下一個目標。</p>
       </div>
 
-<div class="detail-content detail-surgery">
+      <div class="detail-content detail-surgery">
         <h3 style="color:var(--h-red)">戰地手術 Field Surgery <span class="maz-badge">馬茲提卡</span> </h3>
         <p><strong>先決條件：</strong> 野獸知識 12 + 醫療 12</p>
         <p><strong>消耗WP：</strong> 3</p>
@@ -1098,7 +1070,7 @@
         <p>你在進行急救動作時可以發動此能力，該次醫療檢定獲得優勢。若你擁有手術工具，無須檢定直接成功。</p>
       </div>
 
-<div class="detail-content detail-warning">
+      <div class="detail-content detail-warning">
         <h3 style="color:var(--h-red)">預判警示 Predictive Warning <span class="maz-badge">馬茲提卡</span> </h3>
         <p><strong>先決條件：</strong> 調查 12 + 野獸知識 12 </p>
         <p><strong>消耗WP：</strong> 2</p>
@@ -1106,7 +1078,7 @@
         <p>該次攻擊必須重新進行檢定，且帶有 1 個劣勢（因為你提前洩漏了攻擊路徑）。你必須在傷害結算前發動此能力。</p>
       </div>
 
-<div class="detail-content detail-bounty">
+      <div class="detail-content detail-bounty">
         <h3 style="color:var(--h-red)">散財誘敵 Golden Distraction <span class="maz-badge">馬茲提卡</span> </h3>
         <p><strong>先決條件：</strong> 交易 12</p>
         <p><strong>消耗WP：</strong> 2</p>
@@ -1114,7 +1086,7 @@
         <p>範圍內的敵人必須進行意志檢定（難度根據你所丟出的錢財決定）。若失敗，他們會因貪婪本能而影響他們的行動（試圖撿拾或盯著財物），持續到你的下一回合開始。此能力對無智力生物或構裝體無效。</p>
       </div>
 
-<div class="detail-content detail-dirtytrick">
+      <div class="detail-content detail-dirtytrick">
         <h3 style="color:var(--h-red)">卑鄙手段 Dirty Fighting <span class="maz-badge">馬茲提卡</span> </h3>
         <p><strong>先決條件：</strong> 體操 12 或 欺瞞 12</p>
         <p><strong>消耗WP：</strong> 2</p>
@@ -1133,7 +1105,7 @@
           <p>若大成功，你甚至可以解下敵人的副手武器或盾牌，使其落入你手中或掉在地上。</p>
       </div>
 
-<div class="detail-content detail-harvest">
+      <div class="detail-content detail-harvest">
         <h3 style="color:var(--h-red)">收割橫掃 Harvest Sweep <span class="maz-badge">馬茲提卡</span> </h3>
         <p><strong>先決條件：</strong> 徒手 12 + 求生 12</p>
         <p><strong>消耗WP：</strong> 3</p>
@@ -1172,14 +1144,12 @@
       <label for="ab-gather" class="ab-btn">採集大師</label>
       <label for="ab-trap" class="ab-btn">陷阱大師</label>
       <label for="ab-caravan" class="ab-btn">商隊領袖</label>
-<label for="ab-poisonsense" class="ab-btn">熟悉毒物</label>
-<label for="ab-ruinwalker" class="ab-btn">飛簷走壁</label>
+      <label for="ab-poisonsense" class="ab-btn">熟悉毒物</label>
+      <label for="ab-ruinwalker" class="ab-btn">飛簷走壁</label>
     </div>
 
     <div class="ability-detail-box">
-      <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%; -50%); color: #555; pointer-events: none; z-index: 0;">
-        
-      </div>
+      <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #555; pointer-events: none; z-index: 0;"></div>
 
       <div class="detail-content detail-contortion">
         <h3 style="color:var(--h-green)">軟骨功 Contortionist</h3>
@@ -1273,7 +1243,7 @@
         <p>你熟悉商路捷徑，能縮短長途旅行所需時間，並在遭遇危險時能迅速指揮眾人應對。當隊伍在荒野上長途旅行（兩天以上的路程）時，你可以發動此能力來縮短1d4班的路程。此外，若旅行過程中的探路檢定失敗而遇到危險時，你可以發動此能力來讓所有人面對危險的檢定獲得一個優勢。</p>
       </div>
 
-<div class="detail-content detail-poisonsense">
+      <div class="detail-content detail-poisonsense">
         <h3 style="color:var(--h-green)">熟悉毒物 Venom Sense <span class="maz-badge">馬茲提卡</span> </h3>
         <p><strong>先決條件：</strong> 求生 12</p>
         <p><strong>消耗WP：</strong> 2</p>
@@ -1281,7 +1251,7 @@
         <p>當你在森林或沼澤環境尋找有毒植物（作為毒藥原料或陷阱素材）時，你可以發動此能力。你尋找毒藥的求生檢定獲得 1 個優勢。若檢定大成功，你將發現品質極高或份量加倍的毒素原料。</p>
       </div>
 
-<div class="detail-content detail-ruinwalker">
+      <div class="detail-content detail-ruinwalker">
         <h3 style="color:var(--h-green)">飛簷走壁 Wall Runner <span class="maz-badge">馬茲提卡</span> </h3>
         <p><strong>先決條件：</strong> 體操 12 </p>
         <p><strong>消耗WP：</strong> 3 </p>
@@ -1295,20 +1265,18 @@
     <div class="ability-grid">
       <label for="ab-disguise" class="ab-btn">易容</label>
       <label for="ab-insight" class="ab-btn">察言觀色</label>
-<label for="ab-royalpresence" class="ab-btn">王權威儀</label>
-<label for="ab-intimidate" class="ab-btn">威嚇</label>
-<label for="ab-orator" class="ab-btn">操弄人心</label>
-<label for="ab-proclaim" class="ab-btn">天命宣示</label>
-<label for="ab-calpulli" class="ab-btn">氏族羈絆</label>
-<label for="ab-bloodoath" class="ab-btn">血誓</label>
-<label for="ab-bribery" class="ab-btn">金錢賄賂</label>
-<label for="ab-pochteca" class="ab-btn">旅商行令</label>
+      <label for="ab-royalpresence" class="ab-btn">王權威儀</label>
+      <label for="ab-intimidate" class="ab-btn">威嚇</label>
+      <label for="ab-orator" class="ab-btn">操弄人心</label>
+      <label for="ab-proclaim" class="ab-btn">天命宣示</label>
+      <label for="ab-calpulli" class="ab-btn">氏族羈絆</label>
+      <label for="ab-bloodoath" class="ab-btn">血誓</label>
+      <label for="ab-bribery" class="ab-btn">金錢賄賂</label>
+      <label for="ab-pochteca" class="ab-btn">旅商行令</label>
     </div>
 
     <div class="ability-detail-box">
-      <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #555; pointer-events: none; z-index: 0;">
-        
-      </div>
+      <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #555; pointer-events: none; z-index: 0;"></div>
 
       <div class="detail-content detail-disguise">
         <h3 style="color:var(--h-blue)">易容 Disguise</h3>
@@ -1330,15 +1298,15 @@
         </ul>
       </div>
 
-<div class="detail-content detail-royalpresence">
-  <h3 style="color:var(--h-blue)">王權威儀 Royal Presence <span class="maz-badge">馬茲提卡</span> </h3>
-  <p><strong>先決條件：</strong> 遊說 12 + 祕聞傳說 12</p>
-  <p><strong>消耗WP：</strong> 3</p>
-  <p>你身上流露出一種如同古代君王般的自然威嚴。在非戰鬥狀態下，面對守衛、官員或敵對部落領袖時，你可以發動此能力。</p>
-  <p>這讓你擁有「外交豁免」般的特權，你有權要求一次「和平談話」的機會，或者進入通常禁止外人進入的區域（如貴族庭院、祭司神殿）。對方必須進行意志檢定來拒絕你的要求。若你隨後做出敵對行為，此效果立即失效。</p>
-</div>
+      <div class="detail-content detail-royalpresence">
+        <h3 style="color:var(--h-blue)">王權威儀 Royal Presence <span class="maz-badge">馬茲提卡</span> </h3>
+        <p><strong>先決條件：</strong> 遊說 12 + 祕聞傳說 12</p>
+        <p><strong>消耗WP：</strong> 3</p>
+        <p>你身上流露出一種如同古代君王般的自然威嚴。在非戰鬥狀態下，面對守衛、官員或敵對部落領袖時，你可以發動此能力。</p>
+        <p>這讓你擁有「外交豁免」般的特權，你有權要求一次「和平談話」的機會，或者進入通常禁止外人進入的區域（如貴族庭院、祭司神殿）。對方必須進行意志檢定來拒絕你的要求。若你隨後做出敵對行為，此效果立即失效。</p>
+      </div>
 
-<div class="detail-content detail-intimidate">
+      <div class="detail-content detail-intimidate">
         <h3 style="color:var(--h-blue)">威嚇 Intimidation <span class="maz-badge">馬茲提卡</span> </h3>
         <p><strong>先決條件：</strong> 遊說 12 </p>
         <p><strong>消耗WP：</strong> 2</p>
@@ -1353,7 +1321,8 @@
         <p>你擅長煽動或安撫群眾的情緒。當你面對一群人（3人以上）時，你可以發表一段演說。</p>
         <p>你可以選擇讓群眾的態度轉變為「友善」或「激憤」。這可以用來平息暴動、煽動村民對抗暴政，或是讓商隊給予你們免費的食宿招待。效果持續一班時間。</p>
       </div>
-<div class="detail-content detail-proclaim">
+
+      <div class="detail-content detail-proclaim">
         <h3 style="color:var(--h-blue)">天命宣示 Proclaim Destiny <span class="maz-badge">馬茲提卡</span> </h3>
         <p><strong>先決條件：</strong> 祕聞傳說 14 </p>
         <p><strong>消耗WP：</strong> 2</p>
@@ -1378,7 +1347,7 @@
           <p>這是一個確保盟友忠誠或強迫敵人守信的終極手段。</p>
       </div>
 
-<div class="detail-content detail-bribery">
+      <div class="detail-content detail-bribery">
         <h3 style="color:var(--h-blue)">金錢賄賂 Cocoa Bribery <span class="maz-badge">馬茲提卡</span> </h3>
         <p><strong>先決條件：</strong> 交易 12</p>
         <p><strong>消耗WP：</strong> 2 (及少量財物)</p>
@@ -1396,7 +1365,7 @@
     </div>
   </div>
 
-<div class="hero-section sect-ord">
+  <div class="hero-section sect-ord">
     
     <h3 class="order-header" style="color: #c9a35a; border-bottom: 2px solid #c9a35a;">
       🦅 鷹騎士 Eagle Knights  <span class="maz-badge">馬茲提卡</span> 
@@ -1406,27 +1375,26 @@
       <label for="ab-sunradiance" class="ab-btn">耀光戰姿</label>
       <label for="ab-plumashield" class="ab-btn">飛羽偏轉</label>
       <label for="ab-captor" class="ab-btn">生擒者</label>
-<label for="ab-windchild" class="ab-btn">獵鷹之姿</label>
-<label for="ab-sunpierce" class="ab-btn">雷霆釘刺</label>
-<label for="ab-shornvow" class="ab-btn">剃髮者之誓</label>
+      <label for="ab-windchild" class="ab-btn">獵鷹之姿</label>
+      <label for="ab-sunpierce" class="ab-btn">雷霆釘刺</label>
+      <label for="ab-shornvow" class="ab-btn">剃髮者之誓</label>
     </div>
 
     <h3 class="order-header" style="color: #a85754; border-bottom: 2px solid #a85754;">
       🐆 豹騎士 Jaguar Knights  <span class="maz-badge">馬茲提卡</span> 
     </h3>
     <div class="ability-grid">
-<label for="ab-jaguarclaw" class="ab-btn">獵豹突襲</label>
-<label for="ab-grapple" class="ab-btn">處決準備</label>
-<label for="ab-execution" class="ab-btn">弱點打擊</label>
-<label for="ab-shadowcamo" class="ab-btn">密林潛獵</label>
-<label for="ab-bloodscent" class="ab-btn">鮮血嗅覺</label>
-<label for="ab-deathscream" class="ab-btn">死亡尖嘯</label>
-<label for="ab-zaltecfeast" class="ab-btn">戰神的盛宴</label>
-      </div>
+      <label for="ab-jaguarclaw" class="ab-btn">獵豹突襲</label>
+      <label for="ab-grapple" class="ab-btn">處決準備</label>
+      <label for="ab-execution" class="ab-btn">弱點打擊</label>
+      <label for="ab-shadowcamo" class="ab-btn">密林潛獵</label>
+      <label for="ab-bloodscent" class="ab-btn">鮮血嗅覺</label>
+      <label for="ab-deathscream" class="ab-btn">死亡尖嘯</label>
+      <label for="ab-zaltecfeast" class="ab-btn">戰神的盛宴</label>
+    </div>
 
     <div class="ability-detail-box">
-      <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #555; pointer-events: none; z-index: 0;">
-      </div>
+      <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #555; pointer-events: none; z-index: 0;"></div>
 
       <div class="detail-content detail-raptordive">
         <h3 style="color:var(--h-gold)">猛禽俯衝 Raptor's Dive</h3>
@@ -1436,15 +1404,15 @@
         <p>該次近戰攻擊獲得 1 個優勢，且武器傷害骰增加 1 顆。若攻擊命中，你熟練的卸力與翻滾技巧使你不會受到該次跳躍的墜落傷害。這招通常用於金字塔階梯戰或從樹冠突襲。</p>
       </div>
 
-<div class="detail-content detail-sunradiance">
+      <div class="detail-content detail-sunradiance">
         <h3 style="color:var(--h-gold)">耀光戰姿 Radiant Stance</h3>
         <p><strong>先決條件：</strong> 表演 12</p>
         <p><strong>消耗WP：</strong> 3</p>
         <p>你懂得調整角度，利用武器或盔甲上的金屬與黑曜石反射陽光（或火光），瞬間干擾敵人的視線，同時發出振奮人心的戰吼。你可以花費一個動作，強迫周圍 10 米內的所有敵人進行<strong>意志</strong>檢定。</p>
-        <p>失敗者因視線受阻與氣勢被壓制，陷入 暈眩 與 畏縮 </strong>狀態。此外，你展現出的無畏姿態能安撫盟友，移除範圍內盟友的 畏縮 狀態。</p>
+        <p>失敗者因視線受阻與氣勢被壓制，陷入 暈眩 與 畏縮 狀態。此外，你展現出的無畏姿態能安撫盟友，移除範圍內盟友的 畏縮 狀態。</p>
       </div>
 
-<div class="detail-content detail-plumashield">
+      <div class="detail-content detail-plumashield">
         <h3 style="color:var(--h-gold)">飛羽偏轉 Feathered Deflection</h3>
         <p><strong>先決條件：</strong> 體操 12</p>
         <p><strong>消耗WP：</strong> 2</p>
@@ -1460,7 +1428,7 @@
         <p>此外，當你將敵人的 HP 降至 0 時，你可以無須檢定直接宣稱將其「生擒」而非殺死。敵人會立即穩定傷勢但陷入昏迷狀態。這是晉升鷹騎士階級的關鍵能力。</p>
       </div>
 
-<div class="detail-content detail-windchild">
+      <div class="detail-content detail-windchild">
         <h3 style="color:var(--h-gold)">獵鷹之姿 Windstride</h3>
         <p><strong>先決條件：</strong> 體操 12</p>
         <p><strong>消耗WP：</strong> 3</p>
@@ -1468,7 +1436,7 @@
         <p>你該回合的移動速度變成兩倍，且你的移動不會引發敵人的藉機攻擊。你利用滑步、翻滾與蹬牆跳躍穿梭於敵陣之間，直取高價值目標。</p>
       </div>
 
-<div class="detail-content detail-sunpierce">
+      <div class="detail-content detail-sunpierce">
         <h3 style="color:var(--h-gold)">雷霆釘刺 Thunderous Pin</h3>
         <p><strong>先決條件：</strong> 投槍器 12</p>
         <p><strong>消耗WP：</strong> 3</p>
@@ -1476,7 +1444,7 @@
         <p>由於巨大的衝擊力，此攻擊<strong>無視目標的物理護甲值</strong>。若攻擊命中，標槍會深深釘入目標的鎧甲縫隙、肌肉或將其衣物釘在地面上，使其獲得<strong> 禁錮 </strong>狀態（無法移動），直到目標花費一個動作強行拔出標槍。這對阻止對手逃跑極為有效。</p>
       </div>
 
-<div class="detail-content detail-shornvow">
+      <div class="detail-content detail-shornvow">
         <h3 style="color:var(--h-gold)">剃髮者之誓 Vow of the Shorn One</h3>
         <p><strong>先決條件：</strong> 意志 14 (僅限高階鷹騎士)</p>
         <p><strong>消耗WP：</strong> 3 </p>
@@ -1484,7 +1452,7 @@
         <p>靠著狂熱的戰鬥意志，你完全免疫該次位移效果或恐懼攻擊，並激發腎上腺素讓自己暫時忘卻疼痛（立即回復 1D6 HP）。你的雙腳如同生根於大地，展現出令敵人膽寒的死戰決心。</p>
       </div>
 
-<div class="detail-content detail-jaguarclaw">
+      <div class="detail-content detail-jaguarclaw">
         <h3 style="color:var(--h-red)">獵豹突襲 Jaguar's Pounce</h3>
         <p><strong>先決條件：</strong> 體操 12 </p>
         <p><strong>消耗WP：</strong> 2</p>
@@ -1500,7 +1468,7 @@
         <p>被擒抱的敵人無法移動或攻擊，每回合需進行力量對抗才能掙脫。當你維持擒抱時，你對該目標的下一次徒手或小刀攻擊自動命中（視為以匕首抵喉或勒頸的處決準備）。</p>
       </div>
 
-<div class="detail-content detail-execution">
+      <div class="detail-content detail-execution">
         <h3 style="color:var(--h-red)">弱點打擊 Seek Weakness</h3>
         <p><strong>先決條件：</strong> 狩獵 12</p>
         <p><strong>消耗WP：</strong> 3</p>
@@ -1508,7 +1476,7 @@
         <p>若你使用的是穿刺武器，則你的 尋找弱點 攻擊不具劣勢。</p>
       </div>
 
-<div class="detail-content detail-shadowcamo">
+      <div class="detail-content detail-shadowcamo">
         <h3 style="color:var(--h-red)">密林潛獵 Shadow Prowl</h3>
         <p><strong>先決條件：</strong> 隱匿 12</p>
         <p><strong>消耗WP：</strong> 3 </p>
@@ -1546,14 +1514,3 @@
   <button class="back-to-top-btn" onclick="document.getElementById('hero-top').scrollIntoView({behavior:'smooth'})">▲</button>
 
 </div>
-
-
-
-
-
-
-
-
-
-
-
