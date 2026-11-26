@@ -1,154 +1,618 @@
 <style>
-  /* === 信仰頁面專屬 CSS (橫向滿版完整版) === */
-  .magic-section { display: none; animation: fadeIn 0.4s ease; }
-  .magic-section.active { display: block; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-  /* 索引按鈕樣式 */
-  .page-index {
-    background: rgba(0,0,0,0.3);
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 30px;
-    border: 1px solid rgba(201, 163, 90, 0.2);
+  /* === 信仰頁面 CSS (純 HTML+CSS 驅動／阿茲特克壁畫立繪 + 自適應填滿右側) === */
+  :root {
+    --gold-main: var(--gold, #c9a35a);
+    --gold-soft: rgba(201, 163, 90, 0.32);
+    --heretic-red: #b8324b;
   }
-  .index-label {
-    display: block;
-    font-size: 0.8rem;
-    color: var(--gold);
-    margin-bottom: 10px;
-    letter-spacing: 1px;
-    text-align: center;
+
+  .magic-section { display: none; animation: steleFadeIn 0.35s ease; }
+  .magic-section.active { display: block; }
+  @keyframes steleFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* === 主分頁導覽列（主頁標籤置中 + 下方快速查詢） === */
+  .page-index {
+    background: linear-gradient(180deg, rgba(16, 16, 20, 0.92), rgba(9, 9, 12, 0.92));
+    padding: 18px 20px;
+    border-radius: 10px;
+    margin-bottom: 26px;
+    border: 1px solid var(--gold-soft);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
   }
   .index-links {
     display: flex;
     justify-content: center;
+    align-items: center;
     flex-wrap: wrap;
     gap: 10px;
+    width: 100%;
   }
   .index-btn {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.18);
     color: #ccc;
-    padding: 6px 16px;
-    border-radius: 4px;
+    padding: 8px 20px;
+    border-radius: 5px;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.25s ease;
+    font-size: 0.95rem;
+    letter-spacing: 1px;
   }
-  .index-btn:hover { background: rgba(201, 163, 90, 0.2); color: #fff; }
+  .index-btn:hover {
+    background: rgba(201, 163, 90, 0.18);
+    border-color: var(--gold-main);
+    color: #fff;
+  }
   .index-btn.active-tab {
-    background: var(--gold);
-    color: #000;
-    border-color: var(--gold);
+    background: var(--gold-main);
+    color: #0b0b0e;
+    border-color: var(--gold-main);
     font-weight: bold;
+    box-shadow: 0 0 14px rgba(201, 163, 90, 0.4);
+  }
+  .page-index .index-btn.heretic-tab:hover {
+    background: rgba(184, 50, 75, 0.24);
+    border-color: var(--heretic-red);
+    color: #ffdce2;
+  }
+  .page-index .index-btn.heretic-tab.active-tab {
+    background: linear-gradient(135deg, #8e1e34, #b8324b) !important;
+    border-color: #e0566f !important;
+    color: #fff !important;
+    box-shadow: 0 0 16px rgba(184, 50, 75, 0.5) !important;
   }
 
-  /* === 神祇卡片樣式 (橫向滿版) === */
-  .deity-grid {
+  /* 快速查詢欄位 */
+  .quick-search-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 380px;
+  }
+  .quick-search-input {
+    width: 100%;
+    box-sizing: border-box;
+    background: rgba(0, 0, 0, 0.55);
+    border: 1px solid rgba(201, 163, 90, 0.35);
+    border-radius: 6px;
+    padding: 8px 34px 8px 14px;
+    color: #f0e6d2;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.25s, box-shadow 0.25s;
+  }
+  .quick-search-input::placeholder { color: #8a8273; }
+  .quick-search-input:focus {
+    border-color: var(--gold-main);
+    box-shadow: 0 0 10px rgba(201, 163, 90, 0.28);
+  }
+  .quick-search-clear {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    font-size: 1.05rem;
+    display: none;
+    padding: 2px 6px;
+  }
+  .quick-search-clear:hover { color: #fff; }
+  .quick-search-results {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    max-height: 320px;
+    overflow-y: auto;
+    background: #121217;
+    border: 1px solid var(--gold-main);
+    border-radius: 8px;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.88);
+    z-index: 999;
+    display: none;
+  }
+  .quick-search-results.open { display: block; }
+  .search-result-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 13px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    transition: background 0.18s;
+  }
+  .search-result-item:last-child { border-bottom: none; }
+  .search-result-item:hover { background: rgba(201, 163, 90, 0.18); }
+  .search-res-main {
     display: flex;
     flex-direction: column;
-    gap: 25px;
+    min-width: 0;
+    text-align: left;
   }
-  
-  .deity-card {
-    display: flex;
-    flex-direction: row;
-    background: rgba(10, 10, 12, 0.7);
-    border: 1px solid rgba(201, 163, 90, 0.3);
-    border-left: 5px solid var(--gold);
-    border-radius: 10px;
+  .search-res-name {
+    color: #f3e4c2;
+    font-size: 0.92rem;
+    font-weight: bold;
+    white-space: nowrap;
     overflow: hidden;
-    min-height: 220px;
-    transition: transform 0.3s, box-shadow 0.3s;
+    text-overflow: ellipsis;
   }
-  .deity-card:hover {
-    transform: translateX(5px);
-    box-shadow: 0 5px 20px rgba(0,0,0,0.6);
-    background: rgba(20, 20, 25, 0.9);
+  .search-res-sub {
+    color: #999;
+    font-size: 0.78rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .search-res-tag {
+    flex-shrink: 0;
+    font-size: 0.72rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    border: 1px solid rgba(201, 163, 90, 0.45);
+    color: var(--gold-main);
+    background: rgba(201, 163, 90, 0.08);
+  }
+  .search-empty {
+    padding: 14px;
+    text-align: center;
+    color: #888;
+    font-size: 0.86rem;
   }
 
-  /* 左側：頭像與標題 */
-  .deity-header {
-    flex: 0 0 240px;
-    background: rgba(255, 255, 255, 0.03);
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
+  /* === 頂部神祇標籤列（根據數量自動平均分排） === */
+  .stele-radio {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .gallery-selector-panel {
+    background: rgba(10, 10, 14, 0.72);
+    border: 1px solid rgba(201, 163, 90, 0.22);
+    border-radius: 10px;
+    padding: 15px 18px;
+    margin-bottom: 24px;
+  }
+  .deity-tag-bar {
     display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .deity-tag-bar.bar-13 .deity-tag-btn {
+    flex: 1 1 calc((100% - 48px) / 7);
+    min-width: 105px;
+  }
+  .deity-tag-bar.bar-12 .deity-tag-btn {
+    flex: 1 1 calc((100% - 40px) / 6);
+    min-width: 115px;
+  }
+  .deity-tag-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(201, 163, 90, 0.25);
+    color: #d0c8b8;
+    padding: 7px 10px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'Noto Serif TC', serif;
+    user-select: none;
+    box-sizing: border-box;
+    white-space: nowrap;
+  }
+  .deity-tag-btn:hover {
+    background: rgba(201, 163, 90, 0.16);
+    border-color: var(--gold-main);
+    color: #fff;
+    transform: translateY(-1px);
+  }
+
+  /* === 單一神祇專頁卡片（壁畫立繪自動縮放並填滿右側高度） === */
+  .stele-panel {
+    display: none;
+    animation: steleFadeIn 0.3s ease;
+  }
+  .stele-panel.always-visible { display: block; }
+
+  .stele-card {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    background: linear-gradient(145deg, rgba(16, 16, 21, 0.94), rgba(9, 9, 13, 0.96));
+    border: 1px solid rgba(201, 163, 90, 0.38);
+    border-top: 3px solid var(--stele-accent, var(--gold-main));
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.72), inset 0 0 40px rgba(0, 0, 0, 0.55);
+  }
+  .stele-card::before,
+  .stele-card::after {
+    content: "";
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border-color: var(--stele-accent, var(--gold-main));
+    border-style: solid;
+    pointer-events: none;
+    opacity: 0.7;
+    z-index: 2;
+  }
+  .stele-card::before { top: 10px; right: 10px; border-width: 2px 2px 0 0; }
+  .stele-card::after { bottom: 10px; right: 10px; border-width: 0 2px 2px 0; }
+
+  .stele-card.cat-heretic {
+    --stele-accent: var(--heretic-red);
+    background: linear-gradient(145deg, rgba(26, 10, 16, 0.95), rgba(10, 7, 11, 0.98));
+    border-color: rgba(184, 50, 75, 0.5);
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.85), 0 0 28px rgba(184, 50, 75, 0.16);
+  }
+
+  /* 左側：隨版面縮放並完整填滿卡片高度的壁畫欄 */
+  .stele-portrait-col {
+    flex: 0 0 clamp(220px, 28%, 360px);
+    padding: 20px;
+    background: radial-gradient(circle at center, rgba(255, 255, 255, 0.03), rgba(0, 0, 0, 0.45));
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: stretch;
+    box-sizing: border-box;
+  }
+  .stele-frame-fill {
+    position: relative;
+    flex: 1 1 auto;
+    width: 100%;
+    min-height: 360px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid var(--stele-accent, var(--gold-main));
+    background: #070709;
+    box-shadow: 0 8px 26px rgba(0, 0, 0, 0.8);
+    display: flex;
+  }
+  .stele-frame-fill::after {
+    content: "";
+    position: absolute;
+    inset: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 4px;
+    pointer-events: none;
+  }
+  .stele-portrait-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+    transition: transform 0.5s ease;
+  }
+  .stele-frame-fill:hover .stele-portrait-img { transform: scale(1.03); }
+
+  .stele-portrait-placeholder {
+    display: none;
+    width: 100%;
+    flex: 1 1 auto;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 25px;
+    gap: 10px;
+    padding: 18px;
+    box-sizing: border-box;
     text-align: center;
+    background:
+      radial-gradient(circle at 50% 35%, rgba(201, 163, 90, 0.1), transparent 65%),
+      linear-gradient(180deg, #16161d 0%, #09090d 100%);
   }
-
-  .deity-img {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid var(--gold);
-    margin-bottom: 15px;
-    background: #000;
-    box-shadow: 0 0 15px rgba(201, 163, 90, 0.3);
-  }
-
-  .deity-title h3 { 
-    margin: 0; 
-    color: var(--gold); 
-    font-size: 1.4rem; 
+  .placeholder-glyph { font-size: 3.2rem; }
+  .placeholder-label {
     font-family: 'Noto Serif TC', serif;
-    margin-bottom: 5px;
+    color: var(--stele-accent, var(--gold-main));
+    font-size: 0.92rem;
+    letter-spacing: 2px;
   }
-  .deity-title span { 
-    display: block;
-    font-size: 0.9rem; 
-    color: #aaa; 
-    font-weight: normal;
-  }
+  .placeholder-hint { font-size: 0.72rem; color: #6e6a62; word-break: break-all; }
 
-  /* 右側：完整文本 */
-  .deity-body { 
-    flex: 1;
-    padding: 25px 35px;
+  /* 右側：統一介紹內容 */
+  .stele-content-col {
+    flex: 1 1 auto;
+    padding: 30px 36px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: space-between;
+    min-width: 0;
+  }
+  .stele-header {
+    padding-bottom: 14px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid rgba(201, 163, 90, 0.22);
+  }
+  .stele-badge {
+    display: inline-block;
+    font-size: 0.76rem;
+    letter-spacing: 1.5px;
+    padding: 3px 11px;
+    border-radius: 14px;
+    color: var(--stele-accent, var(--gold-main));
+    border: 1px solid var(--stele-accent, var(--gold-main));
+    background: rgba(0, 0, 0, 0.45);
+    margin-bottom: 10px;
+  }
+  .stele-name {
+    margin: 0 0 6px 0;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 1.88rem;
+    color: #f4dfae;
+    line-height: 1.25;
+  }
+  .stele-card.cat-heretic .stele-name { color: #ffcad4; }
+  .stele-name small {
+    font-size: 1.05rem;
+    color: #9f9788;
+    font-weight: normal;
+    margin-left: 8px;
+  }
+  .stele-epithet {
     font-size: 1rem;
-    line-height: 1.8;
+    color: var(--stele-accent, var(--gold-main));
+    letter-spacing: 1px;
+  }
+  .stele-quote {
+    margin: 0 0 18px 0;
+    padding: 10px 16px;
+    background: rgba(0, 0, 0, 0.35);
+    border-left: 3px solid var(--stele-accent, var(--gold-main));
+    font-style: italic;
+    color: #e6d5b2;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 0.96rem;
+  }
+
+  .stele-section-heading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 0.9rem;
+    letter-spacing: 2px;
+    color: var(--stele-accent, var(--gold-main));
+    margin: 0 0 10px 0;
+    text-transform: uppercase;
+  }
+  .stele-section-heading::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(201, 163, 90, 0.3), transparent);
+  }
+  .stele-card.cat-heretic .stele-section-heading::after {
+    background: linear-gradient(90deg, rgba(184, 50, 75, 0.4), transparent);
+  }
+
+  .stele-lore {
+    font-size: 0.98rem;
+    line-height: 1.85;
     color: #ddd;
     text-align: justify;
+    margin-bottom: 22px;
   }
-  
-  .deity-body p { margin-bottom: 15px; }
-  .deity-body p:last-child { margin-bottom: 0; }
+  .stele-lore p { margin: 0 0 12px 0; }
+  .stele-lore p:last-child { margin-bottom: 0; }
 
-  .deity-meta {
-    margin-top: 20px;
-    padding-top: 15px;
-    border-top: 1px dashed rgba(255, 255, 255, 0.15);
-    font-size: 0.95rem;
+  .stele-myths {
+    margin-bottom: 22px;
     display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
+    flex-direction: column;
+    gap: 12px;
   }
-  .deity-meta li { list-style: none; color: #ccc; }
-  .deity-meta strong { color: #f1c40f; margin-right: 5px; }
+  .myth-entry {
+    background: rgba(255, 255, 255, 0.025);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-left: 3px solid var(--stele-accent, var(--gold-main));
+    border-radius: 6px;
+    padding: 13px 16px;
+  }
+  .myth-title {
+    margin: 0 0 6px 0;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 1rem;
+    color: #f3dfb3;
+    letter-spacing: 0.5px;
+  }
+  .stele-card.cat-heretic .myth-title { color: #ffcad4; }
+  .myth-entry p {
+    margin: 0 0 8px 0;
+    font-size: 0.94rem;
+    line-height: 1.8;
+    color: #cfcbc2;
+    text-align: justify;
+  }
+  .myth-entry p:last-child { margin-bottom: 0; }
 
-  /* RWD 手機適配 */
-  @media (max-width: 768px) {
-    .deity-card { flex-direction: column; }
-    .deity-header { 
-      width: 100%; 
-      flex-direction: row; 
-      justify-content: flex-start;
-      text-align: left;
-      padding: 15px;
-      border-right: none;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-      flex: auto;
+  .myth-entry.myth-pending {
+    background: rgba(0, 0, 0, 0.22);
+    border-style: dashed;
+    border-color: rgba(201, 163, 90, 0.22);
+    border-left-style: solid;
+  }
+  .myth-entry.myth-pending p {
+    color: #7d776c;
+    font-style: italic;
+    font-size: 0.88rem;
+  }
+
+  .stele-meta-grid {
+    margin: 0;
+    padding: 16px 0 0 0;
+    border-top: 1px dashed rgba(255, 255, 255, 0.16);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px 24px;
+    list-style: none;
+  }
+  .stele-meta-item {
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: #ccc;
+  }
+  .stele-meta-item strong {
+    display: block;
+    font-size: 0.78rem;
+    letter-spacing: 1px;
+    color: var(--stele-accent, var(--gold-main));
+    margin-bottom: 3px;
+  }
+
+  /* 上下尊翻頁列 */
+  .stele-pager {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 18px;
+    gap: 12px;
+  }
+  .stele-nav-btn {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(201, 163, 90, 0.3);
+    color: #d6c8a8;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.88rem;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .stele-nav-btn:hover {
+    background: rgba(201, 163, 90, 0.2);
+    border-color: var(--gold-main);
+    color: #fff;
+  }
+  .stele-counter {
+    font-size: 0.85rem;
+    color: #999;
+    letter-spacing: 1px;
+  }
+
+  /* === 死後世界（雙欄位面網格） === */
+  .planes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+    gap: 18px;
+  }
+  .planes-grid .rule-card {
+    margin: 0;
+    height: 100%;
+    box-sizing: border-box;
+    transition: box-shadow 0.3s, transform 0.3s;
+  }
+  .planes-grid .rule-card.plane-flash {
+    box-shadow: 0 0 0 2px var(--gold-main), 0 0 24px rgba(201, 163, 90, 0.55);
+    transform: translateY(-2px);
+  }
+
+  /* === 純 CSS 單選切換規則：大陸主神 (13) & 大陸眾靈 (12) === */
+  #m-kukul:checked ~ .gallery-selector-panel label[for="m-kukul"],
+  #m-maztica:checked ~ .gallery-selector-panel label[for="m-maztica"],
+  #m-qotal:checked ~ .gallery-selector-panel label[for="m-qotal"],
+  #m-zaltec:checked ~ .gallery-selector-panel label[for="m-zaltec"],
+  #m-azul:checked ~ .gallery-selector-panel label[for="m-azul"],
+  #m-eha:checked ~ .gallery-selector-panel label[for="m-eha"],
+  #m-kiltzi:checked ~ .gallery-selector-panel label[for="m-kiltzi"],
+  #m-mictlan:checked ~ .gallery-selector-panel label[for="m-mictlan"],
+  #m-nula:checked ~ .gallery-selector-panel label[for="m-nula"],
+  #m-plutoq:checked ~ .gallery-selector-panel label[for="m-plutoq"],
+  #m-tezca:checked ~ .gallery-selector-panel label[for="m-tezca"],
+  #m-watil:checked ~ .gallery-selector-panel label[for="m-watil"],
+  #m-coatlicue:checked ~ .gallery-selector-panel label[for="m-coatlicue"],
+  #s-mayatl:checked ~ .gallery-selector-panel label[for="s-mayatl"],
+  #s-ullqu:checked ~ .gallery-selector-panel label[for="s-ullqu"],
+  #s-chilteq:checked ~ .gallery-selector-panel label[for="s-chilteq"],
+  #s-teponaq:checked ~ .gallery-selector-panel label[for="s-teponaq"],
+  #s-kopalzi:checked ~ .gallery-selector-panel label[for="s-kopalzi"],
+  #s-400rabbits:checked ~ .gallery-selector-panel label[for="s-400rabbits"],
+  #s-zotzca:checked ~ .gallery-selector-panel label[for="s-zotzca"],
+  #s-kuzloq:checked ~ .gallery-selector-panel label[for="s-kuzloq"],
+  #s-waqtol:checked ~ .gallery-selector-panel label[for="s-waqtol"],
+  #s-chaltoq:checked ~ .gallery-selector-panel label[for="s-chaltoq"],
+  #s-poshtli:checked ~ .gallery-selector-panel label[for="s-poshtli"],
+  #s-hoxitl:checked ~ .gallery-selector-panel label[for="s-hoxitl"] {
+    background: linear-gradient(135deg, rgba(201, 163, 90, 0.38), rgba(201, 163, 90, 0.16));
+    border-color: var(--gold-main);
+    color: #fff7e0;
+    font-weight: bold;
+    box-shadow: 0 0 10px rgba(201, 163, 90, 0.32);
+  }
+
+  #m-kukul:checked ~ .stele-panels [data-panel="m-kukul"],
+  #m-maztica:checked ~ .stele-panels [data-panel="m-maztica"],
+  #m-qotal:checked ~ .stele-panels [data-panel="m-qotal"],
+  #m-zaltec:checked ~ .stele-panels [data-panel="m-zaltec"],
+  #m-azul:checked ~ .stele-panels [data-panel="m-azul"],
+  #m-eha:checked ~ .stele-panels [data-panel="m-eha"],
+  #m-kiltzi:checked ~ .stele-panels [data-panel="m-kiltzi"],
+  #m-mictlan:checked ~ .stele-panels [data-panel="m-mictlan"],
+  #m-nula:checked ~ .stele-panels [data-panel="m-nula"],
+  #m-plutoq:checked ~ .stele-panels [data-panel="m-plutoq"],
+  #m-tezca:checked ~ .stele-panels [data-panel="m-tezca"],
+  #m-watil:checked ~ .stele-panels [data-panel="m-watil"],
+  #m-coatlicue:checked ~ .stele-panels [data-panel="m-coatlicue"],
+  #s-mayatl:checked ~ .stele-panels [data-panel="s-mayatl"],
+  #s-ullqu:checked ~ .stele-panels [data-panel="s-ullqu"],
+  #s-chilteq:checked ~ .stele-panels [data-panel="s-chilteq"],
+  #s-teponaq:checked ~ .stele-panels [data-panel="s-teponaq"],
+  #s-kopalzi:checked ~ .stele-panels [data-panel="s-kopalzi"],
+  #s-400rabbits:checked ~ .stele-panels [data-panel="s-400rabbits"],
+  #s-zotzca:checked ~ .stele-panels [data-panel="s-zotzca"],
+  #s-kuzloq:checked ~ .stele-panels [data-panel="s-kuzloq"],
+  #s-waqtol:checked ~ .stele-panels [data-panel="s-waqtol"],
+  #s-chaltoq:checked ~ .stele-panels [data-panel="s-chaltoq"],
+  #s-poshtli:checked ~ .stele-panels [data-panel="s-poshtli"],
+  #s-hoxitl:checked ~ .stele-panels [data-panel="s-hoxitl"] {
+    display: block;
+  }
+
+  /* === RWD 適配 === */
+  @media (max-width: 860px) {
+    .deity-tag-bar.bar-13 .deity-tag-btn,
+    .deity-tag-bar.bar-12 .deity-tag-btn {
+      flex: 1 1 calc((100% - 24px) / 4);
+      min-width: 82px;
+      font-size: 0.85rem;
     }
-    .deity-img { width: 70px; height: 70px; margin-bottom: 0; margin-right: 15px; }
-    .deity-title h3 { font-size: 1.2rem; }
-    .deity-body { padding: 20px; }
+    .stele-card { flex-direction: column; }
+    .stele-portrait-col {
+      flex: none;
+      width: 100%;
+      border-right: none;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 20px;
+    }
+    .stele-frame-fill {
+      flex: none;
+      width: 100%;
+      max-width: 320px;
+      aspect-ratio: 3 / 4;
+      min-height: 0;
+      margin: 0 auto;
+    }
+    .stele-content-col { padding: 24px 20px; }
+    .stele-name { font-size: 1.55rem; }
+    .planes-grid { grid-template-columns: 1fr; }
   }
 </style>
 
@@ -156,307 +620,1533 @@
   <h1>信仰 RELIGION</h1>
   <div class="ornament-divider"></div>
   <p class="intro-text" style="font-style: italic; color: #aaa;">
-    馬茲提卡的信仰偏向泛靈+多神論。祭拜神靈主要是為了感謝神靈的賜予/或出於畏懼，偏向「你需要什麼就向哪位乞求」的概念。<br><br>
-    以下描述了馬茲提克萬神殿的主要神祇。此外，還提供了許多較小的和死去的神，儘管他們的崇拜者不是很少，就是已經不存在了。這份名單並不全面，還有無數的地方神和族裔神沒有被列入這份名單。
+    馬茲提卡的信仰融合泛靈論與多神論——萬物皆有靈，從高居天外或沉眠深土的大陸主神，到棲息於紅樹林、龍舌蘭、陶香爐、斷崖藤橋間或由凡人飛昇而成的大陸眾靈，皆與凡人共存。祭拜神靈主要是出於感謝賜予或畏懼禁忌，偏向「你需要什麼，便向哪位立約乞求」的概念。<br><br>
+    以下收錄大陸主神、大陸眾靈、受太陽凝視所阻的異端「惡魔之女」，以及亡魂托納利歸往的死後世界。
   </p>
 </header>
 
 <nav class="page-index">
-  <span class="index-label">神學典籍 THEOLOGY</span>
   <div class="index-links">
-    <button class="index-btn active-tab" data-target="deities">眾神萬神殿</button>
-    <button class="index-btn" data-target="cosmo">位面宇宙論</button>
-    <button class="index-btn" data-target="others">其他神靈</button>
+    <button type="button" class="index-btn active-tab" data-target="major-deities"
+      onclick="document.querySelectorAll('.page-index .index-btn').forEach(function(b){b.classList.toggle('active-tab',b===this)}.bind(this));document.querySelectorAll('main .magic-section').forEach(function(s){s.classList.toggle('active',s.id==='major-deities')});">大陸主神</button>
+    <button type="button" class="index-btn" data-target="local-spirits"
+      onclick="document.querySelectorAll('.page-index .index-btn').forEach(function(b){b.classList.toggle('active-tab',b===this)}.bind(this));document.querySelectorAll('main .magic-section').forEach(function(s){s.classList.toggle('active',s.id==='local-spirits')});">大陸眾靈</button>
+    <button type="button" class="index-btn heretic-tab" data-target="demon-daughter"
+      onclick="document.querySelectorAll('.page-index .index-btn').forEach(function(b){b.classList.toggle('active-tab',b===this)}.bind(this));document.querySelectorAll('main .magic-section').forEach(function(s){s.classList.toggle('active',s.id==='demon-daughter')});">惡魔之女</button>
+    <button type="button" class="index-btn" data-target="afterlife"
+      onclick="document.querySelectorAll('.page-index .index-btn').forEach(function(b){b.classList.toggle('active-tab',b===this)}.bind(this));document.querySelectorAll('main .magic-section').forEach(function(s){s.classList.toggle('active',s.id==='afterlife')});">死後世界</button>
+  </div>
+
+  <!-- 快速查詢欄位 -->
+  <div class="quick-search-wrap">
+    <input
+      type="text"
+      id="religion-quick-search"
+      class="quick-search-input"
+      placeholder="快速查詢神祇、眾靈、地區或位面..."
+      autocomplete="off"
+      oninput="(function(inp){var q=inp.value.trim().toLowerCase(),w=inp.closest('.quick-search-wrap'),b=w.querySelector('.quick-search-results'),c=w.querySelector('.quick-search-clear');c.style.display=q?'block':'none';if(!q){b.classList.remove('open');b.innerHTML='';return;}var nodes=document.querySelectorAll('[data-search-name]'),res=[];for(var i=0;i<nodes.length;i++){var el=nodes[i],txt=(el.getAttribute('data-search-name')+' '+el.getAttribute('data-search-sub')+' '+el.textContent).toLowerCase();if(txt.indexOf(q)!==-1){res.push(el);if(res.length>=12)break;}}if(!res.length){b.innerHTML='<div class=&quot;search-empty&quot;>查無符合「'+inp.value.trim().replace(/</g,'&lt;')+'」的結果</div>';}else{b.innerHTML=res.map(function(el){return '<div class=&quot;search-result-item&quot; data-tab=&quot;'+el.getAttribute('data-search-tab')+'&quot; data-rid=&quot;'+(el.getAttribute('data-search-radio')||'')+'&quot; data-pid=&quot;'+(el.getAttribute('data-plane')||'')+'&quot;><div class=&quot;search-res-main&quot;><span class=&quot;search-res-name&quot;>'+el.getAttribute('data-search-name')+'</span><span class=&quot;search-res-sub&quot;>'+el.getAttribute('data-search-sub')+'</span></div><span class=&quot;search-res-tag&quot;>'+el.getAttribute('data-search-tag')+'</span></div>';}).join('');}b.classList.add('open');})(this)"
+      onfocus="if(this.value.trim())this.closest('.quick-search-wrap').querySelector('.quick-search-results').classList.add('open');"
+      onblur="var b=this.closest('.quick-search-wrap').querySelector('.quick-search-results');setTimeout(function(){b.classList.remove('open');},160);"
+      onkeydown="if(event.key==='Enter'){event.preventDefault();var f=this.closest('.quick-search-wrap').querySelector('.search-result-item');if(f)f.click();}else if(event.key==='Escape'){this.closest('.quick-search-wrap').querySelector('.quick-search-results').classList.remove('open');}"
+    >
+    <button
+      type="button"
+      class="quick-search-clear"
+      aria-label="清除搜尋"
+      onclick="var w=this.closest('.quick-search-wrap'),i=w.querySelector('.quick-search-input');i.value='';this.style.display='none';w.querySelector('.quick-search-results').classList.remove('open');i.focus();"
+    >&times;</button>
+    <div
+      class="quick-search-results"
+      onmousedown="event.preventDefault();"
+      onclick="(function(box,e){var item=e.target.closest('.search-result-item');if(!item)return;var tab=item.getAttribute('data-tab'),rid=item.getAttribute('data-rid'),pid=item.getAttribute('data-pid');var btn=document.querySelector('.page-index .index-btn[data-target=&quot;'+tab+'&quot;]');if(btn)btn.click();if(rid){var r=document.getElementById(rid);if(r)r.checked=true;}if(pid){var p=document.querySelector('#planes-grid [data-plane=&quot;'+pid+'&quot;]');if(p){p.scrollIntoView({behavior:'smooth',block:'center'});p.classList.remove('plane-flash');void p.offsetWidth;p.classList.add('plane-flash');setTimeout(function(){p.classList.remove('plane-flash');},2200);}}box.classList.remove('open');})(this,event)"
+    ></div>
   </div>
 </nav>
 
 <main>
-  <section id="deities" class="magic-section active">
-    <div class="deity-grid">
-      
-      <div class="deity-card">
-        <div class="deity-header">
-          <img src="images/deities/kukul.webp" alt="Kukul" class="deity-img">
-          <div class="deity-title">
-            <h3>庫庫爾 (Kukul)</h3>
-            <span>古代眾神之父</span>
-          </div>
-        </div>
-        <div class="deity-body">
-          <p>據說，當庫庫爾因妻子馬茲提卡的去世而離開世界時，他留下了他的屍體以及遍布整個大陸的黃金。祂是人類的創造者、太陽神和所有其他神的父親。現在人們相信他住在太陽本身內，今日被稱為庫庫爾之眼。據說太陽凝視著世界，惡魔之女伊察帕普羅特爾就無法進入人類的領域，所以庫庫爾當然仍掌握著一些力量。</p>
-          <p>作為「死去之神」，他不再有任何正式的崇拜者，也沒有以庫庫爾的名義進行的祭祀，但馬茲提卡的長老、聖賢、編年史家和薩滿仍然偶爾向這位被認為已經過世的偉大父親低聲祈禱。</p>
-          <ul class="deity-meta">
-            <li><strong>別稱：</strong> Ancient Father of The Gods</li>
-            <li><strong>象徵：</strong> 星星、流星、黃金</li>
-          </ul>
+  <!-- ==================== 1. 大陸主神 (13尊) ==================== -->
+  <section id="major-deities" class="magic-section active">
+    <div class="stele-gallery">
+      <input type="radio" name="major-stele" id="m-kukul" class="stele-radio" checked>
+      <input type="radio" name="major-stele" id="m-maztica" class="stele-radio">
+      <input type="radio" name="major-stele" id="m-qotal" class="stele-radio">
+      <input type="radio" name="major-stele" id="m-zaltec" class="stele-radio">
+      <input type="radio" name="major-stele" id="m-azul" class="stele-radio">
+      <input type="radio" name="major-stele" id="m-eha" class="stele-radio">
+      <input type="radio" name="major-stele" id="m-kiltzi" class="stele-radio">
+      <input type="radio" name="major-stele" id="m-mictlan" class="stele-radio">
+      <input type="radio" name="major-stele" id="m-nula" class="stele-radio">
+      <input type="radio" name="major-stele" id="m-plutoq" class="stele-radio">
+      <input type="radio" name="major-stele" id="m-tezca" class="stele-radio">
+      <input type="radio" name="major-stele" id="m-watil" class="stele-radio">
+      <input type="radio" name="major-stele" id="m-coatlicue" class="stele-radio">
+
+      <div class="gallery-selector-panel">
+        <div class="deity-tag-bar bar-13">
+          <label for="m-kukul" class="deity-tag-btn">庫庫爾</label>
+          <label for="m-maztica" class="deity-tag-btn">馬茲提卡</label>
+          <label for="m-qotal" class="deity-tag-btn">夸爾特</label>
+          <label for="m-zaltec" class="deity-tag-btn">札爾特克</label>
+          <label for="m-azul" class="deity-tag-btn">阿祖爾</label>
+          <label for="m-eha" class="deity-tag-btn">埃哈</label>
+          <label for="m-kiltzi" class="deity-tag-btn">基爾茲</label>
+          <label for="m-mictlan" class="deity-tag-btn">米克特蘭之主</label>
+          <label for="m-nula" class="deity-tag-btn">努拉</label>
+          <label for="m-plutoq" class="deity-tag-btn">普魯托克</label>
+          <label for="m-tezca" class="deity-tag-btn">泰茲卡</label>
+          <label for="m-watil" class="deity-tag-btn">瓦蒂爾</label>
+          <label for="m-coatlicue" class="deity-tag-btn">科阿特利庫</label>
         </div>
       </div>
 
-      <div class="deity-card">
-        <div class="deity-header">
-          <img src="images/deities/maztica.webp" alt="Maztica" class="deity-img">
-          <div class="deity-title">
-            <h3>馬茲提卡 (Maztica)</h3>
-            <span>世界與生命之母</span>
+      <div class="stele-panels">
+
+        <!-- 1. 庫庫爾 -->
+        <div class="stele-panel" data-panel="m-kukul" data-search-name="庫庫爾 (Kukul)" data-search-sub="古代眾神之父" data-search-tag="大陸主神" data-search-tab="major-deities" data-search-radio="m-kukul">
+          <article class="stele-card">
+            <div class="stele-portrait-col">
+              <div class="stele-frame-fill">
+                <img src="images/deities/kukul.webp" alt="庫庫爾 (Kukul)" class="stele-portrait-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                <div class="stele-portrait-placeholder"><span class="placeholder-glyph">☀️</span><span class="placeholder-label">阿茲特克壁畫立繪</span><span class="placeholder-hint">images/deities/kukul.webp</span></div>
+              </div>
+            </div>
+            <div class="stele-content-col">
+              <div>
+                <div class="stele-header">
+                  <span class="stele-badge">大陸主神 · 遠古亡神</span>
+                  <h2 class="stele-name">庫庫爾<small>Kukul</small></h2>
+                  <div class="stele-epithet">古代眾神之父</div>
+                </div>
+
+                <blockquote class="stele-quote">「敬畏岩石，感謝流水，切莫忘記你們源自同一雙手。」</blockquote>
+
+                <h4 class="stele-section-heading">神格與本質</h4>
+                <div class="stele-lore">
+                  <p>庫庫爾是人類的創造者、原初太陽神以及馬茲提卡諸神之父。在凡間傳說中，祂常顯化為一位身披白赭星紋棉袍、脊梁挺直且雙眼如熔金般澄明的太陽長者。如今祂已作為「離世之神」退隱於高懸天際的太陽之中，化作永不閉合的「庫庫爾之眼」，繼續以烈日目光守護著自己所創造的凡間。</p>
+                  <p>由於庫庫爾已將自身的一切遺留給世界，大陸上不再有以祂為名的神廟與血祭；然而，每當黃昏暮色降臨或流星劃破夜空時，年邁的長老、編年史家與薩滿仍會向著太陽低聲默禱。</p>
+                </div>
+
+                <h4 class="stele-section-heading">神話與傳說</h4>
+                <div class="stele-myths">
+                  <div class="myth-entry">
+                    <h5 class="myth-title">斷指生民與馬茲特蘭的黎明</h5>
+                    <p>在萬物初生之際，世界只有無邊大海與沉睡的土地。庫庫爾與愛妻馬茲提卡攜手行走於大洋中央的七洞穴之島「馬茲特蘭」。為了讓這片寂靜大地擁有能傾聽風聲、耕種玉米並讚美星辰的生靈，在眾神創造無果後，庫庫爾拔出黑曜石刃，面帶微笑地切下了自己的手指。</p>
+                    <p>落入肥沃黑土的手指在母神懷抱中抽芽舒展，化作大陸上最初的人類；庫庫爾以太陽餘溫點燃他們胸口名為「托納利」的靈魂之火，這也是為何馬茲提卡的長老在立下最神聖的誓言時，總會舉起手掌朝向太陽。</p>
+                  </div>
+                  <div class="myth-entry">
+                    <h5 class="myth-title">黃金遺蛻與庫庫爾之眼</h5>
+                    <p>當長子札爾特克在狂怒中揮動黑曜巨刃殺害生命之母馬茲提卡時，整片大陸發出了山崩地裂的哀鳴。庫庫爾抱著妻子漸冷的軀殼流下悲慟之淚，決定離開這片被骨肉相殘玷污的凡塵。離世前，祂將凡間軀殼化作無數道流星散落山脈與河床，凝結成遍布大陸的黃金——本意是留給凡人孩子的溫暖紀念，卻未料數千年後引來了跨海而來的貪婪征服者。而祂的真靈則飛昇融入烈日之中，化作永恆凝視大地的「庫庫爾之眼」。</p>
+                  </div>
+                  <div class="myth-entry">
+                    <h5 class="myth-title">無廟之父的黃昏低語</h5>
+                    <p>雖然城邦中無人為庫庫爾築起高塔，但荒野行者之間始終流傳著關於「太陽老父」的秘聞。據說在最絕望的乾旱或迷途之夜，若旅人發現一塊在月光下微微發熱的自然金塊，或聽見風中傳來彷彿老父親嘆息般的低語，那便是庫庫爾之眼正透過星辰的縫隙，靜靜看顧著祂迷途的孩子。</p>
+                  </div>
+                </div>
+              </div>
+
+              <ul class="stele-meta-grid">
+                <li class="stele-meta-item"><strong>別稱</strong>古代眾神之父、太陽老父、庫庫爾之眼</li>
+                <li class="stele-meta-item"><strong>象徵</strong>太陽金盤、流星、黃金、雙環日輪</li>
+                <li class="stele-meta-item"><strong>信仰與分布</strong>全大陸長老、編年史家與薩滿的默禱</li>
+              </ul>
+            </div>
+          </article>
+          <div class="stele-pager">
+            <label for="m-coatlicue" class="stele-nav-btn">◀ 上一尊主神</label>
+            <span class="stele-counter">1 / 13</span>
+            <label for="m-maztica" class="stele-nav-btn">下一尊主神 ▶</label>
           </div>
         </div>
-        <div class="deity-body">
-          <p>馬茲提卡死於她兒子扎爾特克和馬夸維特爾之手，這對馬茲提卡眾神萬神殿和馬茲提卡的凡人來說是一個可怕的打擊。她比埃哈、庫庫爾或任何其他神更能成為真正的生命之母，受到所有人的愛戴。</p>
-          <p>雖然年老女神已經死了，但據說她仍然在這片土地上生存，據說她的靈魂仍然在馬茲特蘭的外域王國中漫遊。她的崇拜仍然存在於民間和更偏遠部落的薩滿的口中。據說即使是北部沙漠的狗民也尊敬她，儘管並不總是名義上的。</p>
-          <ul class="deity-meta">
-            <li><strong>別稱：</strong> Mother of Life, The World</li>
-            <li><strong>象徵：</strong> 山脈、土壤、銀</li>
-          </ul>
-        </div>
-      </div>
 
-      <div class="deity-card">
-        <div class="deity-header">
-          <img src="images/deities/qotal.webp" alt="Qotal" class="deity-img">
-          <div class="deity-title">
-            <h3>夸爾特 (Qotal)</h3>
-            <span>羽龍、羽之父</span>
+ <!-- 2. 馬茲提卡 (已完成神話與傳說擴寫) -->
+        <div class="stele-panel" data-panel="m-maztica" data-search-name="馬茲提卡 (Maztica)" data-search-sub="世界與生命之母" data-search-tag="大陸主神" data-search-tab="major-deities" data-search-radio="m-maztica">
+          <article class="stele-card">
+            <div class="stele-portrait-col">
+              <div class="stele-frame-fill">
+                <img src="images/deities/maztica.webp" alt="馬茲提卡 (Maztica)" class="stele-portrait-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                <div class="stele-portrait-placeholder"><span class="placeholder-glyph">⛰️</span><span class="placeholder-label">阿茲特克壁畫立繪</span><span class="placeholder-hint">images/deities/maztica.webp</span></div>
+              </div>
+            </div>
+            <div class="stele-content-col">
+              <div>
+                <div class="stele-header">
+                  <span class="stele-badge">大陸主神 · 遠古亡神</span>
+                  <h2 class="stele-name">馬茲提卡<small>Maztica</small></h2>
+                  <div class="stele-epithet">世界與生命之母</div>
+                </div>
+
+                <blockquote class="stele-quote">「吾身即爾等足下之土，吾血即山脈深處流淌之銀。」</blockquote>
+
+                <h4 class="stele-section-heading">神格與本質</h4>
+                <div class="stele-lore">
+                  <p>馬茲提卡不僅是這片大陸的名字，更是孕育萬物的世界與生命之母。相比於高居天外的其它神祇，祂是最貼近凡間呼吸與心跳的慈母——祂的身軀化作了重巒疊嶂的山脈、肥沃的黑土與滋養眾生的玉米田。在神廟的彩繪石壁上，祂常被刻畫為與梯田山脈融為一體的豐盈母神，胸前留有一道古老的黑曜石裂痕，裂縫之中卻不斷湧出清泉與翠綠藤蔓。</p>
+                  <p>儘管在遠古的諸神之戰中，祂慘死於長子札爾特克之手，但凡人與薩滿深信母神並未真正消逝，只是陷入了深沉的眠夢。祂的真靈依然漫遊於外域的七洞穴之島「馬茲特蘭」，而祂的體溫則透過地脈傳遍大陸——從帕伊特的叢林農夫、佩澤拉克的神律學者，甚至連北方荒原狂野的狗民部落，都在不經意間向這位沉睡的母親獻上敬意。</p>
+                </div>
+
+                <h4 class="stele-section-heading">神話與傳說</h4>
+                <div class="stele-myths">
+                  <div class="myth-entry">
+                    <h5 class="myth-title">七洞穴之島與初民搖籃</h5>
+                    <p>在創世之初的混沌大洋中，馬茲提卡以自己的身軀托起了第一片青翠陸地「馬茲特蘭」，並於山腹之中開鑿出七座溫暖幽深的洞穴，作為所有托納利誕生前的搖籃。當丈夫庫庫爾切斷手指撒入黑土時，正是馬茲提卡以溫潤的地熱與甘露包裹這些斷指，讓最初的人類得以在七洞穴的庇護下學會呼吸、耕作與歌唱；日後更親手創造了象徵文明與編織的「羽織秘法」，交由愛子夸爾特傳授給萬民，以抵禦長子札爾特克的野蠻獸術。</p>
+                  </div>
+                  <div class="myth-entry">
+                    <h5 class="myth-title">黑曜弒母與山脈白銀</h5>
+                    <p>在古老的「諸神之戰」中，嗜血的長子札爾特克因嫉妒與狂怒，指責母神偏袒弟弟夸爾特，竟揮動黑曜石巨刃貫穿了馬茲提卡的胸膛[cite: 6]。這場骨肉相殘的悲劇震碎了不朽紀元的和平，馬茲提卡倒臥於大地之上，巨大的神軀化作了今日大陸的骨架與群山；而祂傷口中流出的神聖血液滲入岩層深處，凝結成了遍布山脈的天然白銀——與庫庫爾留下的黃金遙遙相對，成為夫妻二人留給凡間最後的饋贈。</p>
+                  </div>
+                  <div class="myth-entry">
+                    <h5 class="myth-title">沉眠地脈的低語</h5>
+                    <p>在佩澤拉克等地下城邦的古老石典中記載，馬茲提卡的靈魂並未因肉身化為山川而滅絕。每當春天第一場雨落入乾裂的農田、第一株玉米破土而出，或是礦工在深邃岩層中聽見如心臟般規律的地下泉水脈動時，薩滿便知道那是世界之母在睡夢中輕輕翻身。民間流傳著一條樸素的古訓：凡是真心愛護土地、不以無謂鮮血玷污泥土的旅人，無論迷失在哪座深山荒原，大地之母總會為他留下一眼甘泉與一條歸途。</p>
+                  </div>
+                </div>
+              </div>
+
+              <ul class="stele-meta-grid">
+                <li class="stele-meta-item"><strong>別稱</strong>世界與生命之母、沉睡母土、七洞穴之母</li>
+                <li class="stele-meta-item"><strong>象徵</strong>梯田山脈、肥沃黑土、天然白銀、七洞穴</li>
+                <li class="stele-meta-item"><strong>信仰與分布</strong>全大陸農耕聚落、偏遠薩滿與北方荒原部落</li>
+              </ul>
+            </div>
+          </article>
+          <div class="stele-pager">
+            <label for="m-kukul" class="stele-nav-btn">◀ 上一尊主神</label>
+            <span class="stele-counter">2 / 13</span>
+            <label for="m-qotal" class="stele-nav-btn">下一尊主神 ▶</label>
           </div>
         </div>
-        <div class="deity-body">
-          <p>夸爾特是羽毛之父和羽龍。他的外表讓人想起最偉大的龍，儘管他那色彩鮮豔的羽毛褶邊使他的外表與除了鮮為人知的妖野幻影龍之外的大多數龍不同。</p>
-          <p>夸爾特比任何其他神祇都更厭惡犧牲，他的祭司們將把犧牲從馬茲提卡的頑固文化中根除作為一項神聖使命。</p>
-          <p>夸爾特並不總是那麼無辜的神，他過去做過一些可怕的事情，但他越來越意識到自己的行為，並從他所犯的每一個錯誤中學習。今天，在馬茲提卡被限制在阿貝爾的長時間沉默之後，夸爾特仔細而專心地聆聽他信徒的祈禱。過去那些狹隘、嫉妒的神祇已經一去不復返了。</p>
-          <ul class="deity-meta">
-            <li><strong>別稱：</strong> The Feathered Dragon, the Plumed father</li>
-            <li><strong>象徵：</strong> 羽龍或羽蛇</li>
-          </ul>
-        </div>
-      </div>
 
-      <div class="deity-card">
-        <div class="deity-header">
-          <img src="images/deities/zaltec.webp" alt="Zaltec" class="deity-img">
-          <div class="deity-title">
-            <h3>札爾特克 (Zaltec)</h3>
-            <span>戰爭使者、噬心者</span>
+        <!-- 3. 夸爾特 (已整合魔法神戰史) -->
+        <div class="stele-panel" data-panel="m-qotal" data-search-name="夸爾特 (Qotal)" data-search-sub="羽龍、羽之父" data-search-tag="大陸主神" data-search-tab="major-deities" data-search-radio="m-qotal">
+          <article class="stele-card">
+            <div class="stele-portrait-col">
+              <div class="stele-frame-fill">
+                <img src="images/deities/qotal.webp" alt="夸爾特 (Qotal)" class="stele-portrait-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                <div class="stele-portrait-placeholder"><span class="placeholder-glyph">🪶</span><span class="placeholder-label">阿茲特克壁畫立繪</span><span class="placeholder-hint">images/deities/qotal.webp</span></div>
+              </div>
+            </div>
+            <div class="stele-content-col">
+              <div>
+                <div class="stele-header">
+                  <span class="stele-badge">大陸主神</span>
+                  <h2 class="stele-name">夸爾特<small>Qotal</small></h2>
+                  <div class="stele-epithet">羽龍、羽之父</div>
+                </div>
+
+                <blockquote class="stele-quote">「唯有不染血腥的雙手，方能編織出承載微風與星光的羽翼。」</blockquote>
+
+                <h4 class="stele-section-heading">神格與本質</h4>
+                <div class="stele-lore">
+                  <p>夸爾特是天空、和風、文明秩序與創造之神，世人尊稱祂為「羽之父」與「羽龍」。在神廟的彩繪石壁上，祂常以雙翼展張、通體覆滿翠綠與金藍彩羽的羽蛇巨龍之姿盤旋於雲渦之間。祂是「羽織秘法」的傳授者，也是諸神之中最深惡痛絕血腥活祭的存在，其祭司皆將從馬茲提卡文化中根除活人獻祭視為畢生神聖使命。</p>
+                  <p>然而，夸爾特並非生來便毫無瑕疵的神祇——在神戰最慘烈的第二紀元，為了抗衡札爾特克的鮮血禁術，祂曾採取極端手段竊取太陽神力，使光輝亦染上了霸道與狂熱。經歷漫長的放逐與沉寂後，祂痛定思痛並從過往的每個錯誤中汲取教訓；如今重新回歸的祂褪去了當年的驕矜與偏執，以無比專注與溫柔的姿態，傾聽著凡間信徒隨風傳來的每一句低語祈禱。</p>
+                </div>
+
+                <h4 class="stele-section-heading">神話與傳說</h4>
+                <div class="stele-myths">
+                  <div class="myth-entry">
+                    <h5 class="myth-title">第一紀元：羽織初綻與文明之禮</h5>
+                    <p>在萬民初興的第一紀元，大地唯有羽蛇的歌聲與獸性的咆哮。為了抗衡札爾特克賜予獵手的野蠻「毒牙獸術」，世界之母馬茲提卡親手創造了基於「氣息」與「編織」的魔法，並交由愛子夸爾特傳授給凡間。夸爾特抖落璀璨的綠咬鵑尾羽，教導貴族、工匠與外交官以羽毛為媒介構築防護、維持城邦秩序，將文明的高貴與藝術帶入馬茲提卡。</p>
+                  </div>
+                  <div class="myth-entry">
+                    <h5 class="myth-title">第二紀元：竊日之罪與天命曜日</h5>
+                    <p>當神戰升級至第二紀元、札爾特克將禁忌的「心血噬儀」傳授給大祭司時，柔韌優雅的羽織秘法在戰場上顯得過於無力。為了挽救潰敗的信徒，夸爾特不惜犯下大忌——祂暗中竊取了父神庫庫爾與兄弟泰茲卡的太陽神力，將霸道而熾烈的王權魔法「天命曜日」降賜給戰爭領袖與國師，以強行扭轉命運與意志的烈日之威對抗黑暗血術。</p>
+                  </div>
+                  <div class="myth-entry">
+                    <h5 class="myth-title">神明沉默與悔悟歸來</h5>
+                    <p>隨著母親馬茲提卡慘死於札爾特克之手、諸神之戰的餘波闔上了通往凡間的位面之門，夸爾特在漫長的沉寂中深切悔悟了自己竊取日輪、令信仰染上狂熱的過失。當祂終於重返大陸上空時，第一縷清風吹散了大地的陰霾；雖與札爾特克誓不兩立，但古訓記載：若有異邦勢力企圖侵略馬茲提卡，羽龍仍會為了守護母親留下的子民而暫時放下宿怨。</p>
+                  </div>
+                </div>
+              </div>
+
+              <ul class="stele-meta-grid">
+                <li class="stele-meta-item"><strong>別稱</strong>羽龍、羽之父、羽蛇神、竊火羽君</li>
+                <li class="stele-meta-item"><strong>象徵</strong>雙翼羽龍、綠咬鵑彩羽、翡翠雲渦、斷裂黑曜祭刀</li>
+                <li class="stele-meta-item"><strong>信仰與分布</strong>佩澤拉克、帕伊特、鷹騎士團與反對血祭之城邦</li>
+              </ul>
+            </div>
+          </article>
+          <div class="stele-pager">
+            <label for="m-maztica" class="stele-nav-btn">◀ 上一尊主神</label>
+            <span class="stele-counter">3 / 13</span>
+            <label for="m-zaltec" class="stele-nav-btn">下一尊主神 ▶</label>
           </div>
         </div>
-        <div class="deity-body">
-          <p>札爾特克是一位可怕且完全邪惡的神，他永遠渴望犧牲和吞噬人類的心靈。他經常被描繪成一座巨大的石像，有一個血淋淋的大口，每顆給他的心都被扔進了裡面。這種出現當然已經得到證實，因為神曾經在凡間出現過。</p>
-          <p>他是他的兄弟夸爾特永遠的敵人，並且所代表的一切與他兄弟所代表的一切截然相反。儘管存在這種赤裸裸的仇恨，但他們有時還是不得不合作，並且如果外國勢力試圖侵入馬茲提卡，他們總是會合作。</p>
-          <p>札爾特克 (Zaltec) 是母親女神馬茲提卡 (Maztica) 的殺手，也是蝰手獸 (Beasts of the Viperhand) 的守護神。霍西特爾坐在他的右手邊，但這位神並沒有善待他最偉大的僕人。據說，在札塔爾山最深處的洞穴中，他的石質形態沉睡在那裡，對一種被稱為「暗火」的力量擁有最終的控制權。</p>
-          <ul class="deity-meta">
-            <li><strong>別稱：</strong> Bringer of War, Eater of Hearts</li>
-            <li><strong>象徵：</strong> 心、頭骨、瑪卡、刀、血淋淋的手、爪子、獠牙、狩豹、響尾蛇</li>
-          </ul>
-        </div>
-      </div>
 
-      <div class="deity-card">
-        <div class="deity-header">
-          <img src="images/deities/azul.webp" alt="Azul" class="deity-img">
-          <div class="deity-title">
-            <h3>阿祖爾 (Azul)</h3>
-            <span>賜雨者</span>
+        <!-- 4. 札爾特克 (已整合魔法神戰史) -->
+        <div class="stele-panel" data-panel="m-zaltec" data-search-name="札爾特克 (Zaltec)" data-search-sub="戰爭使者、噬心者" data-search-tag="大陸主神" data-search-tab="major-deities" data-search-radio="m-zaltec">
+          <article class="stele-card">
+            <div class="stele-portrait-col">
+              <div class="stele-frame-fill">
+                <img src="images/deities/zaltec.webp" alt="札爾特克 (Zaltec)" class="stele-portrait-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                <div class="stele-portrait-placeholder"><span class="placeholder-glyph">🩸</span><span class="placeholder-label">阿茲特克壁畫立繪</span><span class="placeholder-hint">images/deities/zaltec.webp</span></div>
+              </div>
+            </div>
+            <div class="stele-content-col">
+              <div>
+                <div class="stele-header">
+                  <span class="stele-badge">大陸主神</span>
+                  <h2 class="stele-name">札爾特克<small>Zaltec</small></h2>
+                  <div class="stele-epithet">戰爭使者、噬心者</div>
+                </div>
+
+                <blockquote class="stele-quote">「心臟與鮮血、犧牲與奉獻——唯有烈戰之火，方能餵飽不朽的飢渴。」</blockquote>
+
+                <h4 class="stele-section-heading">神格與本質</h4>
+                <div class="stele-lore">
+                  <p>札爾特克是司掌戰爭、殺戮與活人獻祭的殘酷神祇，世人畏懼地稱祂為「戰爭使者」與「噬心者」。在神廟的彩繪石壁上，祂常被刻畫為一座面目猙獰、張開血淋淋大口的巨大玄武岩石像，雙眼燃燒著紅寶石般的烈焰，吞噬著每一顆獻給祂的凡人心臟——這副駭人真身曾親臨凡間，留下無數血腥傳說。</p>
+                  <p>祂是兄弟夸爾特永世不共戴天的宿敵，所代表的一切皆與羽龍的文明秩序截然相反；然而，這份赤裸的仇恨仍受制於血脈深處的古老羈絆——每當有來自海外的異邦勢力企圖入侵並奴役馬茲提卡時，札爾特克總會與夸爾特暫時聯手抵禦外敵。祂不僅先後賜予信徒「毒牙獸術」與禁忌的「心血噬儀」，亦是蝰手獸的守護神，在自身不願親口發聲之際，便透過立於右手邊的飛昇僕從霍西特爾傳達神諭。</p>
+                </div>
+
+                <h4 class="stele-section-heading">神話與傳說</h4>
+                <div class="stele-myths">
+                  <div class="myth-entry">
+                    <h5 class="myth-title">第一紀元：毒牙獸術與獵手本能</h5>
+                    <p>在部族尚且在叢林中掙扎求存的第一紀元，札爾特克將「毒牙獸術」作為禮物賜予了凡人信徒。這門魔法最初象徵野性、直覺、毒素與獵殺，是豹騎士、偵察兵與平民獵戶用來狩獵野獸、保衛部落以及搜刮戰俘（獻祭品）的生存工具。</p>
+                  </div>
+                  <div class="myth-entry">
+                    <h5 class="myth-title">第二紀元：獸術異化與心血噬儀</h5>
+                    <p>隨著神戰升級，夸爾特傳授的「羽織秘法」憑藉文明與陣法的優勢壓制了野蠻部落，毒牙獸術在戰場上漸失上風。狂怒且渴望鮮血的札爾特克隨即將毒牙獸術異化為專注於物理強化與製造痛苦的純粹殺戮工具，並進一步將更高階的禁忌鮮血神術——「心血噬儀」傳授給大祭司們，教導這些戰場劊子手如何從敵人血管中粗暴「強徵」生命力，將整座戰場化作餵養神權的血腥祭壇。</p>
+                  </div>
+                  <div class="myth-entry">
+                    <h5 class="myth-title">弒母之刃與薩塔爾山底的暗火</h5>
+                    <p>在嫉妒與戰火的驅使下，札爾特克指責母親馬茲提卡偏袒夸爾特，竟揮動黑曜巨刃親手弒殺了世界之母。這場骨肉相殘引爆了驚天動地的神戰餘波，使諸神一度被迫退離凡間；即便日後重返世界，札爾特克也未曾真正寬恕祂最忠誠的僕人，曾親手剜出選民霍西特爾仍在跳動的心臟又將其歸還。如今，據說祂的巨大石質本體沉睡在薩塔爾山最深邃的地底洞穴中，掌控著名為「暗火」的毀滅性秘焰。</p>
+                  </div>
+                </div>
+              </div>
+
+              <ul class="stele-meta-grid">
+                <li class="stele-meta-item"><strong>別稱</strong>戰爭使者、噬心者、暗火之主</li>
+                <li class="stele-meta-item"><strong>象徵</strong>心臟、頭骨、黑曜鋸劍、祭刀、血手、獠牙、狩豹、響尾蛇</li>
+                <li class="stele-meta-item"><strong>信仰與分布</strong>戰團、蝰手獸、內克薩爾山谷內餘黨與薩塔爾山深處</li>
+              </ul>
+            </div>
+          </article>
+          <div class="stele-pager">
+            <label for="m-qotal" class="stele-nav-btn">◀ 上一尊主神</label>
+            <span class="stele-counter">4 / 13</span>
+            <label for="m-azul" class="stele-nav-btn">下一尊主神 ▶</label>
           </div>
         </div>
-        <div class="deity-body">
-          <p>阿祖爾是一位殘酷的神，祂的存在對馬茲提卡的生存和人民的繁榮至關重要。他是命令查克和特拉洛科特爾（雨蛇）等神靈帶來降雨的神，人民尋求阿祖爾的青睞，以便獲得足夠的水。如果他不出手，就可能意味著乾旱和飢荒。</p>
-          <p>世間流傳的形象是一個精壯、微笑的年輕人，臉頰乾乾淨淨，穿著一件簡單的白色長袍，但這位神擁有古老的恥辱和秘密，這使他走上了黑暗的道路。阿祖爾要求獻血以換取他的祝福，最喜歡的犧牲品是經常被淹死在儀式池中的無辜兒童。激怒他總是會帶來可怕的乾旱。因此，每年春天，祭司們都會淹死某人來滿足神靈的需要，而在商隊出發前往荒地之前，通常會獻上一隻小型祭祀動物。</p>
-          <p>阿祖爾的標誌是一條鋸齒狀的紅線，周圍有水滴。一座通常由天然泉水形成的水池總是坐落在供奉阿祖爾的寺廟的中心，牧師和士兵奮勇守護著這座神聖的聖地。阿祖爾最狂熱的追隨者屬於兇猛的沙漠遊牧民族，他們攻擊粗心的旅行者，將奴隸拿來獻祭或用作建造更多神廟的勞動力。</p>
-          <ul class="deity-meta">
-            <li><strong>別稱：</strong> Giver of Rain</li>
-            <li><strong>象徵：</strong> 雨、冰、魚、蛙、奧克特力</li>
-          </ul>
-        </div>
-      </div>
 
-      <div class="deity-card">
-        <div class="deity-header">
-          <img src="images/deities/eha.webp" alt="Eha" class="deity-img">
-          <div class="deity-title">
-            <h3>埃哈 (Eha)</h3>
-            <span>風之精魂</span>
+        <!-- 5. 阿祖爾 (已完成神話與傳說擴寫) -->
+        <div class="stele-panel" data-panel="m-azul" data-search-name="阿祖爾 (Azul)" data-search-sub="賜雨者、奪息者" data-search-tag="大陸主神" data-search-tab="major-deities" data-search-radio="m-azul">
+          <article class="stele-card">
+            <div class="stele-portrait-col">
+              <div class="stele-frame-fill">
+                <img src="images/deities/azul.webp" alt="阿祖爾 (Azul)" class="stele-portrait-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                <div class="stele-portrait-placeholder"><span class="placeholder-glyph">🌧️</span><span class="placeholder-label">阿茲特克壁畫立繪</span><span class="placeholder-hint">images/deities/azul.webp</span></div>
+              </div>
+            </div>
+            <div class="stele-content-col">
+              <div>
+                <div class="stele-header">
+                  <span class="stele-badge">大陸主神</span>
+                  <h2 class="stele-name">阿祖爾<small>Azul</small></h2>
+                  <div class="stele-epithet">賜雨者、奪息者</div>
+                </div>
+
+                <blockquote class="stele-quote">「甘霖與溺水皆出自吾手——欲求大地解渴，必先以呼吸與鮮血奉還。」</blockquote>
+
+                <h4 class="stele-section-heading">神格與本質</h4>
+                <div class="stele-lore">
+                  <p>阿祖爾是司掌暴雨、泉水、乾旱與洪災的殘酷神祇，世人敬畏地稱祂為「賜雨者」，卻也在私底下恐懼地低喚祂為「奪息者」。祂是命令查克與雨蛇特拉洛科特爾等行雨精靈為大地帶來降雨的主宰，馬茲提卡的農耕與城邦繁榮皆繫於祂的一念之間——若祂冷眼旁觀，隨之而來的便是龜裂大地的旱災與飢荒。</p>
+                  <p>在神廟壁畫與凡間傳聞中，阿祖爾總以一名體格精壯、臉頰無鬚、嘴角掛著溫和微笑的年輕男子形象現身，身披一襲素淨白袍；然而這副聖潔表象之下，卻隱藏著使祂墮入黑暗的古老恥辱與秘密。祂要求以鮮血與呼吸換取甘霖，而每一座供奉祂的神廟中心，必建有一口由天然泉水匯聚而成的深邃聖池，由狂熱祭司與衛兵日夜把守。</p>
+                </div>
+
+                <h4 class="stele-section-heading">神話與傳說</h4>
+                <div class="stele-myths">
+                  <div class="myth-entry">
+                    <h5 class="myth-title">白袍微笑與深池之約</h5>
+                    <p>阿祖爾從不以猙獰面目示人，祂總是微笑著向乾渴的凡人索討代價——而祂最鍾愛的祭品，便是在神廟儀式聖池中溺斃的無辜孩童。每逢春季播種前夕，各大城邦的祭司皆須於聖池舉行溺祭，以平息奪息者對生命氣息的貪婪；即便是商隊啟程橫越荒地之前，也必須在池畔獻上小型活物以求一路有水。凡是膽敢違抗或激怒祂的人，必將招致井水枯竭、禾苗焦黃的慘烈懲罰。</p>
+                  </div>
+                  <div class="myth-entry">
+                    <h5 class="myth-title">雨蛇行雲與姊妹的忍耐</h5>
+                    <p>在天穹之上，阿祖爾驅策著鱗光閃爍的「雨蛇」特拉洛科特爾翻湧烏雲，將雨水灑向田野，偶爾亦降下神聖的奧克特力酒液；然而祂對待親族同樣苛刻無情。植物女神瓦蒂爾因萬物生長離不開雨水，始終對這位兄長懷抱著無奈的感激，即便阿祖爾對妹妹的態度既專橫又充滿虐待，仁慈的瓦蒂爾卻從未放棄祂，在狂暴的賜雨者面前始終以平靜而堅韌的力量守護著大地草木。</p>
+                  </div>
+                  <div class="myth-entry">
+                    <h5 class="myth-title">荒原奴隸與竊息者的覺醒</h5>
+                    <p>阿祖爾最狂熱的追隨者盤踞在乾燥酷熱的北方荒原，這些兇猛的沙漠遊牧部族四處襲擊粗心的旅人，將俘虜押往隱藏於沙海深處的泉水聖殿，作為溺祭的祭品或修築神廟的奴隸。而在神明陷入沉默的第四紀元裡，當世人苦於無法再輕易換得神靈垂憐時，一群在荒野中覺醒的「萬象神息」源術者開始模仿風暴的脈動與奪息者的呼吸，試圖在不向殘酷神祇獻出無辜生命的前提下，強行撬開現實裂縫引來甘霖。</p>
+                  </div>
+                </div>
+              </div>
+
+              <ul class="stele-meta-grid">
+                <li class="stele-meta-item"><strong>別稱</strong>賜雨者、奪息者、深池之主</li>
+                <li class="stele-meta-item"><strong>象徵</strong>水滴環繞的鋸齒紅線、暴雨、冰雹、魚、蛙、雨蛇</li>
+                <li class="stele-meta-item"><strong>信仰與分布</strong>各大城邦雨神聖池、沙漠遊牧部族與荒原泉殿</li>
+              </ul>
+            </div>
+          </article>
+          <div class="stele-pager">
+            <label for="m-zaltec" class="stele-nav-btn">◀ 上一尊主神</label>
+            <span class="stele-counter">5 / 13</span>
+            <label for="m-eha" class="stele-nav-btn">下一尊主神 ▶</label>
           </div>
         </div>
-        <div class="deity-body">
-          <p>埃哈是一位煙霧繚繞、虛無縹緲的風之女神。她不可思議的長髮在她的身體上飄揚，據說是埃哈為新生兒帶來呼吸，因此她扮演著生命女神的角色。</p>
-          <p>埃哈也擁有風的管轄權，但她對天氣的控制被認為比阿祖爾或泰茲卡給世界帶來的更溫和。埃哈通常被認為是一位溫柔的女神，儘管事實上她在過去的戰鬥中支持了扎爾特克和夸爾特。</p>
-          <ul class="deity-meta">
-            <li><strong>別稱：</strong> Wind Sprite</li>
-            <li><strong>象徵：</strong> 雲、煙、汽、風、笛、角</li>
-          </ul>
-        </div>
-      </div>
 
-      <div class="deity-card">
-        <div class="deity-header">
-          <img src="images/deities/kiltzi.webp" alt="Kiltzi" class="deity-img">
-          <div class="deity-title">
-            <h3>基爾茲 (Kiltzi)</h3>
-            <span>愛與歡樂女神</span>
+        <!-- 6. 埃哈 (已完成神話與傳說擴寫) -->
+        <div class="stele-panel" data-panel="m-eha" data-search-name="埃哈 (Eha)" data-search-sub="風之精魂" data-search-tag="大陸主神" data-search-tab="major-deities" data-search-radio="m-eha">
+          <article class="stele-card">
+            <div class="stele-portrait-col">
+              <div class="stele-frame-fill">
+                <img src="images/deities/eha.webp" alt="埃哈 (Eha)" class="stele-portrait-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                <div class="stele-portrait-placeholder"><span class="placeholder-glyph">🌬️</span><span class="placeholder-label">阿茲特克壁畫立繪</span><span class="placeholder-hint">images/deities/eha.webp</span></div>
+              </div>
+            </div>
+            <div class="stele-content-col">
+              <div>
+                <div class="stele-header">
+                  <span class="stele-badge">大陸主神</span>
+                  <h2 class="stele-name">埃哈<small>Eha</small></h2>
+                  <div class="stele-epithet">風之精魂</div>
+                </div>
+
+                <blockquote class="stele-quote">「凡生靈的第一口啼哭，皆是吾吹入塵世的微風。」</blockquote>
+
+                <h4 class="stele-section-heading">神格與本質</h4>
+                <div class="stele-lore">
+                  <p>埃哈是一位煙霧繚繞、虛無縹緲的風之神祇。在神廟的彩繪石壁上，祂的身軀半隱於流動的雲霧之間，不可思議的長髮如奔騰氣流般在周身飄揚。據說是埃哈親手為每一個降生於世的新生兒吹入第一口呼吸，因此祂在凡間亦扮演著溫柔生命之神的角色。</p>
+                  <p>埃哈掌管著天空的風與氣流，但祂對天候的駕馭遠比賜雨者阿祖爾或烈焰主宰泰茲卡來得溫和許多。世人普遍將埃哈視為一位仁慈而寬宥的神靈，儘管在古老的諸神之戰中，無拘無束的祂曾先後在兩位兄弟——夸爾特與札爾特克——的戰鬥中吹起順風。</p>
+                </div>
+
+                <h4 class="stele-section-heading">神話與傳說</h4>
+                <div class="stele-myths">
+                  <div class="myth-entry">
+                    <h5 class="myth-title">初生之息與風羽之祝</h5>
+                    <p>當眾神之父庫庫爾與世界之母馬茲提卡以黑土與太陽餘溫塑造出最初的凡人時，這些初生的軀體雖有血肉與魂火，卻仍沉寂無聲。埃哈見狀便化作一縷清涼的晨霧降臨，將自己飄揚的長髮輕拂過凡人唇畔，吹入了第一道生命氣息，喚醒了人間第一聲響亮的啼哭。自此，馬茲提卡的產婆與母親在迎接新生命時，總會在屋簷掛起純白的「風羽」，感謝風之精魂賜予孩童順暢的呼吸。</p>
+                  </div>
+                  <div class="myth-entry">
+                    <h5 class="myth-title">吹拂雙翼的無偏之風</h5>
+                    <p>在血火交織的諸神之戰期間，夸爾特與札爾特克為了「羽織」與「血鱗」的理念撕裂了整片大陸，大多數神靈皆被迫選邊站立。然而，埃哈正如天空的風一般無法被任何城牆或誓言囚禁——祂既曾托起夸爾特的羽龍雙翼傳遞和平訊息，亦曾在札爾特克戰團迷失於荒原濃霧時吹散雲靄。世人並非因此責怪祂反覆無常，反而領悟到「空氣與呼吸屬於大地上的每一個生靈，不分善惡與貴賤」。</p>
+                  </div>
+                  <div class="myth-entry">
+                    <h5 class="myth-title">笛音引路與馬耶爾的平靜風眼</h5>
+                    <p>旅人與信使在橫越酷熱荒原或險峻山谷時，常會吹響骨笛或海螺向埃哈祈求涼風。傳說在死後世界的旋風位面「馬耶爾」中，無數躁動不安的亡魂被永恆的暴風拋擲翻滾，唯有生前心懷溫柔、敬重生命氣息並忠於埃哈的托納利，才能在狂風最中心那片靜謐無波的「風眼」裡，聆聽著永恆的笛聲安然長眠。</p>
+                  </div>
+                </div>
+              </div>
+
+              <ul class="stele-meta-grid">
+                <li class="stele-meta-item"><strong>別稱</strong>風之精魂、初息之神、和風女神</li>
+                <li class="stele-meta-item"><strong>象徵</strong>白皙風羽、雲霧、炊煙、氣旋、骨笛、海螺號角</li>
+                <li class="stele-meta-item"><strong>信仰與分布</strong>全大陸旅人、信使、接生祭司與各地神殿</li>
+              </ul>
+            </div>
+          </article>
+          <div class="stele-pager">
+            <label for="m-azul" class="stele-nav-btn">◀ 上一尊主神</label>
+            <span class="stele-counter">6 / 13</span>
+            <label for="m-kiltzi" class="stele-nav-btn">下一尊主神 ▶</label>
           </div>
         </div>
-        <div class="deity-body">
-          <p>基爾茲是無可爭議且受人喜愛的愛與歡樂女神。她受到所有人的尊敬，也許除了蝰手獸之外，她受到所有人的尊敬。甚至他們也承認她是世界上不可或缺的一部分，而基爾茲的女祭司可能是唯一一個在試圖穿越內克薩爾土地時發現自己被放任的人類。</p>
-          <p>基爾茲的信徒專注於治療病人、舉行婚禮和歡迎孩子來到這個世界。她本人經常被描繪成一位美麗的孕婦。所有死於難產的婦女都會被她親自帶入特拉克斯考特利，這是最尊貴、最美麗的天國。</p>
-          <ul class="deity-meta">
-            <li><strong>別稱：</strong> Giver of Health, Growth, Nourishment and Love</li>
-            <li><strong>象徵：</strong> 花蕾、孕婦、嬰兒、彩虹、月亮</li>
-          </ul>
-        </div>
-      </div>
 
-      <div class="deity-card">
-        <div class="deity-header">
-          <img src="images/deities/mictlāntēcutli.webp" alt="Mictlan" class="deity-img">
-          <div class="deity-title">
-            <h3>米克特蘭之主</h3>
-            <span>死者守護神</span>
+        <!-- 7. 基爾茲 (已完成神話與傳說擴寫) -->
+        <div class="stele-panel" data-panel="m-kiltzi" data-search-name="基爾茲 (Kiltzi)" data-search-sub="愛與歡樂女神" data-search-tag="大陸主神" data-search-tab="major-deities" data-search-radio="m-kiltzi">
+          <article class="stele-card">
+            <div class="stele-portrait-col">
+              <div class="stele-frame-fill">
+                <img src="images/deities/kiltzi.webp" alt="基爾茲 (Kiltzi)" class="stele-portrait-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                <div class="stele-portrait-placeholder"><span class="placeholder-glyph">🌺</span><span class="placeholder-label">阿茲特克壁畫立繪</span><span class="placeholder-hint">images/deities/kiltzi.webp</span></div>
+              </div>
+            </div>
+            <div class="stele-content-col">
+              <div>
+                <div class="stele-header">
+                  <span class="stele-badge">大陸主神</span>
+                  <h2 class="stele-name">基爾茲<small>Kiltzi</small></h2>
+                  <div class="stele-epithet">愛與歡樂女神</div>
+                </div>
+
+                <blockquote class="stele-quote">「只要還有一盞守護生命的燭火亮著，死亡便休想奪走吾之所愛。」</blockquote>
+
+                <h4 class="stele-section-heading">神格與本質</h4>
+                <div class="stele-lore">
+                  <p>基爾茲是馬茲提卡大陸上無可爭議且最受愛戴的愛與歡樂之神，亦司掌健康、成長、滋養與婚姻。在神廟的彩繪石壁上，祂常被刻畫為一位面容慈祥、腹部微隆的美麗孕婦，胸懷間綻放著金絲映紅的「花心」圖騰。祂的信徒專注於醫治病患、主持婚禮並迎接新生命降臨塵世；而所有在分娩中力竭離世的母親，皆會由基爾茲親自牽引，飛往天國綠洲「卡特蘭帕」與崇高聖域「特拉克斯考特利」享有無盡安寧。</p>
+                  <p>在充滿血祭與征伐陰影的大陸上，基爾茲幾乎受到所有生靈的敬重——甚至連殘暴無情的蝰手獸也承認祂是維繫世界不可或缺的存在。傳說基爾茲的女祭司是全大陸唯一在穿越內克薩爾山谷時，不會遭到蝰手獸獵殺或阻攔的人類。</p>
+                </div>
+
+                <h4 class="stele-section-heading">神話與傳說</h4>
+                <div class="stele-myths">
+                  <div class="myth-entry">
+                    <h5 class="myth-title">第三紀元：戰火哀鳴與「滌穢醫道」</h5>
+                    <p>當神戰演進至最慘烈的第三紀元，札爾特克的「心血噬儀」與夸爾特竊火而來的「天命曜日」在戰場上無情碰撞，致使大地血流成河、哀鴻遍野，無數無辜凡人染上戰場疫病與靈魂「污穢」。在善惡鬥爭的夾縫中，基爾茲與姊妹植物女神瓦蒂爾聽見了凡人的哭聲。兩位仁慈的女神攜手降下悲憫法門——「滌穢醫道」，教導世人以草藥、蒸汽、光織披肩與翠綠生命繫帶修復傷痛、洗滌污穢，在殺戮橫行的紀元裡為凡人撐起唯一的溫柔避風港。</p>
+                  </div>
+                  <div class="myth-entry">
+                    <h5 class="myth-title">虹藤禁苑與無血之誓</h5>
+                    <p>相傳在古戰場的一處山谷中，兩支城邦大軍正準備展開不死不休的血祭廝殺，基爾茲不忍見無數年輕生命化作祭壇上的枯骨，便將一捧金黃的安眠花粉與彩虹光弧灑向山谷。剎那間，發光的靈體藤蔓破土而出，七彩虹光如枷鎖般籠罩整座戰場，將所有兵刃封入盛開的繁花之中，令狂熱的戰士瞬間放下武器、相擁而泣。自此，凡是懸掛基爾茲花蕾徽記的醫館與產房，皆被視為神聖不可侵犯的「止戰禁苑」。</p>
+                  </div>
+                  <div class="myth-entry">
+                    <h5 class="myth-title">蝰手獸的默許與孕母天國</h5>
+                    <p>就連信奉噬心者札爾特克的戰士與蝰手獸，也深知若沒有基爾茲的庇佑，部族便無法繁衍後代、傷兵亦將盡數潰爛而死。因此，在內克薩爾血腥的征途上，若遇見身披花紋織錦、手持藥草籃的基爾茲女祭司，即便是嗜血的獵手也會默默退開讓出道路。而在天國綠洲「卡特蘭帕」中，基爾茲為每一位難產而亡的母親賜予潔白的鷹翼，讓她們能自由翱翔於沙漠綠洲之上，俯瞰並守護自己在凡間留下的孩子。</p>
+                  </div>
+                </div>
+              </div>
+
+              <ul class="stele-meta-grid">
+                <li class="stele-meta-item"><strong>別稱</strong>愛與歡樂女神、健康與滋養之賜予者、慈母聖靈</li>
+                <li class="stele-meta-item"><strong>象徵</strong>花心、花蕾、孕婦、嬰兒、彩虹、彎月、光織披肩</li>
+                <li class="stele-meta-item"><strong>信仰與分布</strong>全大陸城邦、醫道神殿、助產祭司與家庭聚落</li>
+              </ul>
+            </div>
+          </article>
+          <div class="stele-pager">
+            <label for="m-eha" class="stele-nav-btn">◀ 上一尊主神</label>
+            <span class="stele-counter">7 / 13</span>
+            <label for="m-mictlan" class="stele-nav-btn">下一尊主神 ▶</label>
           </div>
         </div>
-        <div class="deity-body">
-          <p>雖然他們曾經在人類中擁有更高的地位，但已婚的神和死亡女神已經退回到米克特蘭的腹地，在那些稱他們為守護神的人們中不再活躍。相反，男神和女神只默默地處理死者的事務，據說他們一起引導著被稱為「齊齊米姆(zizimime)」的骷髏靈魂。</p>
-          <p>米克特蘭領主的崇拜者傾向於悄悄地收集死者的屍體，並以適當的方式處理它們，以便他們可以進入來世的適當區域，無論是天堂還是地獄。他們還負責確保屍體不會污染或在活著的人中傳播疾病。</p>
-          <ul class="deity-meta">
-            <li><strong>別稱：</strong> Lords of Mictlan</li>
-            <li><strong>象徵：</strong> 骷髏、骨王座、頭骨與頭飾</li>
-          </ul>
-        </div>
-      </div>
 
-      <div class="deity-card">
-        <div class="deity-header">
-          <img src="images/deities/nula.webp" alt="Nula" class="deity-img">
-          <div class="deity-title">
-            <h3>努拉 (Nula)</h3>
-            <span>動物的守護者</span>
+        <!-- 8. 米克特蘭之主 (已完成神話與傳說擴寫) -->
+        <div class="stele-panel" data-panel="m-mictlan" data-search-name="米克特蘭之主 (Lords of Mictlan)" data-search-sub="死者守護神" data-search-tag="大陸主神" data-search-tab="major-deities" data-search-radio="m-mictlan">
+          <article class="stele-card">
+            <div class="stele-portrait-col">
+              <div class="stele-frame-fill">
+                <img src="images/deities/mictlāntēcutli.webp" alt="米克特蘭之主" class="stele-portrait-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                <div class="stele-portrait-placeholder"><span class="placeholder-glyph">💀</span><span class="placeholder-label">阿茲特克壁畫立繪</span><span class="placeholder-hint">images/deities/mictlāntēcutli.webp</span></div>
+              </div>
+            </div>
+            <div class="stele-content-col">
+              <div>
+                <div class="stele-header">
+                  <span class="stele-badge">大陸主神</span>
+                  <h2 class="stele-name">米克特蘭之主<small>Lords of Mictlan</small></h2>
+                  <div class="stele-epithet">死者守護神</div>
+                </div>
+
+                <blockquote class="stele-quote">「生者有其疆界，死者有其歸途；唯潔淨之骨與安息之魂，方能穿越九重幽冥。」</blockquote>
+
+                <h4 class="stele-section-heading">神格與本質</h4>
+                <div class="stele-lore">
+                  <p>米克特蘭之主並非單一神祇，而是並肩統治九層死亡之地的夫妻神——死亡之王「米克特蘭特庫特利」與死亡之后「米克特卡西瓦特爾」。在神廟的彩繪石壁上，祂們常被刻畫為對稱端坐於雙子骨王座上的莊嚴身影，頭戴燃燒著幽藍靈火的「骨冠」，神態冷冽卻不猙獰，散發著對死亡的絕對沉思與敬意。</p>
+                  <p>雖然在遙遠的過去，祂們曾在凡間擁有更顯赫的地位，但這對夫妻神早已主動退隱至米克特蘭最深邃的腹地，不再插手城邦征伐或神戰紛爭。相反地，祂們在幽暗中默默維繫著生死秩序，共同引領名為「齊齊米姆」的骷髏靈魂牧者，確保每一位亡者的托納利皆能依循生前本性前往應屬的來世歸宿。</p>
+                </div>
+
+                <h4 class="stele-section-heading">神話與傳說</h4>
+                <div class="stele-myths">
+                  <div class="myth-entry">
+                    <h5 class="myth-title">退隱幽冥與齊齊米姆的牧魂之約</h5>
+                    <p>當諸神為了血祭、榮耀與領域在凡間掀起連綿戰火時，米克特蘭特庫特利與米克特卡西瓦特爾深知，若連掌管死亡的神祇也偏袒任何一方，亡魂便將永無寧日。於是夫妻二神毅然離開天界與塵世的喧囂，退入九層幽冥的最底層。祂們在外域大金字塔的純白迷霧中派駐了無數骷髏僕從「齊齊米姆」，立下鐵律：無論亡魂生前是君王或奴隸、祭司或平民，齊齊米姆皆既無惡意亦無同情，只憑靈魂本身的重量與塵世習性，公正地引導其走向天堂或地獄。</p>
+                  </div>
+                  <div class="myth-entry">
+                    <h5 class="myth-title">潔骨之律與無聲收斂者</h5>
+                    <p>米克特蘭之主的崇拜者從不建造高聳張揚的金字塔，也不舉行喧鬧的祭典。這些身穿素黑與骨白長袍的守喪者與收斂祭司，總是在戰火平息或夜深人靜時悄悄現身，妥善收集無人認領的遺骸。他們遵循雙神的教誨，以柯巴脂白煙與聖水細心潔淨屍身、安放於石龕之中——這不僅是為了讓亡魂得以順利踏上來世旅途，更是為了防止腐敗屍骸滋生「污穢」、在活人之間散播瘟疫，或遭到邪惡死靈術士褻瀆喚起。</p>
+                  </div>
+                  <div class="myth-entry">
+                    <h5 class="myth-title">九層盡頭的幽藍微光</h5>
+                    <p>傳說通往米克特蘭的旅途漫長而嚴酷，亡魂必須花費數年時間穿越刮肉刀風的荒野、黑曜石山脊與充滿狩豹靈魂的血河。然而，當經歷重重試煉的靈魂終於抵達九層地獄的最深處時，迎接他們的並非嗜血的折磨，而是米克特蘭之主並肩而坐的寂靜大殿。據說在死寂無聲的幽冥裡，死亡之王與死亡之后始終緊握彼此的手，冠冕上的幽藍靈火映照著永恆的陪伴，向所有跨越生死邊界的靈魂證明——即便在萬物終結之處，愛與尊嚴依然長存。</p>
+                  </div>
+                </div>
+              </div>
+
+              <ul class="stele-meta-grid">
+                <li class="stele-meta-item"><strong>別稱</strong>死者守護神、死亡之王與后、冥府雙主</li>
+                <li class="stele-meta-item"><strong>象徵</strong>骨冠、幽藍靈火、雙子骨王座、頭骨頭飾、柯巴香煙</li>
+                <li class="stele-meta-item"><strong>信仰與分布</strong>各地地下石龕墓殿、守喪者與無聲收斂祭司</li>
+              </ul>
+            </div>
+          </article>
+          <div class="stele-pager">
+            <label for="m-kiltzi" class="stele-nav-btn">◀ 上一尊主神</label>
+            <span class="stele-counter">8 / 13</span>
+            <label for="m-nula" class="stele-nav-btn">下一尊主神 ▶</label>
           </div>
         </div>
-        <div class="deity-body">
-          <p>努拉是除了羽龍本身之外唯一沒有普遍描繪的擬人形態的神。她的形象很多，但迄今為止最常見的是一隻聰明、四肢長的猴子。</p>
-          <p>努拉很狂野，以滑稽的滑稽動作而聞名，但她並沒有得到許多其他神靈所獲得的尊重。一般來說，馬茲提克人的生存更依賴植物而不是動物。</p>
-          <p>沿海社區傾向於將部分捕獲物獻給她，偶爾會將小飾品扔進海裡，相信它們最終會落入女神手中。</p>
-          <ul class="deity-meta">
-            <li><strong>別稱：</strong> Guardian of Animals</li>
-            <li><strong>象徵：</strong> 猛虎、蜂鳥、蛇、禿鷹、猴子</li>
-          </ul>
-        </div>
-      </div>
 
-      <div class="deity-card">
-        <div class="deity-header">
-          <img src="images/deities/plutoq.webp" alt="Plutoq" class="deity-img">
-          <div class="deity-title">
-            <h3>普魯托克 (Plutoq)</h3>
-            <span>大地和岩石之主</span>
+        <!-- 9. 努拉 (已完成神話與傳說擴寫) -->
+        <div class="stele-panel" data-panel="m-nula" data-search-name="努拉 (Nula)" data-search-sub="動物的守護者" data-search-tag="大陸主神" data-search-tab="major-deities" data-search-radio="m-nula">
+          <article class="stele-card">
+            <div class="stele-portrait-col">
+              <div class="stele-frame-fill">
+                <img src="images/deities/nula.webp" alt="努拉 (Nula)" class="stele-portrait-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                <div class="stele-portrait-placeholder"><span class="placeholder-glyph">🐒</span><span class="placeholder-label">阿茲特克壁畫立繪</span><span class="placeholder-hint">images/deities/nula.webp</span></div>
+              </div>
+            </div>
+            <div class="stele-content-col">
+              <div>
+                <div class="stele-header">
+                  <span class="stele-badge">大陸主神</span>
+                  <h2 class="stele-name">努拉<small>Nula</small></h2>
+                  <div class="stele-epithet">動物的守護者</div>
+                </div>
+
+                <blockquote class="stele-quote">「莫輕視林間的啼笑與暗影中的窺視——凡有爪牙與羽翼者，皆是吾之血脈。」</blockquote>
+
+                <h4 class="stele-section-heading">神格與本質</h4>
+                <div class="stele-lore">
+                  <p>努拉是馬茲提卡飛禽走獸與荒野靈獸的守護神，亦是除了羽龍夸爾特之外，唯一不以擬人化容貌受世人描繪的主神。在神廟的彩繪石壁上，祂的化身千變萬化，但最為人熟知的形象是一隻雙眼閃爍著智慧與狡黠光芒、四肢修長的蜘蛛猴，身後往往伴隨著一抹金瞳冷視的「豹影」。</p>
+                  <p>努拉天性狂野不羈，向來以滑稽戲謔的惡作劇與難以捉摸的脾性聞名。由於馬茲提卡人的生存與農耕高度仰賴玉米和植物，多數內陸城邦對祂的敬重遠不如植物女神瓦蒂爾或大地之母；然而，對穿梭於密林的獵手、野性薩滿以及仰賴大海維生的沿海聚落而言，這位掌管野性直覺與萬獸蹤跡的神祇卻是不可或缺的庇護者。</p>
+                </div>
+
+                <h4 class="stele-section-heading">神話與傳說</h4>
+                <div class="stele-myths">
+                  <div class="myth-entry">
+                    <h5 class="myth-title">神猴戲謔與弒母後的離去</h5>
+                    <p>在遠古的不朽紀元裡，努拉曾是諸神之間最愛嬉鬧的成員，常化作長臂猴子躍上兄長們的肩頭扯弄羽冠，或變作蜂鳥與狩豹在叢林間戲弄自以為是的凡人獵手。然而，當長兄札爾特克在狂怒中揮刃弒殺了世界之母馬茲提卡時，向來愛笑的努拉發出了震動整片雨林的悲鳴——聽聞長兄背叛親族的暴行後，心碎的努拉與姊妹瓦蒂爾、埃哈毅然遠離了血腥的戰場，將自己深藏進最原始、凡人足跡罕至的深林秘境之中。</p>
+                  </div>
+                  <div class="myth-entry">
+                    <h5 class="myth-title">海濱擲寶與獵手的無言之禮</h5>
+                    <p>在遠帕伊特與帕伊特的沿海漁村，世代流傳著向努拉獻祭的獨特習俗。每當漁船滿載而歸，漁民們會將最肥美的魚獲留下一份置於礁石上，並隨手將打磨光亮的彩貝、玉珠或銅鈴拋入翻湧的海浪之中——他們深信這些閃閃發亮的小玩意兒會順著洋流漂入神猴手中，換取努拉在風浪與暗礁之間為船隻引路。而在內陸叢林裡，老練的獵人在射殺野獸後必須將心臟或第一塊鮮肉留在樹杈上，若貪婪地將獵物一掃而空，便會招來「豹影」的冷視，在最熟悉的林道中迷失方向。</p>
+                  </div>
+                  <div class="myth-entry">
+                    <h5 class="myth-title">野性天堂「托奇特爾」的蛻變</h5>
+                    <p>傳說在死後世界的諸界之中，努拉擁有屬於自己的廣袤國度「托奇特爾」，那裡沒有金字塔與城牆，只有無邊無際的原始叢林、奔騰的獸群與強大的掠食者。凡是生前敬重萬物靈性、與野獸共生的托納利在離世後皆會受引至此，並在努拉的祝福下褪去脆弱的人類軀殼，化作擁有覺醒靈智的猛虎、巨鷹或靈猴，在永恆的狩獵與奔馳中享有無拘無束的自由。</p>
+                  </div>
+                </div>
+              </div>
+
+              <ul class="stele-meta-grid">
+                <li class="stele-meta-item"><strong>別稱</strong>動物守護者、長臂神猴、野性之靈</li>
+                <li class="stele-meta-item"><strong>象徵</strong>長臂蜘蛛猴、豹影、猛虎、蜂鳥、蛇、王鷲、海濱貝飾</li>
+                <li class="stele-meta-item"><strong>信仰與分布</strong>沿海漁村、遠帕伊特叢林獵手與野性薩滿</li>
+              </ul>
+            </div>
+          </article>
+          <div class="stele-pager">
+            <label for="m-mictlan" class="stele-nav-btn">◀ 上一尊主神</label>
+            <span class="stele-counter">9 / 13</span>
+            <label for="m-plutoq" class="stele-nav-btn">下一尊主神 ▶</label>
           </div>
         </div>
-        <div class="deity-body">
-          <p>與札爾特克一樣，普魯托克的外形巨大且堅硬，但外觀更像是元素而不是泰坦尼克雕像。普魯托克是一位強大的神，我行我素，在過去的許多眾神的衝突中一直保持中立。如果一位神靈獲得了他的卑鄙認可，天平肯定會傾斜。</p>
-          <p>普魯托克是大地之主，在山巒中尤其無可爭議。神並不嗜血，也不拒絕偶爾的犧牲以確保祂的祝福。</p>
-          <ul class="deity-meta">
-            <li><strong>別稱：</strong> Master of Earth and Stone</li>
-            <li><strong>象徵：</strong> 山峰、黑曜石、銅、土坯、灰塵、玉石、綠松石、黏土和陶器</li>
-          </ul>
-        </div>
-      </div>
 
-      <div class="deity-card">
-        <div class="deity-header">
-          <img src="images/deities/tezca.webp" alt="Tezca" class="deity-img">
-          <div class="deity-title">
-            <h3>泰茲卡 (Tezca)</h3>
-            <span>陽與焰的統治者</span>
+        <!-- 10. 普魯托克 (已完成神話與傳說擴寫) -->
+        <div class="stele-panel" data-panel="m-plutoq" data-search-name="普魯托克 (Plutoq)" data-search-sub="大地和岩石之主" data-search-tag="大陸主神" data-search-tab="major-deities" data-search-radio="m-plutoq">
+          <article class="stele-card">
+            <div class="stele-portrait-col">
+              <div class="stele-frame-fill">
+                <img src="images/deities/plutoq.webp" alt="普魯托克 (Plutoq)" class="stele-portrait-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                <div class="stele-portrait-placeholder"><span class="placeholder-glyph">🪨</span><span class="placeholder-label">阿茲特克壁畫立繪</span><span class="placeholder-hint">images/deities/plutoq.webp</span></div>
+              </div>
+            </div>
+            <div class="stele-content-col">
+              <div>
+                <div class="stele-header">
+                  <span class="stele-badge">大陸主神</span>
+                  <h2 class="stele-name">普魯托克<small>Plutoq</small></h2>
+                  <div class="stele-epithet">大地和岩石之主</div>
+                </div>
+
+                <blockquote class="stele-quote">「羽翼會折斷，鮮血會乾涸，唯山脈之骨與大地之石永世長存。」</blockquote>
+
+                <h4 class="stele-section-heading">神格與本質</h4>
+                <div class="stele-lore">
+                  <p>普魯托克是掌管山巒、岩石、礦脈與大地骨架的古老神祇，世人敬畏地稱祂為「大地和岩石之主」。與嗜血殘暴的札爾特克一樣，普魯托克的外形龐大而堅硬，但祂並非血肉或雕像的模樣，而是更接近由層疊岩盤、山脊與礦石凝聚而成的原始元素巨靈。</p>
+                  <p>普魯托克是一位力量深不可測且絕對我行我素的神祇。在過往無數場撕裂大陸的諸神衝突中，祂始終保持著如山岳般的冷靜與中立——正因如此，諸神皆深知一旦哪一方獲得了這位岩石之主的認可，戰局的天平便會毫無懸念地徹底傾斜。在群山與地底深處，祂的權威無可爭議；祂並不嗜血，卻也不會拒絕凡人為了穩固城牆、開採礦脈而獻上的偶爾祭禮。</p>
+                </div>
+
+                <h4 class="stele-section-heading">神話與傳說</h4>
+                <div class="stele-myths">
+                  <div class="myth-entry">
+                    <h5 class="myth-title">黑曜石刃與刺葉之靈的誕生</h5>
+                    <p>儘管普魯托克表面上冷硬無情，祂卻對與自己相依相存的草木懷有深沉的守護之心。在遠古不朽紀元的一場大旱中，泰茲卡的烈陽無情炙烤大地，植物守護神瓦蒂爾望著枯萎的凡間草木流下了悲傷的淚水。沉默寡言的普魯托克不忍見萬物凋零，便從自己如岩盤般的手掌上折下一塊鋒利的黑曜石碎片，深深刺入乾裂的泥土之中。瓦蒂爾的淚水恰巧滴落在這塊黑曜石上，岩石的堅韌與植物的柔水在烈日下交融，孕育出了大陸上第一株龍舌蘭，喚醒了酒與荒野之靈「瑪雅特爾」。</p>
+                  </div>
+                  <div class="myth-entry">
+                    <h5 class="myth-title">穩固大陸的沉默巨人與沙海石裔</h5>
+                    <p>在遠古諸神之戰最慘烈的時期，當羽龍與噬心者的神力碰撞幾乎撕裂整片大陸時，保持絕對中立的普魯托克並未偏袒任何一方，而是將雙掌深深按入地脈深處，以自身如山岳般的神軀穩住了崩裂的板塊，使馬茲提卡免於沉入大洋。平息地脈動盪後，普魯托克望向烈日炙烤、風沙肆虐的荒漠山脈，見凡人難以在酷熱與堅硬的玄武岩壁間安身，便取來赤紅砂岩、黑曜石與天然銅脈，依循山岳沉穩而堅韌的輪廓親手塑形，並將大地深處緩慢有力的脈動吹入石軀之中——馬茲提卡的「沙漠矮人」就此誕生。身為普魯托克的石之子民，他們無需依賴鐵礦，天生便能傾聽岩石的紋理與呼吸，以玄武岩與黑曜石等礦藏，在沙丘與岩層間開鑿出永不傾頹的城邦。</p>
+                  </div>
+                  <div class="myth-entry">
+                    <h5 class="myth-title">沉默紀元的地脈低鳴</h5>
+                    <p>在神戰落幕、諸神紛紛退隱而陷入沉默的第四紀元裡，普魯托克依然如萬古以來那般靜靜沉睡在大陸的岩層之下。然而，在荒野與深山中覺醒的「萬象神息」源術者卻發現，只要赤足踏上未經鋪砌的泥土、模仿山脈深處緩慢而厚重的呼吸，便能借來大地之主的萬鈞之力——讓流沙凝結為鋼岩，或喚起岩刺阻擋來犯的強敵。</p>
+                  </div>
+                </div>
+
+              <ul class="stele-meta-grid">
+                <li class="stele-meta-item"><strong>別稱</strong>大地和岩石之主、山脈之骨、元素巨靈</li>
+                <li class="stele-meta-item"><strong>象徵</strong>山峰、黑曜石、赤銅、土坯、塵土、玉石、綠松石、黏土與陶器</li>
+                <li class="stele-meta-item"><strong>信仰與分布</strong>佩澤拉克地下城邦、山岳礦坑工匠與高原部落</li>
+              </ul>
+            </div>
+          </article>
+          <div class="stele-pager">
+            <label for="m-nula" class="stele-nav-btn">◀ 上一尊主神</label>
+            <span class="stele-counter">10 / 13</span>
+            <label for="m-tezca" class="stele-nav-btn">下一尊主神 ▶</label>
           </div>
         </div>
-        <div class="deity-body">
-          <p>這個火巨人住在剝皮之地西佩特蘭隧道中的巨大火焰和岩漿池中。他通常被描繪成被他被稱為“xiuhcouatl”的腐化火焰羽蛇僕人包圍，儘管同樣經常，其中一個被描述為他實際選擇的武器。</p>
-          <p>泰茲卡和他的兄弟阿祖爾一樣，被認為是馬茲提卡生存所必需的邪惡，因此即使在更溫和的諸神的最神聖的堡壘中，他也受到容忍和安撫。據信，庫庫爾離開人世後，泰茲卡繼承了太陽神的職責。如果沒有泰茲卡的祝福，它的生命所帶來的溫暖甚至不會降臨在世界上。</p>
-          <p>泰茲卡不受夸爾特或札爾特克的歡迎，並且眾所周知在不同情況下反對這兩個神。然而，他的做法與黑暗兄弟有許多共同之處。</p>
-          <ul class="deity-meta">
-            <li><strong>別稱：</strong> Ruler of Sun and Fire</li>
-            <li><strong>象徵：</strong> 火焰、太陽、螢火蟲、蛇皮、熔岩、煙霧、蜥蜴</li>
-          </ul>
-        </div>
-      </div>
 
-      <div class="deity-card">
-        <div class="deity-header">
-          <img src="images/deities/watil.webp" alt="Watil" class="deity-img">
-          <div class="deity-title">
-            <h3>瓦蒂爾 (Watil)</h3>
-            <span>植物守護者</span>
+        <!-- 11. 泰茲卡 (已完成神話與傳說擴寫) -->
+        <div class="stele-panel" data-panel="m-tezca" data-search-name="泰茲卡 (Tezca)" data-search-sub="陽與焰的統治者" data-search-tag="大陸主神" data-search-tab="major-deities" data-search-radio="m-tezca">
+          <article class="stele-card">
+            <div class="stele-portrait-col">
+              <div class="stele-frame-fill">
+                <img src="images/deities/tezca.webp" alt="泰茲卡 (Tezca)" class="stele-portrait-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                <div class="stele-portrait-placeholder"><span class="placeholder-glyph">🔥</span><span class="placeholder-label">阿茲特克壁畫立繪</span><span class="placeholder-hint">images/deities/tezca.webp</span></div>
+              </div>
+            </div>
+            <div class="stele-content-col">
+              <div>
+                <div class="stele-header">
+                  <span class="stele-badge">大陸主神</span>
+                  <h2 class="stele-name">泰茲卡<small>Tezca</small></h2>
+                  <div class="stele-epithet">陽與焰的統治者</div>
+                </div>
+
+                <blockquote class="stele-quote">「萬物皆需吾之烈焰方能存活，然切莫妄圖伸手觸碰日輪——竊火者終將自焚。」</blockquote>
+
+                <h4 class="stele-section-heading">神格與本質</h4>
+                <div class="stele-lore">
+                  <p>泰茲卡是司掌烈日、火焰、岩漿與酷熱的威嚴神祇，世人敬畏地稱祂為「陽與焰的統治者」。在神廟的彩繪石壁上，祂常被刻畫為一尊體格魁梧如山的熔岩火巨人，周身盤繞著生有綠松石鱗片、噴吐橘紅烈焰的腐化火焰羽蛇僕從「西烏科特爾」——而這些狂暴的火蛇也經常化作祂親手揮舞的烈焰神兵。</p>
+                  <p>泰茲卡與兄弟阿祖爾一樣，被馬茲提卡人視為維繫世界生存所「必需的邪惡」。據信在眾神之父庫庫爾離開人世後，泰茲卡繼承了太陽神的職責；倘若沒有祂的祝福，孕育萬物生機的溫暖便不會降臨大地，因此即便在信奉溫和神祇的最神聖堡壘中，人們也必須容忍並定期安撫祂。祂既不受夸爾特歡迎，亦與札爾特克水火不容，然而在嚴酷無情的行事作風上，祂卻與這位黑暗兄弟有著許多相似之處。</p>
+                </div>
+
+                <h4 class="stele-section-heading">神話與傳說</h4>
+                <div class="stele-myths">
+                  <div class="myth-entry">
+                    <h5 class="myth-title">繼承日輪與必要之惡</h5>
+                    <p>當庫庫爾因愛妻逝世而化作永恆凝視天際的「庫庫爾之眼」後，引導太陽運行、向凡間播撒光熱的重任便落在了泰茲卡肩上。然而，泰茲卡的恩賜向來伴隨著灼燒的威壓——祂賜予大地豐收所需的陽光，卻也毫不留情地降下焚毀森林的山火與乾旱。各城邦的祭司深知，敬奉泰茲卡並非出於愛戴，而是出於生存的敬畏，唯有以黃金、紅寶石與烈火祭儀定期平息祂的暴躁，太陽才不至於將整片大陸烤成焦土。</p>
+                  </div>
+                  <div class="myth-entry">
+                    <h5 class="myth-title">第二紀元：羽龍竊日之恨</h5>
+                    <p>在神戰最慘烈的第二紀元，夸爾特為了抗衡札爾特克的鮮血禁術「心血噬儀」，竟暗中潛入天穹，從父神庫庫爾與兄弟泰茲卡手中竊走了一縷本源太陽神力，將其化為霸道熾烈的王權魔法「天命曜日」傳授給凡間。察覺日輪遭竊的泰茲卡震怒不已，憤而驅策無數腐化火蛇焚燒凡間戰場；自此，祂對偽善的夸爾特與嗜血的札爾特克皆抱持深切敵意，在無數次衝突中同時反對這兩位兄弟。</p>
+                  </div>
+                  <div class="myth-entry">
+                    <h5 class="myth-title">剝皮之地「西佩特蘭」的熔岩王座</h5>
+                    <p>在凡間之外，泰茲卡棲居於外域位面「西佩特蘭（意為剝皮之地）」地底隧道中的巨大火焰與岩漿池裡。那是一片永遠籠罩在黑暗之中、狂暴沙塵暴足以將血肉從骨頭上撕裂的酷烈荒漠。儘管缺乏陽光與自然之火的永夜環境令泰茲卡感到極度不適，祂卻選擇長期駐留於此，彷彿以這座無光煉獄的苦痛作為某種古老過失的贖罪，唯在每日黎明時分才升起烈焰巡視凡塵。</p>
+                  </div>
+                </div>
+              </div>
+
+              <ul class="stele-meta-grid">
+                <li class="stele-meta-item"><strong>別稱</strong>陽與焰的統治者、熔岩火巨人、日輪繼承者</li>
+                <li class="stele-meta-item"><strong>象徵</strong>太陽金盤、腐化火蛇、烈焰、螢火蟲、蛇皮、熔岩、煙霧、蜥蜴</li>
+                <li class="stele-meta-item"><strong>信仰與分布</strong>全大陸太陽祭壇、荒原部族與火山地帶</li>
+              </ul>
+            </div>
+          </article>
+          <div class="stele-pager">
+            <label for="m-plutoq" class="stele-nav-btn">◀ 上一尊主神</label>
+            <span class="stele-counter">11 / 13</span>
+            <label for="m-watil" class="stele-nav-btn">下一尊主神 ▶</label>
           </div>
         </div>
-        <div class="deity-body">
-          <p>瓦蒂爾是馬茲提卡植物群的仁慈女神。她經常被描繪成一位鬱鬱蔥蔥、性感的女性，與她的妹妹基爾茨有很多共同點，儘管她的頭髮和臉通常被鑲在白色的百合花瓣中。</p>
-          <p>瓦蒂爾拒絕犧牲，儘管人們常常認為她對她的哥哥阿祖爾有感激之情，而阿祖爾與妹妹的關係要求很高，而且充滿虐待。然而，瓦蒂爾從未放棄阿祖爾，面對這位廣受其他神靈尊敬的殘酷之神，她保持著平靜的力量。</p>
-          <p>瓦蒂爾的薩滿和信徒普遍是優秀的園藝家。有些人培育出具有奇異而有用的力量的植物，許多人擁有像植物一樣忠誠的守護者。</p>
-          <ul class="deity-meta">
-            <li><strong>別稱：</strong> Guardian of Plants</li>
-            <li><strong>象徵：</strong> 玉米、仙人掌、葉子、開花</li>
-          </ul>
-        </div>
-      </div>
 
-      <div class="deity-card">
-        <div class="deity-header">
-          <img src="images/deities/poshtli.webp" alt="Poshtli" class="deity-img">
-          <div class="deity-title">
-            <h3>波什特利 (Poshtli)</h3>
-            <span>偉大之鷹</span>
+        <!-- 12. 瓦蒂爾 (已完成神話與傳說擴寫) -->
+        <div class="stele-panel" data-panel="m-watil" data-search-name="瓦蒂爾 (Watil)" data-search-sub="植物守護者" data-search-tag="大陸主神" data-search-tab="major-deities" data-search-radio="m-watil">
+          <article class="stele-card">
+            <div class="stele-portrait-col">
+              <div class="stele-frame-fill">
+                <img src="images/deities/watil.webp" alt="瓦蒂爾 (Watil)" class="stele-portrait-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                <div class="stele-portrait-placeholder"><span class="placeholder-glyph">🌿</span><span class="placeholder-label">阿茲特克壁畫立繪</span><span class="placeholder-hint">images/deities/watil.webp</span></div>
+              </div>
+            </div>
+            <div class="stele-content-col">
+              <div>
+                <div class="stele-header">
+                  <span class="stele-badge">大陸主神</span>
+                  <h2 class="stele-name">瓦蒂爾<small>Watil</small></h2>
+                  <div class="stele-epithet">植物守護者</div>
+                </div>
+
+                <blockquote class="stele-quote">「利刃能斬斷枝幹，卻無法阻止種子在黑土深處等待春雨。」</blockquote>
+
+                <h4 class="stele-section-heading">神格與本質</h4>
+                <div class="stele-lore">
+                  <p>瓦蒂爾是馬茲提卡植物群與農耕豐收的仁慈神祇，世人敬愛地稱祂為「植物守護者」。在神廟的彩繪石壁上，祂常被刻畫為一位體態豐盈、散發蓬勃生機的女神，與姊妹愛神基爾茲有許多相似之處，唯獨祂的面容與長髮總被層層盛開的潔白百合花瓣所環繞。瓦蒂爾堅決拒絕任何形式的鮮血活祭，祂的薩滿與信徒皆是技藝精湛的園藝家，能培育出蘊含奇異療癒魔力的珍稀草木，許多人身邊更追隨著如植物般忠誠的木藤守護者。</p>
+                  <p>世人常說，瓦蒂爾對兄長賜雨者阿祖爾懷有一份無奈的感激——因為萬物生長終究離不開雨水；然而阿祖爾對待這位妹妹卻極為苛刻且充滿虐待。即便如此，瓦蒂爾卻從未放棄過阿祖爾，在面對這位令眾神皆敬畏三分的殘酷水神時，祂始終展現出如大樹紮根般的「平靜力量」。</p>
+                </div>
+
+                <h4 class="stele-section-heading">神話與傳說</h4>
+                <div class="stele-myths">
+                  <div class="myth-entry">
+                    <h5 class="myth-title">第三紀元：哀鴻遍野與「滌穢醫道」</h5>
+                    <p>當魔法神戰演進至最慘烈的第三紀元，札爾特克的「心血噬儀」與夸爾特竊日而來的「天命曜日」將大地化作煉獄，戰場上血流成河、瘟疫與靈魂「污穢」四處蔓延。在善惡征伐的夾縫中，瓦蒂爾與姊妹基爾茲聽見了無辜凡人的哭聲。兩位仁慈的女神攜手降下了純粹守護與復原的法門——「滌穢醫道」，瓦蒂爾更將保存草藥、金色生命花粉與白百合球根化作秘苑庇護所的知識傾囊相授，在殺戮橫行的紀元裡為祈求和平之人闢出唯一的溫柔避風港。</p>
+                  </div>
+                  <div class="myth-entry">
+                    <h5 class="myth-title">忍耐暴風雨的平靜力量</h5>
+                    <p>在漫長的神話歲月裡，賜雨者阿祖爾屢次以乾旱威脅凡間、逼迫城邦舉行殘酷的溺祭，甚至連對待親族亦毫不留情。每當阿祖爾因暴怒而降下摧毀田園的冰雹與狂風時，瓦蒂爾從不與兄長正面咆哮爭鋒，而是默默以神力護住地底的根莖與種子，待風暴平息後再次讓翠綠新芽覆蓋焦土。這份柔韌而不屈的「平靜力量」深深感化了凡間醫者，使他們即便身處崇拜血祭的權貴城邦之中，依然能不卑不亢地守護生命。</p>
+                  </div>
+                  <div class="myth-entry">
+                    <h5 class="myth-title">白百合秘苑與慈悲淚滴</h5>
+                    <p>傳說在遠古不朽紀元的一場大旱中，瓦蒂爾曾因不忍見草木枯萎而落淚，神聖淚滴落在大地之主普魯托克刺入乾土的黑曜石刃上，孕育出了荒野龍舌蘭之靈「瑪雅特爾」。而在神明退隱後的荒野裡，凡是遭遇暴雨、沙暴或惡獸追擊的旅人，只要誠心向白百合祈禱，瓦蒂爾的慈悲仍偶爾會化作一座由巨大百合花瓣與帶刺藤蔓交織而成的「秘苑穹頂」自土中升起，在黑夜裡為無助者隔絕一切災厄與恐懼。</p>
+                  </div>
+                </div>
+              </div>
+
+              <ul class="stele-meta-grid">
+                <li class="stele-meta-item"><strong>別稱</strong>植物守護者、白百合女神、平靜力量之主</li>
+                <li class="stele-meta-item"><strong>象徵</strong>白色百合花瓣、玉米、仙人掌、翠綠葉脈、生命花粉</li>
+                <li class="stele-meta-item"><strong>信仰與分布</strong>全大陸農耕聚落、醫道藥圃與泛靈園藝薩滿</li>
+              </ul>
+            </div>
+          </article>
+          <div class="stele-pager">
+            <label for="m-tezca" class="stele-nav-btn">◀ 上一尊主神</label>
+            <span class="stele-counter">12 / 13</span>
+            <label for="m-coatlicue" class="stele-nav-btn">下一尊主神 ▶</label>
           </div>
         </div>
-        <div class="deity-body">
-          <p>波什特利被廣泛認為是有史以來最偉大的鷹騎士，他強大的能力遠遠超出了典型的鷹騎士的能力。在過去，波什特利被秘密地選為夸爾特選民，部分原因是為了對抗霍西特爾在內克薩爾山谷的權力和影響力，甚至連他自己也不知道。</p>
-          <p>波什特利在夸爾特的祝福下晉升，現在他自己是鷹騎士的守護神。就像霍西特爾之於扎爾特克一樣，他被認為是夸爾特的代言人，夸爾特在參與人類世界方面退了一步。</p>
-          <ul class="deity-meta">
-            <li><strong>別稱：</strong> The Great Eagle</li>
-            <li><strong>象徵：</strong> 一隻張開翅膀的鷹</li>
-          </ul>
-        </div>
-      </div>
 
-      <div class="deity-card">
-        <div class="deity-header">
-          <img src="images/deities/hoxitl.webp" alt="Hoxitl" class="deity-img">
-          <div class="deity-title">
-            <h3>霍西特爾 (Hoxitl)</h3>
-            <span>蝰手獸主</span>
+        <!-- 13. 科阿特利庫 (已完成神話與傳說擴寫) -->
+        <div class="stele-panel" data-panel="m-coatlicue" data-search-name="科阿特利庫 (Cōātlīcue)" data-search-sub="蛇之母" data-search-tag="大陸主神" data-search-tab="major-deities" data-search-radio="m-coatlicue">
+          <article class="stele-card">
+            <div class="stele-portrait-col">
+              <div class="stele-frame-fill">
+                <img src="images/deities/cōātlīcue.webp" alt="科阿特利庫 (Cōātlīcue)" class="stele-portrait-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                <div class="stele-portrait-placeholder"><span class="placeholder-glyph">🐍</span><span class="placeholder-label">阿茲特克壁畫立繪</span><span class="placeholder-hint">images/deities/cōātlīcue.webp</span></div>
+              </div>
+            </div>
+            <div class="stele-content-col">
+              <div>
+                <div class="stele-header">
+                  <span class="stele-badge">大陸主神 · 遠古亡神</span>
+                  <h2 class="stele-name">科阿特利庫<small>Cōātlīcue</small></h2>
+                  <div class="stele-epithet">蛇之母</div>
+                </div>
+
+                <blockquote class="stele-quote">「莫踏入陽光遺忘的深窟——萬蛇的嘶鳴從未停歇，禁忌的蛻皮仍在暗處滋長。」</blockquote>
+
+                <h4 class="stele-section-heading">神格與本質</h4>
+                <div class="stele-lore">
+                  <p>科阿特利庫是司掌萬蛇、地下秘辛與古老巫術的遠古神祇，世人敬畏地稱祂為「蛇之母」。早在不朽時代的最初幾天起，祂便已經是一位死去的女神；然而不知何故，祂依然在馬茲提卡大陸上保持著微弱卻不容忽視的存在。在神廟的彩繪石壁與秘教傳說中，祂總以一名佩戴無數骨玉神物的神秘女巫或薩滿形象現身，而最令人毛骨悚然的特徵，便是祂腰間那條由無數活生生的駭人毒蛇編織而成的「蛇裙」。</p>
+                  <p>正統城邦的神殿極少公開供奉這位已逝的蛇母，但那些研習隱秘巫術、調配麻痺毒素或探索地底禁區的薩滿，卻始終在暗夜裡向「蛇裙」低聲祈禱，借取蛇類蛻皮重生與毒牙麻痺的詭譎力量。</p>
+                </div>
+
+                <h4 class="stele-section-heading">神話與傳說</h4>
+                <div class="stele-myths">
+                  <div class="myth-entry">
+                    <h5 class="myth-title">不朽黎明的隕落與萬蛇之裙</h5>
+                    <p>在創世之初的混沌歲月裡，科阿特利庫是最早行走於大地陰影中的原始神祇之一。相傳祂因掌握了過於深邃的血肉蛻變與秘辛知識而遭到其他神祇的忌憚，在神話黎明之際便已隕落；然而，當祂的肉身沉入地底之際，纏繞於祂腰間的無數靈蛇並未隨之死去，反而吸食了神明殘留的靈性，化作永不腐朽的「萬蛇之裙」，維繫著這位亡神與凡間之間最後一絲幽微的聯繫。</p>
+                  </div>
+                  <div class="myth-entry">
+                    <h5 class="myth-title">深窟遺骸與科特利坎的守望</h5>
+                    <p>據說科阿特利庫的巨大遺骸至今仍埋藏在馬茲提卡地底最深處、陽光與凡人足跡永遠無法觸及的幽暗岩窟之中。傳聞方圓數英里的地底洞穴裡終日迴盪著無數毒蛇交纏摩擦、令人理智崩潰的嘶鳴聲；而在通往女神墓窟的每一條岩縫與深淵裡，皆盤踞著名為「科特利坎」的奇異蛇裔怪物，忠誠而無情地守衛著蛇之母的沉眠，將任何妄圖竊取亡神遺骸的入侵者化作枯骨。</p>
+                  </div>
+                  <div class="myth-entry">
+                    <h5 class="myth-title">蛻皮秘術與女巫的低語</h5>
+                    <p>在偏遠雨林與地底岩洞的隱秘集會中，信奉科阿特利庫的女巫與薩滿相信「死亡不過是靈魂褪去舊皮」。每當神聖曆法輪轉至「蛇裙」當值之日，這些秘辛行者便會以蛇蛻、黑曜石針與麻痺草藥進行儀式，祈求蛇之母賜予他們抵禦劇毒的體魄，並讓施展的咒法如毒蝰獠牙般悄無聲息地麻痺敵人的血肉與魂魄。</p>
+                  </div>
+                </div>
+              </div>
+
+              <ul class="stele-meta-grid">
+                <li class="stele-meta-item"><strong>別稱</strong>蛇之母、萬蛇女巫、深窟亡神</li>
+                <li class="stele-meta-item"><strong>象徵</strong>活蛇編織的薩滿裙、骨玉神物、毒蝰獠牙、蛇蛻</li>
+                <li class="stele-meta-item"><strong>信仰與分布</strong>地底深窟、偏遠雨林女巫集會與禁忌薩滿</li>
+              </ul>
+            </div>
+          </article>
+          <div class="stele-pager">
+            <label for="m-watil" class="stele-nav-btn">◀ 上一尊主神</label>
+            <span class="stele-counter">13 / 13</span>
+            <label for="m-kukul" class="stele-nav-btn">下一尊主神 ▶</label>
           </div>
         </div>
-        <div class="deity-body">
-          <p>霍西特爾曾經是札爾特克的選民，從科德爾時代起一直保持著他的信仰和犧牲。</p>
-          <p>札爾特克虐待了他最偉大的僕人，並在過去奪走了並歸還了他活生生的心臟。沒有人單獨崇拜霍西特爾，但當噬心者本人不選擇說話時，他被接受為蝰手獸的守護神和扎爾特克之口。</p>
-          <ul class="deity-meta">
-            <li><strong>別稱：</strong> Lord of The Viperhand</li>
-            <li><strong>象徵：</strong> 咆嘯的狩豹</li>
-          </ul>
-        </div>
-      </div>
 
-      <div class="deity-card">
-        <div class="deity-header">
-          <img src="images/deities/cōātlīcue.webp" alt="Cōātlīcue" class="deity-img">
-          <div class="deity-title">
-            <h3>科阿特利庫 (Cōātlīcue)</h3>
-            <span>蛇之母</span>
-          </div>
-        </div>
-        <div class="deity-body">
-          <p>科阿特利庫從不朽時代的最初幾天起就已經是一位死去的女神，但不知何故，她在馬茲提卡仍然保持著一個小小的存在。她曾經以女巫或薩滿的身份出現，戴著無數的神物，但她最明顯的特徵是她那條由可怕的蛇組成的活生生的裙子。</p>
-          <p>據說科阿特利庫的屍體埋藏在地下深處無人涉足的地方。據傳，方圓數英里的洞穴裡會發出令人發狂的吱吱聲，而且還有一種被稱為科特利坎的奇怪生物，它們守護著女神的屍體，防止任何入侵者的入侵。</p>
-          <ul class="deity-meta">
-            <li><strong>別稱：</strong> The Serpent Mother</li>
-            <li><strong>象徵：</strong> 蛇組成的薩滿裙</li>
-          </ul>
-        </div>
       </div>
-
     </div>
   </section>
 
-<section id="cosmo" class="magic-section">
-    
+  <!-- ==================== 2. 大陸眾靈 (12尊) ==================== -->
+  <section id="local-spirits" class="magic-section">
+    <div class="stele-gallery">
+      <input type="radio" name="spirit-stele" id="s-mayatl" class="stele-radio" checked>
+      <input type="radio" name="spirit-stele" id="s-ullqu" class="stele-radio">
+      <input type="radio" name="spirit-stele" id="s-chilteq" class="stele-radio">
+      <input type="radio" name="spirit-stele" id="s-teponaq" class="stele-radio">
+      <input type="radio" name="spirit-stele" id="s-kopalzi" class="stele-radio">
+      <input type="radio" name="spirit-stele" id="s-400rabbits" class="stele-radio">
+      <input type="radio" name="spirit-stele" id="s-zotzca" class="stele-radio">
+      <input type="radio" name="spirit-stele" id="s-kuzloq" class="stele-radio">
+      <input type="radio" name="spirit-stele" id="s-waqtol" class="stele-radio">
+      <input type="radio" name="spirit-stele" id="s-chaltoq" class="stele-radio">
+      <input type="radio" name="spirit-stele" id="s-poshtli" class="stele-radio">
+      <input type="radio" name="spirit-stele" id="s-hoxitl" class="stele-radio">
+
+      <div class="gallery-selector-panel">
+        <div class="deity-tag-bar bar-12">
+          <label for="s-mayatl" class="deity-tag-btn">瑪雅特爾</label>
+          <label for="s-ullqu" class="deity-tag-btn">烏爾庫</label>
+          <label for="s-chilteq" class="deity-tag-btn">奇爾特克</label>
+          <label for="s-teponaq" class="deity-tag-btn">特波納克</label>
+          <label for="s-kopalzi" class="deity-tag-btn">科帕爾茲</label>
+          <label for="s-400rabbits" class="deity-tag-btn">四百兔</label>
+          <label for="s-zotzca" class="deity-tag-btn">佐茲卡</label>
+          <label for="s-kuzloq" class="deity-tag-btn">庫茲洛克</label>
+          <label for="s-waqtol" class="deity-tag-btn">瓦克托爾</label>
+          <label for="s-chaltoq" class="deity-tag-btn">查爾托克</label>
+          <label for="s-poshtli" class="deity-tag-btn">波什特利</label>
+          <label for="s-hoxitl" class="deity-tag-btn">霍西特爾</label>
+        </div>
+      </div>
+
+      <div class="stele-panels">
+
+<!-- 1. 瑪雅特爾 (已完成神話與傳說擴寫) -->
+        <div class="stele-panel" data-panel="s-mayatl" data-search-name="瑪雅特爾 (Mayatl)" data-search-sub="龍舌蘭與醇釀之母" data-search-tag="大陸眾靈" data-search-tab="local-spirits" data-search-radio="s-mayatl">
+          <article class="stele-card">
+            <div class="stele-portrait-col">
+              <div class="stele-frame-fill">
+                <img src="images/deities/mayatl.webp" alt="瑪雅特爾 (Mayatl)" class="stele-portrait-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                <div class="stele-portrait-placeholder"><span class="placeholder-glyph">🌵</span><span class="placeholder-label">阿茲特克壁畫立繪</span><span class="placeholder-hint">images/deities/mayatl.webp</span></div>
+              </div>
+            </div>
+            <div class="stele-content-col">
+              <div>
+                <div class="stele-header">
+                  <span class="stele-badge">大陸眾靈</span>
+                  <h2 class="stele-name">瑪雅特爾<small>Mayatl</small></h2>
+                  <div class="stele-epithet">龍舌蘭與醇釀之母</div>
+                </div>
+
+                <blockquote class="stele-quote">「於裂土中蓄水，於尖刺裡藏甘；凡以敬意相求者，吾以大地之血相贈。」</blockquote>
+
+                <h4 class="stele-section-heading">神格與本質</h4>
+                <div class="stele-lore">
+                  <p>瑪雅特爾是棲息於荒野龍舌蘭中的古老精靈，亦是發酵聖飲「奧克特力（龍舌蘭酒）」的賜予者。在神廟與祭壇的石壁上，祂常以刺葉環身、頭頂高聳花梗並捧著泡沫陶碗的姿態現身，兼具岩石般的堅韌與植物柔水的包容。</p>
+                  <p>與高居天外的神祇不同，瑪雅特爾的信仰不依賴宏偉金字塔，而是存在於荒野與旱地中每一株龍舌蘭的根莖與汁液裡。祂教導信徒在嚴酷乾旱與絕望邊緣展現不屈的韌性，並在荒蕪之地尋得延續生命的甘露。</p>
+                </div>
+
+                <h4 class="stele-section-heading">神話與傳說</h4>
+                <div class="stele-myths">
+                  <div class="myth-entry">
+                    <h5 class="myth-title">刺葉的誕生與乾旱試煉</h5>
+                    <p>在古老的不朽者紀元，當泰茲卡的烈陽無情炙烤大地、阿祖爾又吝於降下甘霖時，馬茲提卡大陸陷入了可怕的乾旱。植物守護神瓦蒂爾望著枯萎的凡間草木流下了悲傷的眼淚；大地之主普魯托克不忍萬物凋零，將一塊堅硬的黑曜石碎片刺入乾裂的泥土之中。瓦蒂爾的淚水滴落在黑曜石上，兩股原始力量在烈日下交融，孕育出第一株擁有堅硬刺葉與飽滿汁液的龍舌蘭，瑪雅特爾的靈魂便在試煉中甦醒。</p>
+                  </div>
+                  <div class="myth-entry">
+                    <h5 class="myth-title">奧克特力的初釀與血契之禮</h5>
+                    <p>在初生的人類於荒野飽受飢渴之苦時，一名瀕死的旅人在絕望中抱住了一株巨大的龍舌蘭。瑪雅特爾感受到凡人的痛苦與求生意志，主動折斷自身最中心的花梗，讓乳白色的甘甜汁液流入人類口中，並在烈日下自然發酵成大陸上的第一口奧克特力。從此，奧克特力成為溝通凡人與萬靈的媒介；旅人在旱地取汁前須先滴一滴己血於刺葉上完成共生契約，若強行砍伐，樹靈枯萎，流出的便只會是劇毒酸液。</p>
+                  </div>
+                </div>
+              </div>
+
+              <ul class="stele-meta-grid">
+                <li class="stele-meta-item"><strong>別稱</strong>刺葉庇護者、大地之血的釀造者</li>
+                <li class="stele-meta-item"><strong>象徵</strong>綻放花梗的龍舌蘭、滿溢乳白泡沫的陶碗、龍舌蘭纖維</li>
+                <li class="stele-meta-item"><strong>信仰與分布</strong>乾燥荒原、庫爾塔卡、綠光遺跡與各地酒坊</li>
+              </ul>
+            </div>
+          </article>
+          <div class="stele-pager">
+            <label for="s-hoxitl" class="stele-nav-btn">◀ 上一尊眾靈</label>
+            <span class="stele-counter">1 / 12</span>
+            <label for="s-ullqu" class="stele-nav-btn">下一尊眾靈 ▶</label>
+          </div>
+        </div>
+
+        <!-- 2. 烏爾庫 (已完成神話與傳說擴寫) -->
+        <div class="stele-panel" data-panel="s-ullqu" data-search-name="烏爾庫 (Ullqu)" data-search-sub="黑膠樹與凝血之靈" data-search-tag="大陸眾靈" data-search-tab="local-spirits" data-search-radio="s-ullqu">
+          <article class="stele-card">
+            <div class="stele-portrait-col">
+              <div class="stele-frame-fill">
+                <img src="images/deities/ullqu.webp" alt="烏爾庫 (Ullqu)" class="stele-portrait-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                <div class="stele-portrait-placeholder"><span class="placeholder-glyph">🌳</span><span class="placeholder-label">阿茲特克壁畫立繪</span><span class="placeholder-hint">images/deities/ullqu.webp</span></div>
+              </div>
+            </div>
+            <div class="stele-content-col">
+              <div>
+                <div class="stele-header">
+                  <span class="stele-badge">大陸眾靈</span>
+                  <h2 class="stele-name">烏爾庫<small>Ullqu</small></h2>
+                  <div class="stele-epithet">黑膠樹與凝血之靈</div>
+                </div>
+
+                <blockquote class="stele-quote">「創口終須封泥，流血終當凝結；凡善待樹皮者，吾賜予百折不摧之韌。」</blockquote>
+
+                <h4 class="stele-section-heading">神格與本質</h4>
+                <div class="stele-lore">
+                  <p>烏爾庫是棲息於帕伊特與遠帕伊特濕熱雨林中的古老植物精靈，掌管著「韌性」、「傷口凝血」以及神聖球賽的律動。在林間祭壇與城邦球場的彩繪石壁上，祂常顯化為一株樹皮縱橫龜裂的高聳橡膠巨樹，垂流的濃稠黑膠在樹下匯聚成一尊沒有五官、卻不斷伸縮律動的漆黑人影，唯有眼窩深處透著溫潤的琥珀微光。</p>
+                  <p>與高居金字塔頂端的主神不同，烏爾庫沉默寡言且極重互惠契約。凡人仰賴祂賜予的黑膠製作鞋底、防水斗篷、武器握柄以及決定城邦榮譽的神聖球體，而林間薩滿與醫者亦在止血封創的草藥儀式中低聲祈求這位樹靈的庇佑。</p>
+                </div>
+
+                <h4 class="stele-section-heading">神話與傳說</h4>
+                <div class="stele-myths">
+                  <div class="myth-entry">
+                    <h5 class="myth-title">戰血凝膠與神聖球賽之魂</h5>
+                    <p>傳說在遠古諸神之戰的混亂歲月裡，噬心者札爾特克負傷掠過帕伊特雨林上空，滾燙的戰血滴落在植物女神瓦蒂爾所庇護的一株古老巨樹樹皮上。在濕熱瘴氣與神力的交織下，這滴神血並未乾涸，反而與潔白的樹汁融合成漆黑、黏稠且具備驚人彈性的生膠，喚醒了烏爾庫沉睡的靈智。日後，每當城邦在石造球場舉行象徵太陽與星辰運行的神聖球賽前，選手們揉製實心黑膠球時總會將一塊生肉懸掛在橡膠樹枝上，祈求烏爾庫賦予球體百折不摧的彈跳之力，並保佑球員在激烈衝撞中筋骨不斷。</p>
+                  </div>
+                  <div class="myth-entry">
+                    <h5 class="myth-title">濕泥封樹與止血古禁</h5>
+                    <p>世世代代在帕伊特雨林割樹取膠的林民，皆嚴格遵守著一條由薩滿傳承下來的鐵律：每當以黑曜石刀在橡膠樹皮上劃出取汁斜槽後，一旦收集完畢，必須立刻取來河畔潔淨的濕泥與草灰細心塗抹並封住樹皮切口，如同為受傷的長者敷藥包紮。當地流傳著嚴厲的警告——若有人貪得無厭地過度割取樹膠、任憑樹靈流血不止而揚長而去，烏爾庫便會收回凝血的恩典，使這名貪婪者日後一旦劃破皮膚，鮮血便會如決堤般三日三夜難以止住。</p>
+                  </div>
+                </div>
+              </div>
+
+              <ul class="stele-meta-grid">
+                <li class="stele-meta-item"><strong>別稱</strong>裂皮樹靈、黑球庇護者、凝血之樹</li>
+                <li class="stele-meta-item"><strong>象徵</strong>裂皮橡膠巨樹、無臉黑膠影、實心黑膠球、琥珀淚滴</li>
+                <li class="stele-meta-item"><strong>信仰與分布</strong>帕伊特與遠帕伊特濕熱橡膠林、各大城邦神聖球場</li>
+              </ul>
+            </div>
+          </article>
+          <div class="stele-pager">
+            <label for="s-mayatl" class="stele-nav-btn">◀ 上一尊眾靈</label>
+            <span class="stele-counter">2 / 12</span>
+            <label for="s-chilteq" class="stele-nav-btn">下一尊眾靈 ▶</label>
+          </div>
+        </div>
+
+        <!-- 3. 奇爾特克 (已完成神話與傳說擴寫) -->
+        <div class="stele-panel" data-panel="s-chilteq" data-search-name="奇爾特克 (Chilteq)" data-search-sub="野椒與熾舌之靈" data-search-tag="大陸眾靈" data-search-tab="local-spirits" data-search-radio="s-chilteq">
+          <article class="stele-card">
+            <div class="stele-portrait-col">
+              <div class="stele-frame-fill">
+                <img src="images/deities/chilteq.webp" alt="奇爾特克 (Chilteq)" class="stele-portrait-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                <div class="stele-portrait-placeholder"><span class="placeholder-glyph">🌶️</span><span class="placeholder-label">阿茲特克壁畫立繪</span><span class="placeholder-hint">images/deities/chilteq.webp</span></div>
+              </div>
+            </div>
+            <div class="stele-content-col">
+              <div>
+                <div class="stele-header">
+                  <span class="stele-badge">大陸眾靈</span>
+                  <h2 class="stele-name">奇爾特克<small>Chilteq</small></h2>
+                  <div class="stele-epithet">野椒與熾舌之靈</div>
+                </div>
+
+                <blockquote class="stele-quote">「寒濕與邪祟皆懼吾之烈焰；欲求篝火安寧，便以辛辣為祭。」</blockquote>
+
+                <h4 class="stele-section-heading">神格與本質</h4>
+                <div class="stele-lore">
+                  <p>奇爾特克並非受人馴化、溫馴服貼的農作精靈，而是誕生於荒野棘叢、以烈焰般的辛辣驅散寒濕與「污穢」的暴烈植物靈。在庫爾塔卡乾燥丘陵與荒野哨站的彩繪石壁上，祂常顯化為一叢如炭火劈啪作響的赤紅荊棘，枝頭掛滿宛若小燈籠般發光的野生紅椒，枝幹間隱約浮現出吐出烈焰舌紋的精靈面容。</p>
+                  <p>與慈悲柔和的植物守護神瓦蒂爾不同，奇爾特克性情剛烈直率、毫不留情。祂庇護著在嚴酷荒原與陰冷雨林邊緣跋涉的行軍戰士、斥候與旅商，以灼熱的辛辣氣息點燃凡人胸中的血氣，令邪祟與疫病不敢近身。</p>
+                </div>
+
+                <h4 class="stele-section-heading">神話與傳說</h4>
+                <div class="stele-myths">
+                  <div class="myth-entry">
+                    <h5 class="myth-title">烈陽火星與紅棘的覺醒</h5>
+                    <p>傳說在遠古不朽紀元，陽與焰之統治者泰茲卡巡視乾燥的庫爾塔卡丘陵時，沉重的腳跟踏碎了赤紅砂岩，迸出數點熾白的太陽火星。火星隨風落入一叢乾枯的荒野荊棘之中，非但沒有將其燒成灰燼，反而在棘刺間凝結成一顆顆火紅嗆辣、宛如炭火發光的野生辣椒——奇爾特克的靈智便在這股烈焰與草木的交鋒中轟然甦醒。因此，這尊植物靈體內流淌著太陽的暴烈脾性，從不向任何寒霜或陰影低頭。</p>
+                  </div>
+                  <div class="myth-entry">
+                    <h5 class="myth-title">驅穢辣煙與野棘禁忌</h5>
+                    <p>在馬茲提卡的荒野行旅中，夜晚的濃霧與沼氣往往伴隨著林間邪靈與腐敗「污穢」。經驗老到的行軍隊伍與商隊在夜間紮營時，總會在篝火中投入幾顆乾燥紅椒，任由嗆鼻刺眼的辛辣濃煙隨風飄散；他們深信奇爾特克的熾烈氣息能灼傷窺伺營地的邪祟，並驅散令人發熱戰慄的沼氣疫病。然而，民間亦嚴守著敬畏這尊暴烈樹靈的禁忌——絕不可在野椒聖叢旁吐口水、便溺或抱怨天氣炎熱，相傳觸怒祂的無禮旅人，會感到雙眼與喉頭整夜如遭炭火炙烤，連飲盡整壺清泉也無法止灼。</p>
+                  </div>
+                </div>
+              </div>
+
+              <ul class="stele-meta-grid">
+                <li class="stele-meta-item"><strong>別稱</strong>紅棘火靈、驅穢之椒、荒野熾舌</li>
+                <li class="stele-meta-item"><strong>象徵</strong>發光紅椒、赤紅荊棘叢、辛辣篝煙、太陽火星</li>
+                <li class="stele-meta-item"><strong>信仰與分布</strong>庫爾卡乾燥丘陵、荒野商隊營地與行軍哨站</li>
+              </ul>
+            </div>
+          </article>
+          <div class="stele-pager">
+            <label for="s-ullqu" class="stele-nav-btn">◀ 上一尊眾靈</label>
+            <span class="stele-counter">3 / 12</span>
+            <label for="s-teponaq" class="stele-nav-btn">下一尊眾靈 ▶</label>
+          </div>
+        </div>
+
+        <!-- 4. 特波納克 (已完成神話與傳說擴寫) -->
+        <div class="stele-panel" data-panel="s-teponaq" data-search-name="特波納克 (Teponaq)" data-search-sub="空心木鼓與脈動之靈" data-search-tag="大陸眾靈" data-search-tab="local-spirits" data-search-radio="s-teponaq">
+          <article class="stele-card">
+            <div class="stele-portrait-col">
+              <div class="stele-frame-fill">
+                <img src="images/deities/teponaq.webp" alt="特波納克 (Teponaq)" class="stele-portrait-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                <div class="stele-portrait-placeholder"><span class="placeholder-glyph">🥁</span><span class="placeholder-label">阿茲特克壁畫立繪</span><span class="placeholder-hint">images/deities/teponaq.webp</span></div>
+              </div>
+            </div>
+            <div class="stele-content-col">
+              <div>
+                <div class="stele-header">
+                  <span class="stele-badge">大陸眾靈</span>
+                  <h2 class="stele-name">特波納克<small>Teponaq</small></h2>
+                  <div class="stele-epithet">空心木鼓與脈動之靈</div>
+                </div>
+
+                <blockquote class="stele-quote">「千人之心若同頻而跳，便如巨獸蘇醒；唯不染污穢之掌，方能敲響吾之戰歌。」</blockquote>
+
+                <h4 class="stele-section-heading">神格與本質</h4>
+                <div class="stele-lore">
+                  <p>特波納克是協調眾人「托納利」與凝聚集體戰意的神聖器物之靈，掌管著「律動」、「共鳴」與「群體心志」。在各大城邦祭壇與戰團營地的彩繪石壁上，祂常顯化為一具懸浮於半空、鼓身雕有雙頭狩豹紋章的自鳴長鼓，即使無人敲擊，亦能發出低沉如巨獸心臟搏動般的雄渾鼓鳴。</p>
+                  <p>與偏袒某位主神的戰爭精靈不同，特波納克回應的是純粹的集體信念與節奏——無論是慶祝豐收的部落舞蹈、驅散山谷迷霧的哨站警訊，抑或戰士出征前的誓師儀式，只要眾人的呼吸與鼓點合而為一，這位鼓靈便會讓整支隊伍的靈魂能量彼此共振、無所畏懼。</p>
+                </div>
+
+                <h4 class="stele-section-heading">神話與傳說</h4>
+                <div class="stele-myths">
+                  <div class="myth-entry">
+                    <h5 class="myth-title">雷擊雪松與初鳴心跳</h5>
+                    <p>傳說在遠古山嶺之中，一株生長了千年的巨大雪松遭天際落下的雷霆劈中，焦黑的樹幹卻奇蹟般並未燃盡；漫長歲月裡，白蟻蛀空了堅硬的樹心，而風之精魂埃哈的清風日夜灌入中空的樹腔，竟在山谷間吹出了宛如心臟緩慢搏動般的低沉回響。後來，一名老薩滿尋聲而來，將這截神木雕成橫木鼓並繃上獵獲的美洲豹皮，第一記鼓槌落下之際，特波納克的靈魂徹底甦醒，震動了整座山谷。</p>
+                  </div>
+                  <div class="myth-entry">
+                    <h5 class="myth-title">額觸鼓身與潔掌之禁</h5>
+                    <p>馬茲提卡的戰士在踏上征途或守衛隘口前，皆會列隊來到軍鼓祭壇前，輪流將額頭輕觸冰涼而微微震顫的鼓身，讓胸口的脈搏與特波納克的低鳴校準成同一節奏；據說完成共振的戰士在沙場上即便身陷重圍，也能聽見夥伴的心跳方向而不致潰散。然而，鼓手與戰士皆嚴守一條神聖禁忌——絕不可用沾滿泥濘、腐臭或未洗淨鮮血的雙手直接拍打聖鼓，相傳污穢會堵塞鼓靈的共鳴，使雄渾的戰鼓瞬間化為淒厲尖銳的哀鳴，徹底動搖整支軍隊的士氣。</p>
+                  </div>
+                </div>
+              </div>
+
+              <ul class="stele-meta-grid">
+                <li class="stele-meta-item"><strong>別稱</strong>雷松鼓靈、脈動之主、自鳴聖鼓</li>
+                <li class="stele-meta-item"><strong>象徵</strong>空心橫木鼓、雙頭豹紋、雷擊雪松、同心音波</li>
+                <li class="stele-meta-item"><strong>信仰與分布</strong>各大城邦祭壇、戰團營地與山谷邊境哨站</li>
+              </ul>
+            </div>
+          </article>
+          <div class="stele-pager">
+            <label for="s-chilteq" class="stele-nav-btn">◀ 上一尊眾靈</label>
+            <span class="stele-counter">4 / 12</span>
+            <label for="s-kopalzi" class="stele-nav-btn">下一尊眾靈 ▶</label>
+          </div>
+        </div>
+
+        <!-- 5. 科帕爾茲 (已完成神話與傳說擴寫) -->
+        <div class="stele-panel" data-panel="s-kopalzi" data-search-name="科帕爾茲 (Kopalzi)" data-search-sub="陶香爐與白煙之靈" data-search-tag="大陸眾靈" data-search-tab="local-spirits" data-search-radio="s-kopalzi">
+          <article class="stele-card">
+            <div class="stele-portrait-col">
+              <div class="stele-frame-fill">
+                <img src="images/deities/kopalzi.webp" alt="科帕爾茲 (Kopalzi)" class="stele-portrait-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                <div class="stele-portrait-placeholder"><span class="placeholder-glyph">🏺</span><span class="placeholder-label">阿茲特克壁畫立繪</span><span class="placeholder-hint">images/deities/kopalzi.webp</span></div>
+              </div>
+            </div>
+            <div class="stele-content-col">
+              <div>
+                <div class="stele-header">
+                  <span class="stele-badge">大陸眾靈</span>
+                  <h2 class="stele-name">科帕爾茲<small>Kopalzi</small></h2>
+                  <div class="stele-epithet">陶香爐與白煙之靈</div>
+                </div>
+
+                <blockquote class="stele-quote">「凡香火所及之處，污穢不得越雷池一步；欲借吾之白煙蔽身，必先還吾一盞潔淨灰盤。」</blockquote>
+
+                <h4 class="stele-section-heading">神格與本質</h4>
+                <div class="stele-lore">
+                  <p>科帕爾茲是專司隔離「污穢」、淨化祭壇與掩蔽凡人氣息的神聖器物之靈，掌管著「潔淨」、「結界」與「神人通靈之煙」。在神殿側室、薩滿居所與荒野營地的彩繪石壁上，祂常顯化為一隻佈滿歲月龜裂紋、自行懸浮於半空的焦黑三足陶香爐，爐口不斷吐出化作盤蛇與守護手掌形狀的濃白聖煙。</p>
+                  <p>與高居天穹或蟄伏山脈的宏大主神不同，科帕爾茲是最貼近祭司掌心與守夜人篝火的靜默守護者。無論是滌穢醫道祭司為病患驅除靈魂穢氣，抑或荒野旅人在暗夜密林中隱藏行跡、隔絕邪祟窺伺，皆仰賴這位香爐精靈升起的乳白煙幕。</p>
+                </div>
+
+                <h4 class="stele-section-heading">神話與傳說</h4>
+                <div class="stele-myths">
+                  <div class="myth-entry">
+                    <h5 class="myth-title">千年香火與白煙結界</h5>
+                    <p>傳說在遙遠的創世初期，最初的祭司為了向天界傳遞祈願，取大地之主普魯托克的紅黏土捏製成三足陶爐，並在其中點燃取自神聖柯巴樹的金色樹脂。數百年間，無數代薩滿與醫者日復一日在爐中焚香禱告，香爐本身承載了太多凡人的虔誠與淨化誓言，最終在乳白煙雲與炭火微光的交織中孕育出靈智——科帕爾茲就此誕生。凡是在祂白煙籠罩之下的帳篷與聖所，連最狡詐的暗影鬼魅與沼氣疫病都無法嗅出活人的氣息。</p>
+                  </div>
+                  <div class="myth-entry">
+                    <h5 class="myth-title">潔灰之禮與褻瀆之禁</h5>
+                    <p>所有侍奉神殿的祭司與常年走闖荒野的守夜人皆深知，科帕爾茲雖性情溫和，卻有著近乎潔癖的尊嚴——祂偏愛「乾淨的灰燼」。因此，凡人在每次點燃新的柯巴脂前，必須先以潔淨的羽毛輕輕拂去爐底殘留的舊灰，方能喚起純淨的白煙；民間亦流傳著一條嚴厲禁忌，絕不可在三足陶香爐中焚燒毛髮、指甲、血布或任何污穢雜物，相傳褻瀆聖爐者會立刻招來陶爐反湧出的窒息黑霧，使雙眼三日視物不清。</p>
+                  </div>
+                </div>
+              </div>
+
+              <ul class="stele-meta-grid">
+                <li class="stele-meta-item"><strong>別稱</strong>三足爐靈、白煙守望者、淨穢聖爐</li>
+                <li class="stele-meta-item"><strong>象徵</strong>三足黑陶香爐、柯巴脂白煙、盤蛇與手掌煙紋</li>
+                <li class="stele-meta-item"><strong>信仰與分布</strong>各大神殿側室、醫道薩滿居所與荒野守夜營火</li>
+              </ul>
+            </div>
+          </article>
+          <div class="stele-pager">
+            <label for="s-teponaq" class="stele-nav-btn">◀ 上一尊眾靈</label>
+            <span class="stele-counter">5 / 12</span>
+            <label for="s-400rabbits" class="stele-nav-btn">下一尊眾靈 ▶</label>
+          </div>
+        </div>
+
+        <!-- 6. 四百兔 (已完成神話與傳說擴寫) -->
+        <div class="stele-panel" data-panel="s-400rabbits" data-search-name="四百兔 (400 Rabbits)" data-search-sub="醉意與狂歡之靈群" data-search-tag="大陸眾靈" data-search-tab="local-spirits" data-search-radio="s-400rabbits">
+          <article class="stele-card">
+            <div class="stele-portrait-col">
+              <div class="stele-frame-fill">
+                <img src="images/deities/400rabbits.webp" alt="四百兔 (400 Rabbits)" class="stele-portrait-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                <div class="stele-portrait-placeholder"><span class="placeholder-glyph">🐇</span><span class="placeholder-label">阿茲特克壁畫立繪</span><span class="placeholder-hint">images/deities/400rabbits.webp</span></div>
+              </div>
+            </div>
+            <div class="stele-content-col">
+              <div>
+                <div class="stele-header">
+                  <span class="stele-badge">大陸眾靈</span>
+                  <h2 class="stele-name">四百兔<small>400 Rabbits</small></h2>
+                  <div class="stele-epithet">醉意與狂歡之靈群</div>
+                </div>
+
+                <blockquote class="stele-quote">「杯中見真性，酩酊無貴賤；開罈先敬第一滴，方知今晚哪隻兔靈入席。」</blockquote>
+
+                <h4 class="stele-section-heading">神格與本質</h4>
+                <div class="stele-lore">
+                  <p>在馬茲提卡的古老語境裡，「四百」意味著不可勝數。四百兔並非單一神祇，而是掌管飲酒、節慶狂歡與人間百態醉意的龐大靈群——有的兔靈讓人開懷高歌、手舞足蹈，有的讓人抱頭痛哭、傾訴心事，也有的令人血氣上湧、揮拳怒吼，或直接抱著酒罈昏睡不醒，恰好對應著每一名飲酒者在杯盞之後卸下偽裝、顯露出的真實性情。</p>
+                  <p>在各地城邦酒館、市集節慶與奧克特力酒坊的彩繪石壁上，祂們總以成群結隊、神態滑稽卻又帶著神聖月華的聖兔之姿躍動於乳白酒沫之間，是馬茲提卡日常生活中最受平民與商旅親近的眾靈之一。</p>
+                </div>
+
+                <h4 class="stele-section-heading">神話與傳說</h4>
+                <div class="stele-myths">
+                  <div class="myth-entry">
+                    <h5 class="myth-title">酒沫靈群的雙重起源</h5>
+                    <p>關於四百兔究竟從何而來，馬茲提卡大陸上始終流傳著截然不同的說法。民間薩滿、農夫與酒坊釀造者深信，四百兔是從龍舌蘭與醇釀之母瑪雅特爾所賜的奧克特力乳白泡沫中躍出的醉意化身，體內流淌著刺葉甘露的自由靈魂；然而，賜雨者阿祖爾的祭司們對此嗤之以鼻，堅稱天降甘霖與神聖酒雨實為阿祖爾的恩典，四百兔不過是依附酒香而生的喧鬧靈獸。這場持續數百年的神學爭論從未有過定論，但無論哪一方的信徒，在舉杯暢飲時都離不開祂們的陪伴。</p>
+                  </div>
+                  <div class="myth-entry">
+                    <h5 class="myth-title">開罈第一滴與酒桌戒律</h5>
+                    <p>無論在熱鬧的城邦酒館或村落豐收祭典上，人們每當拍開新酒罈的泥封、準備共飲奧克特力前，總會先舀出第一口乳白酒液灑向地面敬獻四百兔，祈求今晚造訪酒席的是帶來歡笑、和氣與靈感的兔靈，而非挑起爭執與淚水的醉鬼兔靈。民間亦流傳著一條酒桌古戒：在四百兔當值之日共飲時，絕不可在酒後拔出利刃傷人，相傳觸犯此戒者會被暴怒的兔靈群纏上心神，在最關鍵的時刻腳步虛浮、醉眼昏花。</p>
+                  </div>
+                </div>
+              </div>
+
+              <ul class="stele-meta-grid">
+                <li class="stele-meta-item"><strong>別稱</strong>酒兔群靈、醉態諸靈、百態之兔</li>
+                <li class="stele-meta-item"><strong>象徵</strong>成群醉兔、滿溢奧克特力的陶杯、月下兔影</li>
+                <li class="stele-meta-item"><strong>信仰與分布</strong>各地城邦酒館、市集節慶與奧克特力酒坊</li>
+              </ul>
+            </div>
+          </article>
+          <div class="stele-pager">
+            <label for="s-kopalzi" class="stele-nav-btn">◀ 上一尊眾靈</label>
+            <span class="stele-counter">6 / 12</span>
+            <label for="s-zotzca" class="stele-nav-btn">下一尊眾靈 ▶</label>
+          </div>
+        </div>
+
+        <!-- 7. 佐茲卡 (已完成神話與傳說擴寫) -->
+        <div class="stele-panel" data-panel="s-zotzca" data-search-name="佐茲卡 (Zotzca)" data-search-sub="盲洞巨蝠與迴聲之靈" data-search-tag="大陸眾靈" data-search-tab="local-spirits" data-search-radio="s-zotzca">
+          <article class="stele-card">
+            <div class="stele-portrait-col">
+              <div class="stele-frame-fill">
+                <img src="images/deities/zotzca.webp" alt="佐茲卡 (Zotzca)" class="stele-portrait-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                <div class="stele-portrait-placeholder"><span class="placeholder-glyph">🦇</span><span class="placeholder-label">阿茲特克壁畫立繪</span><span class="placeholder-hint">images/deities/zotzca.webp</span></div>
+              </div>
+            </div>
+            <div class="stele-content-col">
+              <div>
+                <div class="stele-header">
+                  <span class="stele-badge">大陸眾靈</span>
+                  <h2 class="stele-name">佐茲卡<small>Zotzca</small></h2>
+                  <div class="stele-epithet">盲洞巨蝠與迴聲之靈</div>
+                </div>
+
+                <blockquote class="stele-quote">「太陽照不見之處，唯聲波能繪出萬物之形；莫以喧嘩驚擾長夜的傾聽者。」</blockquote>
+
+                <h4 class="stele-section-heading">神格與本質</h4>
+                <div class="stele-lore">
+                  <p>佐茲卡是棲息於陽光永不照耀之地底深處的古老獸靈，掌管著「地底迴聲」、「黑暗感知」與「溶洞秘徑」。在帕伊特石灰岩洞窟與地底天然井入口的彩繪石壁上，祂常顯化為一頭體型如小屋般龐大的無毛蒼白巨蝠，雙眼緊閉、巨耳高聳，半透明的翼膜上佈滿微弱發光的青綠生物脈絡，終日倒掛於潮濕鐘乳石穹頂，靜靜傾聽地底落水的回響。</p>
+                  <p>對習慣在烈日下耕作的城邦居民而言，佐茲卡是陌生而令人不安的幽暗存在；然而，對於深入溶洞採集鳥糞肥、尋找地底甘泉的探險者，以及在深山岩層間開鑿礦道的沙漠矮人工匠而言，這位盲洞巨蝠卻是掌控地下迷宮生死的關鍵守護靈。</p>
+                </div>
+
+                <h4 class="stele-section-heading">神話與傳說</h4>
+                <div class="stele-myths">
+                  <div class="myth-entry">
+                    <h5 class="myth-title">地底迴聲與血鱗野性之魂</h5>
+                    <p>傳說在遠古不朽紀元，當泰茲卡與庫庫爾的烈陽照遍大陸地表時，無數畏懼強光的古老蝙蝠逃入了大陸深處錯綜複雜的石灰岩溶洞之中。在永恆的黑暗裡，牠們褪去了毛髮與視力，將全部靈性凝聚於雙耳與喉頭的聲波；數千年來，千萬隻洞穴蝙蝠的集體迴聲與荒野「毒牙獸術」的原始野性交織在一起，在深淵水滴的節奏中孕育出了佐茲卡的靈智。據說只要獲得祂的默許，迷失於漆黑地底的旅人便能從水滴落石的回音裡，聽見通往出口或地下河的微弱指引。</p>
+                  </div>
+                  <div class="myth-entry">
+                    <h5 class="myth-title">兩滴獸血與彈指之禮</h5>
+                    <p>深入帕伊特溶洞的採集者與山岳礦工在踏入無光深淵前，皆嚴格遵守著一套流傳千年的入洞敬禮——他們會在洞口石階滴下兩滴新鮮獸血作為供奉，隨後屏息靜氣，用拇指與中指輕彈指甲發出兩聲清脆而克制的響聲，藉此向倒掛在黑暗高處的佐茲卡通報來意並致上敬意。地底行者最忌諱在深洞內大聲喧嘩、敲擊金屬或驟然點燃刺眼強光，相傳躁動的噪音與強光會刺痛盲洞巨蝠敏銳的感官，引來震碎耳膜、令岩頂落石崩塌的恐怖音波尖嘯。</p>
+                  </div>
+                </div>
+              </div>
+
+              <ul class="stele-meta-grid">
+                <li class="stele-meta-item"><strong>別稱</strong>地底迴聲、蒼白翼靈、盲洞巨蝠</li>
+                <li class="stele-meta-item"><strong>象徵</strong>無毛蒼白巨蝠、青綠翼脈、迴聲波紋、洞穴水滴</li>
+                <li class="stele-meta-item"><strong>信仰與分布</strong>帕伊特石灰岩洞窟、地底天然井與深山礦坑</li>
+              </ul>
+            </div>
+          </article>
+          <div class="stele-pager">
+            <label for="s-400rabbits" class="stele-nav-btn">◀ 上一尊眾靈</label>
+            <span class="stele-counter">7 / 12</span>
+            <label for="s-kuzloq" class="stele-nav-btn">下一尊眾靈 ▶</label>
+          </div>
+        </div>
+
+        <!-- 8. 庫茲洛克 (已完成神話與傳說擴寫) -->
+        <div class="stele-panel" data-panel="s-kuzloq" data-search-name="庫茲洛克 (Kuzloq)" data-search-sub="彩首王鷲與淨骨之靈" data-search-tag="大陸眾靈" data-search-tab="local-spirits" data-search-radio="s-kuzloq">
+          <article class="stele-card">
+            <div class="stele-portrait-col">
+              <div class="stele-frame-fill">
+                <img src="images/deities/kuzloq.webp" alt="庫茲洛克 (Kuzloq)" class="stele-portrait-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                <div class="stele-portrait-placeholder"><span class="placeholder-glyph">🦅</span><span class="placeholder-label">阿茲特克壁畫立繪</span><span class="placeholder-hint">images/deities/kuzloq.webp</span></div>
+              </div>
+            </div>
+            <div class="stele-content-col">
+              <div>
+                <div class="stele-header">
+                  <span class="stele-badge">大陸眾靈</span>
+                  <h2 class="stele-name">庫茲洛克<small>Kuzloq</small></h2>
+                  <div class="stele-epithet">彩首王鷲與淨骨之靈</div>
+                </div>
+
+                <blockquote class="stele-quote">「唯有褪盡腐朽的皮囊，白骨方能映照星辰；吾吞盡世間濁氣，還亡魂以清風。」</blockquote>
+
+                <h4 class="stele-section-heading">神格與本質</h4>
+                <div class="stele-lore">
+                  <p>庫茲洛克是吞噬腐敗、使枯骨重歸潔淨的荒野清道夫之靈，掌管著「淨骨」、「高空烈風」與「天葬引渡」。在北方荒原崖壁與天葬石台的彩繪石壁上，祂常顯化為一頭翼展遮天的巨型黑白王鷲，無毛的頭頸天然呈現出宛如祭祀彩繪般的鮮紅、亮黃與深紫斑斕色彩，雙翼飛掠之處連最濃重的腐臭都會被高空旋風吹散。</p>
+                  <p>不同於某些城邦居民對食腐鳥類的忌諱，在馬茲提卡的泛靈觀與醫道信仰中，庫茲洛克是一位極為神聖且受敬重的守護靈——祂不製造死亡，卻以自身的胃囊承接所有腐朽與瘟疫，替大地阻斷「污穢」的滋生。</p>
+                </div>
+
+                <h4 class="stele-section-heading">神話與傳說</h4>
+                <div class="stele-myths">
+                  <div class="myth-entry">
+                    <h5 class="myth-title">高岩天葬與淨骨之儀</h5>
+                    <p>在馬茲提卡的古老智慧裡，曝野屍骸的腐爛不僅會招來疫病，更會滋生玷污靈魂與土地的「污穢」，甚至引來邪惡死靈術士的褻瀆。因此，北方荒原與高原上的許多部落世世代代實行神聖的天葬——每當族人離世，祭司便會以柯巴香煙潔淨遺體，並將其安放於高山崖壁的石台之上，吹響骨笛呼喚庫茲洛克降臨。部族深信，當彩首王鷲降下吞盡血肉、留下一具純白無瑕的潔淨骨架時，便代表亡者的托納利已徹底擺脫塵世牽絆，乘著高空旋風安然飛向馬茲特蘭的大金字塔。</p>
+                  </div>
+                  <div class="myth-entry">
+                    <h5 class="myth-title">荒原不射之戒與腐肉之罰</h5>
+                    <p>在遼闊的荒原與古戰場邊緣，無論是游牧部族還是經驗老到的荒野獵手，皆嚴格遵守著一條鐵律：絕不可將弓箭或投矛對準正在進食腐肉的禿鷲，更不可褻瀆高岩天葬台上的白骨。相傳曾經有一名傲慢的戰士為了取下彩首王鷲絢麗的尾羽作為頭飾，竟冷箭射傷了庫茲洛克的眷屬；自那天起，淨骨之靈收回了對他的庇佑，無論這名戰士獵獲多麼新鮮的鹿肉或野豬，只要一經他手，鮮肉便會在半日之內離奇發臭生蛆、化作膿水，最終令他在豐饒的獵場上活活餓死。</p>
+                  </div>
+                </div>
+              </div>
+
+              <ul class="stele-meta-grid">
+                <li class="stele-meta-item"><strong>別稱</strong>淨骨之翼、高空清道夫、天葬引渡者</li>
+                <li class="stele-meta-item"><strong>象徵</strong>彩首黑白王鷲、純白潔淨骨架、高空旋風</li>
+                <li class="stele-meta-item"><strong>信仰與分布</strong>北方荒原、高原天葬崖壁與古戰場上空</li>
+              </ul>
+            </div>
+          </article>
+          <div class="stele-pager">
+            <label for="s-zotzca" class="stele-nav-btn">◀ 上一尊眾靈</label>
+            <span class="stele-counter">8 / 12</span>
+            <label for="s-waqtol" class="stele-nav-btn">下一尊眾靈 ▶</label>
+          </div>
+        </div>
+
+        <!-- 9. 瓦克托爾 (已完成神話與傳說擴寫) -->
+        <div class="stele-panel" data-panel="s-waqtol" data-search-name="瓦克托爾 (Waqtol)" data-search-sub="斷崖藤橋與峽風之靈" data-search-tag="大陸眾靈" data-search-tab="local-spirits" data-search-radio="s-waqtol">
+          <article class="stele-card">
+            <div class="stele-portrait-col">
+              <div class="stele-frame-fill">
+                <img src="images/deities/waqtol.webp" alt="瓦克托爾 (Waqtol)" class="stele-portrait-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                <div class="stele-portrait-placeholder"><span class="placeholder-glyph">🌉</span><span class="placeholder-label">阿茲特克壁畫立繪</span><span class="placeholder-hint">images/deities/waqtol.webp</span></div>
+              </div>
+            </div>
+            <div class="stele-content-col">
+              <div>
+                <div class="stele-header">
+                  <span class="stele-badge">大陸眾靈</span>
+                  <h2 class="stele-name">瓦克托爾<small>Waqtol</small></h2>
+                  <div class="stele-epithet">斷崖藤橋與峽風之靈</div>
+                </div>
+
+                <blockquote class="stele-quote">「深淵之上無坦途；步履穩健、心懷敬畏者，吾以雙臂托汝渡峽。」</blockquote>
+
+                <h4 class="stele-section-heading">神格與本質</h4>
+                <div class="stele-lore">
+                  <p>瓦克托爾是由深淵上升的凜冽氣流、百年不斷修補的藤蔓繩索，以及無數旅人踏上高空時屏住的呼吸凝結而成的古老地點靈。在佩澤拉克山脈與奧托米峽谷橋頭的彩繪石壁上，祂只在山霧瀰漫時顯露真容——化作一道由交織古藤與風化粗繩構成的細長巨人輪廓，雙手穩穩扶住峽谷兩側的陡峭岩壁，靜靜守望著懸掛於雲海之上的脆弱通路。</p>
+                  <p>與庇護城牆或農田的神靈不同，瓦克托爾不屬於任何一座城邦，祂只屬於「過渡」與「險途」。無論是運送黑曜石與赤銅的商隊、傳遞緊急軍情的信使，抑或翻山越嶺的朝聖者，凡是想要跨越深谷天塹之人，皆須經過這位索橋巨人的無聲審視。</p>
+                </div>
+
+                <h4 class="stele-section-heading">神話與傳說</h4>
+                <div class="stele-myths">
+                  <div class="myth-entry">
+                    <h5 class="myth-title">百年修索與霧中巨人的覺醒</h5>
+                    <p>傳說在遠古時期，科亞阿魯卡山脈與奧托米高地之間隔著一道深不見底的裂谷，狂暴的峽風連飛鷹都難以橫渡。為了互通有無，兩地的山民與採礦者世代冒死垂下粗藤編織索橋，每隔數年便須在迷霧中替換腐朽的繩索。數百年來，無數工匠的汗水滲入藤蔓纖維，過橋旅人祈求平安的屏息與風神埃哈的上升氣流在深淵上空交匯，最終使整座懸索橋與峽谷山霧孕育出了靈智——瓦克托爾就此甦醒，化作雙手托住兩岸岩壁的守護巨人，在狂風大作時以無形氣流托穩搖晃的橋身。</p>
+                  </div>
+                  <div class="myth-entry">
+                    <h5 class="myth-title">繫線木樁與莫回頭古戒</h5>
+                    <p>所有常年往來於深山峽谷的商隊領隊與山岳信使皆嚴格遵守著一套過橋儀軌：踏上藤橋木板前，必須先在橋頭的石雕木樁上親手繫緊一根彩色棉線或熱帶鳥羽作為「過路禮」，向靜靜考驗平衡與敬畏的索橋巨人致意。同時，山間流傳著一條不容違背的嚴厲禁忌——過橋時雙眼必須直視前方，絕不可在橋心回頭張望，更不可在橋上喧嘩推擠或惡意搖晃繩索；相傳傲慢無禮者會瞬間激怒瓦克托爾，使巨人鬆開托住岩壁的藤蔓巨掌，任由峽風將褻瀆者連同斷裂的踏板一併捲入無底深淵。</p>
+                  </div>
+                </div>
+              </div>
+
+              <ul class="stele-meta-grid">
+                <li class="stele-meta-item"><strong>別稱</strong>索橋巨人、峽谷守望者、藤霧之靈</li>
+                <li class="stele-meta-item"><strong>象徵</strong>藤蔓懸索橋、繫線木樁、深淵山霧、上升氣旋</li>
+                <li class="stele-meta-item"><strong>信仰與分布</strong>佩澤拉克山脈、奧托米峽谷與深谷懸索橋兩端</li>
+              </ul>
+            </div>
+          </article>
+          <div class="stele-pager">
+            <label for="s-kuzloq" class="stele-nav-btn">◀ 上一尊眾靈</label>
+            <span class="stele-counter">9 / 12</span>
+            <label for="s-chaltoq" class="stele-nav-btn">下一尊眾靈 ▶</label>
+          </div>
+        </div>
+
+        <!-- 10. 查爾托克（科西灣潮神・海緣翁）(已完成神話與傳說擴寫) -->
+        <div class="stele-panel" data-panel="s-chaltoq" data-search-name="查爾托克 (Chaltoq)" data-search-sub="潮神「海緣翁」" data-search-tag="大陸眾靈" data-search-tab="local-spirits" data-search-radio="s-chaltoq">
+          <article class="stele-card">
+            <div class="stele-portrait-col">
+              <div class="stele-frame-fill">
+                <img src="images/deities/chaltoq.webp" alt="查爾托克 (Chaltoq)" class="stele-portrait-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                <div class="stele-portrait-placeholder"><span class="placeholder-glyph">🌊</span><span class="placeholder-label">阿茲特克壁畫立繪</span><span class="placeholder-hint">images/deities/chaltoq.webp</span></div>
+              </div>
+            </div>
+            <div class="stele-content-col">
+              <div>
+                <div class="stele-header">
+                  <span class="stele-badge">大陸眾靈</span>
+                  <h2 class="stele-name">查爾托克<small>Chaltoq</small></h2>
+                  <div class="stele-epithet">潮神「海緣翁」</div>
+                </div>
+
+                <blockquote class="stele-quote">「我來為你們守潮，但你們必須記得與海的盟約。」</blockquote>
+
+                <h4 class="stele-section-heading">神格與本質</h4>
+                <div class="stele-lore">
+                  <p>薩滿稱這座古老生靈為「查爾托克」，其本體是科西灣一帶盤根錯節的紅樹林氣根與鹹淡水交會的潮間帶迷澤；而在科西村世代傳頌的故事裡，人們尊稱祂為潮神「海緣翁」——頭戴濕潤水草、背負厚重龜甲、面如青玉，身形似河童卻高大挺拔，眉宇間帶著深海的沉靜。</p>
+                  <p>與高居天穹或索求溺祭的殘酷水神阿祖爾不同，海緣翁是佇立在陸地與風暴之間的溫厚邊界守護者。當地研習「翠玉淵潮」的施法者與沿海漁民，皆視祂為調和鹹淡、穩固海岸並守護生靈不遭狂潮吞噬的恩主。</p>
+                </div>
+
+                <h4 class="stele-section-heading">神話與傳說</h4>
+                <div class="stele-myths">
+                  <div class="myth-entry">
+                    <h5 class="myth-title">滿月銀潮與海緣翁現世</h5>
+                    <p>很久以前，科西村仍是一片常被暴潮吞噬、沖毀棲地並捲走孩童與漁船的濕沼地，漂泊的村民只能不斷將供品投入水中，向「海的彼岸」祈求寧靜。某個滿月高掛的夜晚，銀色浪花在月輝下凝結如溫潤玉石，海緣翁自潮間帶緩緩升起，以盤根錯節的紅樹林氣根穩住流沙、背負厚重龜甲驅退惡浪並引來肥美魚群。海潮平息後，祂低聲立下誓言守護此地，村民遂於海岸立起青玉石像供奉至今。</p>
+                  </div>
+                  <div class="myth-entry">
+                    <h5 class="myth-title">與海的三條盟約</h5>
+                    <p>科西村民以三條代代相傳的「守潮盟約」維繫著與海緣翁的安寧共生：一曰「退潮取魚，漲潮讓路」，嚴禁竭澤而漁，每季首網捕獲的幼魚必放歸大海；二曰「不焚海根，不傾濁鐵」，嚴禁焚燒紅樹林氣根或向潮間帶傾倒鐵器與血污；三曰「月圓獻淡，以玉記約」，每逢大潮滿月之夜，村中長老便會於海岸青玉石像前傾倒一瓢清淡水並獻上青石玉片，重申凡人與大海互不逾越的界線。</p>
+                  </div>
+                </div>
+              </div>
+
+              <ul class="stele-meta-grid">
+                <li class="stele-meta-item"><strong>別稱</strong>潮神、海緣翁</li>
+                <li class="stele-meta-item"><strong>象徵</strong>海岸青玉石像、厚重龜甲、紅樹林氣根、月下銀浪</li>
+                <li class="stele-meta-item"><strong>信仰與分布</strong>科西村海岸、帕伊特至遠帕伊特紅樹林潮間帶</li>
+              </ul>
+            </div>
+          </article>
+          <div class="stele-pager">
+            <label for="s-waqtol" class="stele-nav-btn">◀ 上一尊眾靈</label>
+            <span class="stele-counter">10 / 12</span>
+            <label for="s-poshtli" class="stele-nav-btn">下一尊眾靈 ▶</label>
+          </div>
+        </div>
+
+        <!-- 11. 波什特利 (已完成神話與傳說擴寫) -->
+        <div class="stele-panel" data-panel="s-poshtli" data-search-name="波什特利 (Poshtli)" data-search-sub="偉大之鷹" data-search-tag="大陸眾靈" data-search-tab="local-spirits" data-search-radio="s-poshtli">
+          <article class="stele-card">
+            <div class="stele-portrait-col">
+              <div class="stele-frame-fill">
+                <img src="images/deities/poshtli.webp" alt="波什特利 (Poshtli)" class="stele-portrait-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                <div class="stele-portrait-placeholder"><span class="placeholder-glyph">🦅</span><span class="placeholder-label">阿茲特克壁畫立繪</span><span class="placeholder-hint">images/deities/poshtli.webp</span></div>
+              </div>
+            </div>
+            <div class="stele-content-col">
+              <div>
+                <div class="stele-header">
+                  <span class="stele-badge">大陸眾靈</span>
+                  <h2 class="stele-name">波什特利<small>Poshtli</small></h2>
+                  <div class="stele-epithet">偉大之鷹</div>
+                </div>
+
+                <blockquote class="stele-quote">「唯有不懼墜落者，方能乘風直上九霄；凡心懷高潔榮耀之刃，吾必自雲端庇佑。」</blockquote>
+
+                <h4 class="stele-section-heading">神格與本質</h4>
+                <div class="stele-lore">
+                  <p>波什特利是馬茲提卡天空、高空偵察、遠程精準與高潔榮耀的守護靈，亦是各城邦精銳「鷹騎士團」共同敬奉的至高導師。與創世之初便誕生的古老元素靈不同，波什特利原是一位生於凡塵的傳奇英雄，因其在生前展現的無畏勇氣與守護弱者的崇高美德，在離世後獲得羽蛇神夸爾特與太陽神力的感召，飛昇為不朽的「偉大之鷹」。</p>
+                  <p>在各地軍事高塔與武士神殿的彩繪石壁上，祂常顯化為一頭冠羽如王冠豎立、雙翼展開如太陽射線般的宏偉角雕巨鷹，銳利的金色雙目能穿透萬里雲霧與密林掩護，為守衛家園的戰士指引精準的箭矢與投矛。</p>
+                </div>
+
+                <h4 class="stele-section-heading">神話與傳說</h4>
+                <div class="stele-myths">
+                  <div class="myth-entry">
+                    <h5 class="myth-title">凡塵鷹羽與雲端飛昇</h5>
+                    <p>傳說在遠古神戰的動盪年代，馬茲提卡中部的一座山巔城邦遭到嗜血邪教與狂暴怪物的圍困，糧道斷絕、危在旦夕。當時名為波什特利的年輕哨兵，為向遠方的友軍傳遞求援訊息，竟將自己編織的「羽光」神聖彩羽披風綁在雙臂上，迎著懸崖上升的狂風縱身躍下深淵。羽龍夸爾特為這份捨身護民的無畏勇氣所動容，降下神風托起他墜落的身軀；波什特利在萬丈高空中化作一頭展翼遮天的偉大之鷹，及時引來援軍解救了城邦，並在戰役落幕後永駐天際，成為第一位由凡人飛昇的英靈。</p>
+                  </div>
+                  <div class="myth-entry">
+                    <h5 class="myth-title">鷹視授羽與武士榮耀之戒</h5>
+                    <p>在馬茲提卡的各個城邦裡，任何渴望晉升為「鷹騎士」的年輕戰士，都必須在「鷹紋」當值之日登上最高的山崖祭壇，在烈日下靜立三日三夜，直至一頭野生的巨鷹盤旋掠過並落下一根完好無損的尾羽，方能獲得配戴鷹盔的資格。同時，所有侍奉波什特利的戰士皆嚴守著嚴格的榮耀戒律：武器只為守護與正面交鋒而舉，絕不可從背後偷襲手無寸鐵之人，亦不可虐殺已放下武器的俘虜——相傳背棄榮耀者將會失去偉大之鷹的「鷹視」庇佑，在沙場上雙目蒙塵、箭矢偏離。</p>
+                  </div>
+                </div>
+              </div>
+
+              <ul class="stele-meta-grid">
+                <li class="stele-meta-item"><strong>別稱</strong>偉大之鷹、雲端守望者、飛昇英靈</li>
+                <li class="stele-meta-item"><strong>象徵</strong>冠羽巨鷹、鷹紋徽記、太陽風羽、綠松石羽盾</li>
+                <li class="stele-meta-item"><strong>信仰與分布</strong>各大城邦鷹騎士團、高山哨所與高空偵察者</li>
+              </ul>
+            </div>
+          </article>
+          <div class="stele-pager">
+            <label for="s-chaltoq" class="stele-nav-btn">◀ 上一尊眾靈</label>
+            <span class="stele-counter">11 / 12</span>
+            <label for="s-hoxitl" class="stele-nav-btn">下一尊眾靈 ▶</label>
+          </div>
+        </div>
+
+        <!-- 12. 霍西特爾 (已完成神話與傳說擴寫) -->
+        <div class="stele-panel" data-panel="s-hoxitl" data-search-name="霍西特爾 (Hoxitl)" data-search-sub="蝰手獸主・札爾特克之口與尖牙" data-search-tag="大陸眾靈" data-search-tab="local-spirits" data-search-radio="s-hoxitl">
+          <article class="stele-card">
+            <div class="stele-portrait-col">
+              <div class="stele-frame-fill">
+                <img src="images/deities/hoxitl.webp" alt="霍西特爾 (Hoxitl)" class="stele-portrait-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                <div class="stele-portrait-placeholder"><span class="placeholder-glyph">🐍</span><span class="placeholder-label">阿茲特克壁畫立繪</span><span class="placeholder-hint">images/deities/hoxitl.webp</span></div>
+              </div>
+            </div>
+            <div class="stele-content-col">
+              <div>
+                <div class="stele-header">
+                  <span class="stele-badge">大陸眾靈</span>
+                  <h2 class="stele-name">霍西特爾<small>Hoxitl</small></h2>
+                  <div class="stele-epithet">蝰手獸主・札爾特克之口與尖牙</div>
+                </div>
+
+                <blockquote class="stele-quote">「雄鷹在烈日下鳴叫，而毒蝰只在落葉無聲處等待咽喉暴露的一瞬。」</blockquote>
+
+                <h4 class="stele-section-heading">神格與本質</h4>
+                <div class="stele-lore">
+                  <p>霍西特爾是掌管「致命毒素」、「暗影潛伏」與「冷酷伏擊」的危險獸靈，世人敬畏地稱祂為「蝰手獸主」，亦是戰爭與噬心之神札爾特克在凡間最銳利的「口與尖牙」。與代表正面榮耀與天空飛昇的偉大之鷹波什特利截然相反，霍西特爾原是一位在遠古叢林中將「毒牙獸術」修煉至極致的凡人宗師，最終因徹底捨棄人性、與劇毒蝰蛇融為一體而飛昇為不朽眾靈。</p>
+                  <p>在蝰手獸部落的隱秘石窟與札爾特克血祭側殿的彩繪石壁上，祂常顯化為一條盤踞於暗影中的巨型矛頭蝰蛇，蛇身兩側長出一雙佈滿翠綠蛇鱗的修長人手，緊握鋸齒黑曜石匕首與滴落墨綠劇毒的「蝰印」符牌。</p>
+                </div>
+
+                <h4 class="stele-section-heading">神話與傳說</h4>
+                <div class="myth-entry">
+                  <h5 class="myth-title">蝰手蛻變與噬心者的尖牙</h5>
+                  <p>傳說在魔法神戰最血腥的年代，一名名為霍西特爾的叢林獵手為了向屠滅部族的強敵復仇，獨自潛入滿是劇毒矛頭蝰的沼澤深處。他每日飲下稀釋的蛇毒、任由毒蝰啃咬四肢以淬鍊體魄，最終在札爾特克的血祭火光中以黑曜石刃獻上敵酋的心臟。噬心者札爾特克對這份毫不妥協的狠辣與耐心極為讚賞，賜予其不朽的獸神血脈——霍西特爾的雙腿化作粗壯蛇尾，雙臂覆滿翠綠毒鱗，從此成為戰神行走於陰影中的代言人，將提煉毒液與無聲獵殺的秘法傳授給受其庇佑的蝰手獸部族與暗影行者。</p>
+                </div>
+                <div class="myth-entry">
+                  <h5 class="myth-title">試毒三滴與無聲之戒</h5>
+                  <p>所有在「蝰印」當值之日祈求霍西特爾庇佑的刺客、叢林斥候與毒藥師，皆須遵循一套冷酷的試毒儀軌：他們會將刀尖蘸取一滴劇毒蛇液，先滴一滴於暗影泥土中敬獻蝰手獸主，再以舌尖輕觸微量的稀釋毒液以銘記痛苦與警覺。同時，信奉霍西特爾者嚴守著「無聲之戒」——在鎖定獵物並發動致命一擊前，絕不可高聲咆哮或炫耀武力，相傳在暗殺前喧嘩張揚者會遭蝰手獸主視為蠢材，不僅毒液效力盡失，更會在最關鍵的時刻遭反噬其身。</p>
+                </div>
+              </div>
+
+              <ul class="stele-meta-grid">
+                <li class="stele-meta-item"><strong>別稱</strong>蝰手獸主、札爾特克之口與尖牙、暗影毒蝰</li>
+                <li class="stele-meta-item"><strong>象徵</strong>生有鱗手之巨蝰、蝰印徽記、黑曜石毒匕、墨綠毒息</li>
+                <li class="stele-meta-item"><strong>信仰與分布</strong>蝰手獸部落領地、札爾特克教派與叢林暗影行者</li>
+              </ul>
+            </div>
+          </article>
+          <div class="stele-pager">
+            <label for="s-poshtli" class="stele-nav-btn">◀ 上一尊眾靈</label>
+            <span class="stele-counter">12 / 12</span>
+            <label for="s-mayatl" class="stele-nav-btn">下一尊眾靈 ▶</label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+ <!-- ==================== 3. 惡魔之女 ==================== -->
+  <section id="demon-daughter" class="magic-section">
+    <div class="stele-panel always-visible" data-search-name="伊察帕普羅特爾 (Itzapapalotl)" data-search-sub="惡魔之女、黑曜之蝶" data-search-tag="惡魔之女" data-search-tab="demon-daughter">
+      <article class="stele-card cat-heretic">
+        <div class="stele-portrait-col">
+          <div class="stele-frame-fill">
+            <img src="images/deities/itzapapalotl.webp" alt="伊察帕普羅特爾 (Itzapapalotl)" class="stele-portrait-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+            <div class="stele-portrait-placeholder"><span class="placeholder-glyph">🦋</span><span class="placeholder-label">阿茲特克壁畫立繪</span><span class="placeholder-hint">images/deities/itzapapalotl.webp</span></div>
+          </div>
+        </div>
+        <div class="stele-content-col">
+          <div>
+            <div class="stele-header">
+              <span class="stele-badge">異端禁神 · 外域陰影</span>
+              <h2 class="stele-name">伊察帕普羅特爾<small>Itzapapalotl</small></h2>
+              <div class="stele-epithet">惡魔之女、黑曜石蝴蝶</div>
+            </div>
+
+            <blockquote class="stele-quote">「當庫庫爾之眼垂暮閉合，黑曜雙翼終將劃開凡間的夜幕。」</blockquote>
+
+            <h4 class="stele-section-heading">神格與本質</h4>
+            <div class="stele-lore">
+              <p>伊察帕普羅特爾是馬茲提卡正統萬神殿之外最令人忌憚的異端存在，世人畏懼地稱祂為「惡魔之女」或「黑蝶魔女」。在極少數未被完全鑿毀的古老秘窟壁畫上，祂的真容始終模糊不清，僅留下一道身段曼妙、散發危險魔性魅力的女子魅影，背後展開邊緣如黑曜石刃般鋒利的漆黑蝶翼，象徵著誘惑、禁忌與不可控的暗影魔力。傳說太陽本身即是古代眾神之父「庫庫爾之眼」，唯有仰賴烈日終日凝視著這片大陸，才得以將這位惡魔之女阻擋在人類領域之外。</p>
+              <p>儘管遭到幾乎所有城邦與正統神殿的嚴厲排斥，伊察帕普羅特爾仍暗中擁有自己的崇拜者。大多數遊走於禁忌邊緣的術士將祂視為幕後守護神，甘願與祂、深淵惡魔以及來自群星之外的域外星魔簽訂危險契約，以換取違背常理的暗影之力；而祂並不滿足於僅作契約領主，在渴望成為真正女神的狂熱野心驅使下，祂的黑暗慾望與曾經的情人札爾特克相比毫不遜色。</p>
+            </div>
+
+            <h4 class="stele-section-heading">神話與傳說</h4>
+            <div class="stele-myths">
+              <div class="myth-entry">
+                <h5 class="myth-title">無日之境的黑蝶低語</h5>
+                <p>根據殘存的禁忌秘檔與口述傳說，沒有人知曉伊察帕普羅特爾究竟誕生於創世之初的哪道裂隙，亦無任何凡人見過黑蝶面紗下的真實面容。相傳早在諸神爭奪大陸權柄的混亂紀元裡，祂便棲息在凡間與外域虛空交界的「無日之境」中，與戰神札爾特克有過一段充斥著野心與背叛的古老舊情；每當日蝕遮蔽庫庫爾之眼時，暗影中便會傳來如黑曜石碎片彼此刮擦般的妖媚低語，誘使迷失者親手打開禁忌之門。</p>
+              </div>
+              <div class="myth-entry">
+                <h5 class="myth-title">翼刃星魔與被抹去的壁畫</h5>
+                <p>古老神話警告世人，伊察帕普羅特爾的蝶翼每一次振動，都會從群星深處的裂縫中抖落嗜血的惡魔與形貌詭譎的域外星魔；祂們潛伏在無人荒原的古老廢墟與日蝕陰影裡，忠實執行著這位神秘女主人無人能懂的意志。正因對這股莫測魔性的深切恐懼，各大城邦的神殿聯手頒布了最嚴厲的禁令，將所有與「黑曜之蝶」相關的石碑與名諱悉數鑿去——使祂的過往與真容徹底化作一團籠罩大陸的未解之謎。</p>
+              </div>
+            </div>
+          </div>
+
+          <ul class="stele-meta-grid">
+            <li class="stele-meta-item"><strong>別稱</strong>惡魔之女、黑曜石蝴蝶、黑蝶魔女</li>
+            <li class="stele-meta-item"><strong>象徵</strong>刃緣黑曜石蝶翼、模糊魅影、日蝕陰影、暗紅契約印</li>
+            <li class="stele-meta-item"><strong>密教與蹤跡</strong>禁忌密教、暗影術士集會與無日之境</li>
+          </ul>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ==================== 4. 死後世界 ==================== -->
+  <section id="afterlife" class="magic-section">
     <div class="rule-card">
-      <h3>位面宇宙論 (Cosmology)</h3>
+      <h3>死後世界與位面宇宙論 (The Afterlife &amp; Cosmology)</h3>
       <div class="text-block">
         <p>
           馬茲提卡人和崇拜馬茲提卡諸神的靈魂被稱為<strong>托那利 (tonalli)</strong>。在死亡的那一刻，他們會到達一座宏偉的神廟，位於一座延伸至視野之外的金字塔頂端。
@@ -467,15 +2157,15 @@
           從薄霧中，被稱為<strong>齊齊米姆 (zizimime)</strong> 的靈魂出現，引導托那利進入一個更能代表其生前傾向的境界。
           托納利的最終目的地並非基於守護神，而是基於靈魂的本質。
         </p>
-        
-        <h4 style="color:var(--gold); margin-top:20px;">死亡的那一刻 (At the Moment of Death)</h4>
+
+        <h4 style="color:var(--gold-main); margin-top:20px;">死亡的那一刻 (At the Moment of Death)</h4>
         <p>
           當一個生物死亡，它的托納利離開主物質位面時，它首先意識到自己位於一座被火把照亮的大型石頭建築中心。
           視野朦朧如夢，托納利被一圈骷髏生物包圍，既無惡意也無同情。這就是齊齊米姆，靈魂的牧者。
           托納利不能懇求，也無法影響命運。救贖的時間已經過去了。
         </p>
 
-        <h4 style="color:var(--gold); margin-top:20px;">覺醒於馬茲特蘭 (Awakening in Maztlan)</h4>
+        <h4 style="color:var(--gold-main); margin-top:20px;">覺醒於馬茲特蘭 (Awakening in Maztlan)</h4>
         <p>
           通往最終目的地的旅程始終從馬茲特蘭開始。所有靈魂到達的建築其實就是馬茲特蘭本身的體現。
           對於中立的靈魂，建築物與霧霾消退，取而代之的是廣闊海洋上一座青翠的島嶼——據說人類從庫庫爾斷指中跳出後，首次出現的地方。
@@ -483,114 +2173,93 @@
       </div>
     </div>
 
-    <h3 style="color:var(--gold); margin:30px 0 15px 0; padding-left:10px; border-left:4px solid var(--gold);">位面簡介 (Planes of Existence)</h3>
-    
-    <div class="deity-grid">
-      
-      <div class="rule-card highlight" style="border-left-color: #aaa;">
+    <h3 style="color:var(--gold-main); margin:30px 0 15px 0; padding-left:10px; border-left:4px solid var(--gold-main);">諸界位面簡介 (Planes of Existence)</h3>
+
+    <div class="planes-grid" id="planes-grid">
+      <div class="rule-card highlight" data-plane="maztlan" data-search-name="馬茲特蘭 (Maztlan)" data-search-sub="中立亡魂與七洞穴之島" data-search-tag="死後世界" data-search-tab="afterlife" style="border-left-color: #aaa;">
         <h4>馬茲特蘭 (Maztlan)</h4>
         <p>當大金字塔消失，中立的靈魂會看到一座巨大的島嶼，四周被無邊無際的大海包圍。七個洞穴點綴著景觀，據說是所有靈魂出生前的家，也是母神馬茲提卡靈魂的棲息地。</p>
       </div>
 
-      <div class="rule-card highlight" style="border-left-color: #2ecc71;">
+      <div class="rule-card highlight" data-plane="tlaxcautli" data-search-name="特拉克斯考特利 (Tlaxcautli)" data-search-sub="夸爾特的和平金字塔家園" data-search-tag="死後世界" data-search-tab="afterlife" style="border-left-color: #2ecc71;">
         <h4>特拉克斯考特利 (Tlaxcautli)</h4>
         <p>夸爾特備受青睞的家園，本身就是一座巨大的金字塔。巨鷹形式的天使常來拜訪，與孩子們在台階上嬉戲。這裡有永恆的和平，神靈之間只有永恆的愛。</p>
       </div>
 
-      <div class="rule-card highlight" style="border-left-color: #27ae60;">
+      <div class="rule-card highlight" data-plane="xilen" data-search-name="希倫 (Xilen) - 奶樹天堂" data-search-sub="夭折孩童的玉米田島嶼" data-search-tag="死後世界" data-search-tab="afterlife" style="border-left-color: #27ae60;">
         <h4>希倫 (Xilen) - 奶樹天堂</h4>
         <p>富饒島嶼上無邊無際的玉米田野。未形成道德觀而夭折的孩子們會來到這裡，由天使齊齊米姆照顧。這裡有神奇的植物，能提供牛奶或平靜瘋狂的心靈。</p>
       </div>
 
-      <div class="rule-card highlight" style="border-left-color: #f1c40f;">
+      <div class="rule-card highlight" data-plane="catlampa" data-search-name="卡特蘭帕 (Catlampa)" data-search-sub="難產母親的沙漠綠洲天堂" data-search-tag="死後世界" data-search-tab="afterlife" style="border-left-color: #f1c40f;">
         <h4>卡特蘭帕 (Catlampa)</h4>
         <p>專屬於死於難產的婦女的天堂。即使是殘酷的神也尊重她們的犧牲。這是一片沙漠中的綠洲，母親們被賦予鷹的翅膀，可以飛到很遠的地方去迎接鄰居。</p>
       </div>
 
-      <div class="rule-card highlight" style="border-left-color: #d35400;">
+      <div class="rule-card highlight" data-plane="tochitl" data-search-name="托奇特爾 (Tochitl)" data-search-sub="女神努拉的野性家園" data-search-tag="死後世界" data-search-tab="afterlife" style="border-left-color: #d35400;">
         <h4>托奇特爾 (Tochitl)</h4>
         <p>女神努拉的家園，充滿了動物與強大的掠食者。來到這裡的托納利最終也會變成動物，但擁有覺醒野獸的能力。</p>
       </div>
 
-      <div class="rule-card highlight" style="border-left-color: #f39c12;">
+      <div class="rule-card highlight" data-plane="xitonco" data-search-name="希通科 (Xitonco)" data-search-sub="純淨溫和的田園荒野" data-search-tag="死後世界" data-search-tab="afterlife" style="border-left-color: #f39c12;">
         <h4>希通科 (Xitonco)</h4>
         <p>純淨的田園荒野，氣候溫和。除了偶爾出現的大鵬外沒有威脅。這裡的靈魂慷慨熱情，常常幸福地不知道自己已是亡魂。</p>
       </div>
 
-      <div class="rule-card highlight" style="border-left-color: #16a085;">
+      <div class="rule-card highlight" data-plane="teotecan" data-search-name="特奧特坎 (Teotecan)" data-search-sub="基爾茲的平緩山林" data-search-tag="死後世界" data-search-tab="afterlife" style="border-left-color: #16a085;">
         <h4>特奧特坎 (Teotecan)</h4>
         <p>愛神基爾茲居住的巨大山脈，山林平緩。但傳言森林深處潛伏著某種可怕的「黑暗」——一個因夸爾特違背誓言而生的靈魂吞噬者。</p>
       </div>
 
-      <div class="rule-card highlight" style="border-left-color: #3498db;">
+      <div class="rule-card highlight" data-plane="mayel" data-search-name="馬耶爾 (Mayel)" data-search-sub="埃哈的旋風與風眼位面" data-search-tag="死後世界" data-search-tab="afterlife" style="border-left-color: #3498db;">
         <h4>馬耶爾 (Mayel)</h4>
         <p>充滿旋風和暴風雨的位面。靈魂在這裡被永久的旋風拋來拋去。只有忠於埃哈的人可以在平靜的風眼中度過永恆。</p>
       </div>
 
-      <div class="rule-card highlight" style="border-left-color: #2980b9;">
+      <div class="rule-card highlight" data-plane="tlalocan" data-search-name="特拉洛坎 (Tlalocan)" data-search-sub="阿祖爾的恆雨國度" data-search-tag="死後世界" data-search-tab="afterlife" style="border-left-color: #2980b9;">
         <h4>特拉洛坎 (Tlalocan)</h4>
         <p>阿祖爾神創造的國度。這裡不斷下著雨，即使陽光普照也伴隨著溫暖的雨。托納利在這裡休息得很好，但永遠被雨水淋濕。</p>
       </div>
 
-      <div class="rule-card highlight" style="border-left-color: #e74c3c;">
+      <div class="rule-card highlight" data-plane="itzli" data-search-name="伊茲利 (Itzli)" data-search-sub="日復一日重生的黑曜戰場" data-search-tag="死後世界" data-search-tab="afterlife" style="border-left-color: #e74c3c;">
         <h4>伊茲利 (Itzli)</h4>
         <p>無盡的黑曜石露頭。靈魂在這裡進行有組織的戰爭。每個早晨，無論前一天的命運如何，靈魂都會重生，準備新一天的戰鬥。</p>
       </div>
 
-      <div class="rule-card highlight" style="border-left-color: #c0392b;">
+      <div class="rule-card highlight" data-plane="tlatocalli" data-search-name="特拉託卡利 (Tlatocalli)" data-search-sub="地震頻仍的殘酷戰場" data-search-tag="死後世界" data-search-tab="afterlife" style="border-left-color: #c0392b;">
         <h4>特拉託卡利 (Tlatocalli)</h4>
         <p>比伊茲利更殘酷的戰場。這裡的靈魂喜歡讓敵人預先受苦。頻繁的地震可以瞬間改變戰局。</p>
       </div>
 
-      <div class="rule-card highlight" style="border-left-color: #8e44ad;">
+      <div class="rule-card highlight" data-plane="mictlan" data-search-name="米克特蘭 (Mictlan)" data-search-sub="九層死亡之地" data-search-tag="死後世界" data-search-tab="afterlife" style="border-left-color: #8e44ad;">
         <h4>米克特蘭 (Mictlan)</h4>
         <p>真正的「死亡之地」，九層地獄。必須經過多年的旅行才能穿越，從刮肉刀風的田野到充滿狩豹靈魂的血河。由地獄之王與地獄女士統治。</p>
       </div>
 
-      <div class="rule-card highlight" style="border-left-color: #5b2c6f;">
+      <div class="rule-card highlight" data-plane="teotli-itic" data-search-name="特奧特里·伊蒂克 (Teotli Itic)" data-search-sub="火坑與酸液的九層地獄" data-search-tag="死後世界" data-search-tab="afterlife" style="border-left-color: #5b2c6f;">
         <h4>特奧特里·伊蒂克 (Teotli Itic)</h4>
         <p>與米克特蘭類似的九層地獄。火坑、酸液和燃燒的血液是不可避免的。許多靈魂被埋到脖子以下，任由螞蟻啃食臉部。</p>
       </div>
 
-      <div class="rule-card highlight" style="border-left-color: #922b21;">
+      <div class="rule-card highlight" data-plane="exbal-ken" data-search-name="埃克斯巴爾·肯 (Exbal Ken)" data-search-sub="無盡血祭的苦痛國度" data-search-tag="死後世界" data-search-tab="afterlife" style="border-left-color: #922b21;">
         <h4>埃克斯巴爾·肯 (Exbal Ken)</h4>
         <p>充滿血腥和犧牲的國度。靈魂在沒有心臟、甚至沒有頭腦的情況下繼續存在，永遠感受著犧牲的痛苦。</p>
       </div>
 
-      <div class="rule-card highlight" style="border-left-color: #7f8c8d;">
+      <div class="rule-card highlight" data-plane="zompantli" data-search-name="宗潘特利 (Zompantli)" data-search-sub="萬骨構成的謎語國度" data-search-tag="死後世界" data-search-tab="afterlife" style="border-left-color: #7f8c8d;">
         <h4>宗潘特利 (Zompantli)</h4>
         <p>由頭骨組成的國度。牆壁、房屋、甚至動植物都是頭骨。大多數保持沉默，但也有許多人永遠尖叫或說著令人抓狂的謎語。</p>
       </div>
 
-      <div class="rule-card highlight" style="border-left-color: #e67e22;">
+      <div class="rule-card highlight" data-plane="xipetlan" data-search-name="西佩特蘭 (Xipetlan) - 剝皮之地" data-search-sub="泰茲卡棲居的永夜沙暴沙漠" data-search-tag="死後世界" data-search-tab="afterlife" style="border-left-color: #e67e22;">
         <h4>西佩特蘭 (Xipetlan) - 剝皮之地</h4>
         <p>永遠黑暗的沙漠，沙塵暴足以將皮膚從肉上撕下來。泰茲卡經常住在這裡，缺乏陽光和火讓他不舒服，但他以此贖罪。</p>
       </div>
 
-      <div class="rule-card highlight" style="border-left-color: #000; border: 1px solid #c0392b;">
+      <div class="rule-card highlight" data-plane="xibalba" data-search-name="西巴爾巴 (Xibalba)" data-search-sub="致命球賽與十惡魔領主之地" data-search-tag="死後世界" data-search-tab="afterlife" style="border-left-color: #000; border: 1px solid #c0392b;">
         <h4 style="color:#c0392b;">西巴爾巴 (Xibalba)</h4>
         <p>一個沒有希望的可怕地方。神靈與惡魔進行著致命的球賽。失敗者被永遠遺忘，勝利者則被交給十位惡魔領主，遭受血液病變、身體腫脹、化為骷髏或咳血等永恆折磨。</p>
       </div>
-
     </div>
   </section>
-
-  <section id="others" class="magic-section">
-    <div class="rule-card">
-      <h3>其他神靈 (Other Deities)</h3>
-      <div class="text-block">
-        <p>事實上，在馬茲提卡的人們中還有數十位其他神，其中大多數是本地神。一些比較著名的受崇拜的生物（儘管不知道它們是否是真正的神）包括：</p>
-        
-        <h4 style="color:var(--gold); margin-top:20px;">400 隻兔子</h4>
-        <p>據說它們是飲酒和被稱為奧托的飲料的讚助人。阿祖爾的祭司們質疑並相信奧克特力實際上是來自他們自己的神的禮物。</p>
-
-        <h4 style="color:var(--gold); margin-top:20px;">哈納布-庫姆 (Hunab-Kuum)</h4>
-        <p>對於赫姆斯波特和烏拉托斯的一些人來說，一個被稱為「Hunab-Kuum」的現像是一個謎。這位「神」有一小群類似邪教的追隨者，他的崇拜被認為是當地小神祗與海爾姆甚至強大的艾奧的信條的融合。哈納布-庫姆和一度在海外城市深水城頗受歡迎的奧崇拜有許多相似之處。</p>
-
-        <h4 style="color:var(--gold); margin-top:20px;">伊察帕普羅特爾 (Itzapapalotl)</h4>
-        <p>伊察帕普羅特爾有自己的崇拜者，但大多數術士都將她視為守護神並與惡魔簽訂契約。在她成為真正女神的野心中，她經常鼓勵真正的崇拜，她的黑暗慾望與她曾經的情人札爾特克的慾望不相上下。</p>
-      </div>
-    </div>
-  </section>
-
 </main>
